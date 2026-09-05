@@ -1,0 +1,1657 @@
+{
+ "architecture/prod": {
+  "withMetrics": {
+   "list": [
+    {
+     "cat": "bottleneck",
+     "sev": "crit",
+     "mark": "bottleneck",
+     "nodeId": "wrk",
+     "title": "Workers is the bottleneck",
+     "detail": "140% busy · p99 40.6s · 6.74k queued",
+     "rec": "add 6 instances → 56% busy",
+     "edges": [
+      "bus>wrk",
+      "apia>bus",
+      "gw>apia",
+      "edge>gw",
+      "cust>edge"
+     ],
+     "key": "bottleneck·wrk·Workers is the bottleneck",
+     "nodes": []
+    },
+    {
+     "cat": "capacity",
+     "sev": "crit",
+     "mark": "shedding",
+     "nodeId": "wrk",
+     "title": "Workers is shedding requests",
+     "detail": "85.0% of arrivals fail or time out here",
+     "rec": "add capacity, or buffer the caller behind a queue",
+     "key": "capacity·wrk·Workers is shedding requests",
+     "edges": [],
+     "nodes": []
+    },
+    {
+     "cat": "spof",
+     "sev": "crit",
+     "mark": "single point",
+     "nodeId": "edge",
+     "nodes": [
+      "gw",
+      "apia",
+      "apib",
+      "redis",
+      "pg",
+      "bus",
+      "dr",
+      "wrk",
+      "obs",
+      "audit"
+     ],
+     "title": "Global Edge is a single point of failure",
+     "detail": "one instance · 10 components unreachable if it fails · carries 100% of traffic",
+     "rec": "run 2+ instances behind a balancer",
+     "key": "spof·edge·Global Edge is a single point of failure",
+     "edges": []
+    },
+    {
+     "cat": "spof",
+     "sev": "warn",
+     "mark": "single point",
+     "nodeId": "pg",
+     "nodes": [
+      "dr"
+     ],
+     "title": "PostgreSQL is a single point of failure",
+     "detail": "one instance · 1 component unreachable if it fails · carries 12% of traffic",
+     "rec": "add a replica and fail reads over",
+     "key": "spof·pg·PostgreSQL is a single point of failure",
+     "edges": []
+    },
+    {
+     "cat": "arch",
+     "sev": "warn",
+     "mark": "deep chain",
+     "nodeId": "cust",
+     "title": "synchronous chain is 5 hops deep",
+     "detail": "Customers → Global Edge → API Gateway → API Pods · AZ-a → … · latency and failure compound",
+     "rec": "break the tail off behind a queue",
+     "edges": [
+      "cust>edge",
+      "edge>gw",
+      "gw>apia",
+      "apia>redis"
+     ],
+     "nodes": [
+      "cust",
+      "edge",
+      "gw",
+      "apia",
+      "redis"
+     ],
+     "key": "arch·cust·synchronous chain is 5 hops deep"
+    },
+    {
+     "cat": "scale",
+     "sev": "warn",
+     "mark": "",
+     "nodeId": "wrk",
+     "title": "headroom is 0.6× current load",
+     "detail": "Workers saturates near 2.55k req/s",
+     "rec": "scale Workers before the next traffic step",
+     "key": "scale·wrk·headroom is 0.6× current load",
+     "edges": [],
+     "nodes": []
+    },
+    {
+     "cat": "idle",
+     "sev": "info",
+     "mark": "idle",
+     "nodeId": "gw",
+     "title": "API Gateway is over-provisioned",
+     "detail": "2 instances holding 1% utilisation",
+     "rec": "reduce to 1 · ~$90/mo back",
+     "key": "idle·gw·API Gateway is over-provisioned",
+     "edges": [],
+     "nodes": []
+    },
+    {
+     "cat": "idle",
+     "sev": "info",
+     "mark": "idle",
+     "nodeId": "apia",
+     "title": "API Pods · AZ-a is over-provisioned",
+     "detail": "3 instances holding 10% utilisation",
+     "rec": "reduce to 1 · ~$280/mo back",
+     "key": "idle·apia·API Pods · AZ-a is over-provisioned",
+     "edges": [],
+     "nodes": []
+    },
+    {
+     "cat": "idle",
+     "sev": "info",
+     "mark": "idle",
+     "nodeId": "apib",
+     "title": "API Pods · AZ-b is over-provisioned",
+     "detail": "3 instances holding 10% utilisation",
+     "rec": "reduce to 1 · ~$280/mo back",
+     "key": "idle·apib·API Pods · AZ-b is over-provisioned",
+     "edges": [],
+     "nodes": []
+    }
+   ],
+   "a": {
+    "label": "headroom",
+    "value": "0.6×"
+   },
+   "b": {
+    "label": "est",
+    "value": "$3.7k/mo"
+   }
+  },
+  "design": {
+   "list": [
+    {
+     "cat": "spof",
+     "sev": "crit",
+     "mark": "single point",
+     "nodeId": "edge",
+     "nodes": [
+      "gw",
+      "apia",
+      "apib",
+      "redis",
+      "pg",
+      "bus",
+      "dr",
+      "wrk",
+      "obs",
+      "audit"
+     ],
+     "title": "Global Edge is a single point of failure",
+     "detail": "one instance · 10 components unreachable if it fails",
+     "rec": "run 2+ instances behind a balancer",
+     "key": "spof·edge·Global Edge is a single point of failure",
+     "edges": []
+    },
+    {
+     "cat": "spof",
+     "sev": "warn",
+     "mark": "single point",
+     "nodeId": "pg",
+     "nodes": [
+      "dr"
+     ],
+     "title": "PostgreSQL is a single point of failure",
+     "detail": "one instance · 1 component unreachable if it fails",
+     "rec": "add a replica and fail reads over",
+     "key": "spof·pg·PostgreSQL is a single point of failure",
+     "edges": []
+    },
+    {
+     "cat": "arch",
+     "sev": "warn",
+     "mark": "deep chain",
+     "nodeId": "cust",
+     "title": "synchronous chain is 5 hops deep",
+     "detail": "Customers → Global Edge → API Gateway → API Pods · AZ-a → … · latency and failure compound",
+     "rec": "break the tail off behind a queue",
+     "edges": [
+      "cust>edge",
+      "edge>gw",
+      "gw>apia",
+      "apia>redis"
+     ],
+     "nodes": [
+      "cust",
+      "edge",
+      "gw",
+      "apia",
+      "redis"
+     ],
+     "key": "arch·cust·synchronous chain is 5 hops deep"
+    },
+    {
+     "cat": "arch",
+     "sev": "info",
+     "mark": "no dlq",
+     "nodeId": "bus",
+     "title": "Event Bus has no dead-letter path",
+     "detail": "1 consumer · a poison message retries forever",
+     "rec": "attach a dead letter queue",
+     "key": "arch·bus·Event Bus has no dead-letter path",
+     "edges": [],
+     "nodes": []
+    }
+   ],
+   "a": {
+    "label": "headroom",
+    "value": "—"
+   },
+   "b": {
+    "label": "est",
+    "value": "$3.7k/mo"
+   }
+  }
+ },
+ "architecture/video": {
+  "withMetrics": {
+   "list": [
+    {
+     "cat": "bottleneck",
+     "sev": "crit",
+     "mark": "bottleneck",
+     "nodeId": "tw",
+     "title": "Transcode Workers is the bottleneck",
+     "detail": "140% busy · p99 60.0s · 5.04k queued",
+     "rec": "add 8 instances → 60% busy",
+     "edges": [
+      "tq>tw",
+      "up>tq",
+      "gw>up",
+      "cl>gw"
+     ],
+     "key": "bottleneck·tw·Transcode Workers is the bottleneck",
+     "nodes": []
+    },
+    {
+     "cat": "capacity",
+     "sev": "crit",
+     "mark": "shedding",
+     "nodeId": "tw",
+     "title": "Transcode Workers is shedding requests",
+     "detail": "85.0% of arrivals fail or time out here",
+     "rec": "add capacity, or buffer the caller behind a queue",
+     "key": "capacity·tw·Transcode Workers is shedding requests",
+     "edges": [],
+     "nodes": []
+    },
+    {
+     "cat": "spof",
+     "sev": "crit",
+     "mark": "single point",
+     "nodeId": "cdn",
+     "nodes": [
+      "play",
+      "redis"
+     ],
+     "title": "Edge CDN is a single point of failure",
+     "detail": "one instance · 2 components unreachable if it fails · carries 85% of traffic",
+     "rec": "run 2+ instances behind a balancer",
+     "key": "spof·cdn·Edge CDN is a single point of failure",
+     "edges": []
+    },
+    {
+     "cat": "spof",
+     "sev": "crit",
+     "mark": "single point",
+     "nodeId": "meta",
+     "nodes": [
+      "kafka",
+      "an",
+      "si",
+      "notif"
+     ],
+     "title": "Metadata DB is a single point of failure",
+     "detail": "one instance · 4 components unreachable if it fails · carries 19% of traffic",
+     "rec": "add a replica and fail reads over",
+     "key": "spof·meta·Metadata DB is a single point of failure",
+     "edges": []
+    },
+    {
+     "cat": "capacity",
+     "sev": "warn",
+     "mark": "at capacity",
+     "nodeId": "an",
+     "title": "Analytics Pipeline is near capacity",
+     "detail": "452/s arriving against 533/s capacity",
+     "rec": "scale to 3 instances",
+     "key": "capacity·an·Analytics Pipeline is near capacity",
+     "edges": [],
+     "nodes": []
+    },
+    {
+     "cat": "spof",
+     "sev": "warn",
+     "mark": "single point",
+     "nodeId": "tq",
+     "nodes": [
+      "tw"
+     ],
+     "title": "Transcode Queue is a single point of failure",
+     "detail": "one instance · 1 component unreachable if it fails · carries 15% of traffic",
+     "rec": "run 2+ instances behind a balancer",
+     "key": "spof·tq·Transcode Queue is a single point of failure",
+     "edges": []
+    },
+    {
+     "cat": "scale",
+     "sev": "warn",
+     "mark": "",
+     "nodeId": "tw",
+     "title": "headroom is 0.6× current load",
+     "detail": "Transcode Workers saturates near 1.46k req/s",
+     "rec": "scale Transcode Workers before the next traffic step",
+     "key": "scale·tw·headroom is 0.6× current load",
+     "edges": [],
+     "nodes": []
+    },
+    {
+     "cat": "idle",
+     "sev": "info",
+     "mark": "idle",
+     "nodeId": "gw",
+     "title": "API Gateway is over-provisioned",
+     "detail": "2 instances holding 0% utilisation",
+     "rec": "reduce to 1 · ~$90/mo back",
+     "key": "idle·gw·API Gateway is over-provisioned",
+     "edges": [],
+     "nodes": []
+    },
+    {
+     "cat": "idle",
+     "sev": "info",
+     "mark": "idle",
+     "nodeId": "play",
+     "title": "Playback API is over-provisioned",
+     "detail": "4 instances holding 4% utilisation",
+     "rec": "reduce to 1 · ~$420/mo back",
+     "key": "idle·play·Playback API is over-provisioned",
+     "edges": [],
+     "nodes": []
+    }
+   ],
+   "a": {
+    "label": "headroom",
+    "value": "0.6×"
+   },
+   "b": {
+    "label": "est",
+    "value": "$4.4k/mo"
+   }
+  },
+  "design": {
+   "list": [
+    {
+     "cat": "spof",
+     "sev": "crit",
+     "mark": "single point",
+     "nodeId": "meta",
+     "nodes": [
+      "kafka",
+      "an",
+      "si",
+      "notif"
+     ],
+     "title": "Metadata DB is a single point of failure",
+     "detail": "one instance · 4 components unreachable if it fails",
+     "rec": "add a replica and fail reads over",
+     "key": "spof·meta·Metadata DB is a single point of failure",
+     "edges": []
+    },
+    {
+     "cat": "spof",
+     "sev": "warn",
+     "mark": "single point",
+     "nodeId": "cdn",
+     "nodes": [
+      "play",
+      "redis"
+     ],
+     "title": "Edge CDN is a single point of failure",
+     "detail": "one instance · 2 components unreachable if it fails",
+     "rec": "run 2+ instances behind a balancer",
+     "key": "spof·cdn·Edge CDN is a single point of failure",
+     "edges": []
+    },
+    {
+     "cat": "spof",
+     "sev": "warn",
+     "mark": "single point",
+     "nodeId": "tq",
+     "nodes": [
+      "tw"
+     ],
+     "title": "Transcode Queue is a single point of failure",
+     "detail": "one instance · 1 component unreachable if it fails",
+     "rec": "run 2+ instances behind a balancer",
+     "key": "spof·tq·Transcode Queue is a single point of failure",
+     "edges": []
+    },
+    {
+     "cat": "arch",
+     "sev": "info",
+     "mark": "no dlq",
+     "nodeId": "tq",
+     "title": "Transcode Queue has no dead-letter path",
+     "detail": "1 consumer · a poison message retries forever",
+     "rec": "attach a dead letter queue",
+     "key": "arch·tq·Transcode Queue has no dead-letter path",
+     "edges": [],
+     "nodes": []
+    },
+    {
+     "cat": "arch",
+     "sev": "info",
+     "mark": "no dlq",
+     "nodeId": "kafka",
+     "title": "video.events has no dead-letter path",
+     "detail": "3 consumers · a poison message retries forever",
+     "rec": "attach a dead letter queue",
+     "key": "arch·kafka·video.events has no dead-letter path",
+     "edges": [],
+     "nodes": []
+    },
+    {
+     "cat": "cost",
+     "sev": "info",
+     "mark": "",
+     "nodeId": null,
+     "title": "compute is 51% of estimated spend",
+     "detail": "$2240 of $4380 per month across 5 components",
+     "rec": "",
+     "key": "cost··compute is 51% of estimated spend",
+     "edges": [],
+     "nodes": []
+    }
+   ],
+   "a": {
+    "label": "headroom",
+    "value": "—"
+   },
+   "b": {
+    "label": "est",
+    "value": "$4.4k/mo"
+   }
+  }
+ },
+ "architecture/single": {
+  "withMetrics": {
+   "list": [
+    {
+     "cat": "spof",
+     "sev": "crit",
+     "mark": "single point",
+     "nodeId": "api",
+     "nodes": [
+      "db"
+     ],
+     "title": "API Server is a single point of failure",
+     "detail": "one instance · 1 component unreachable if it fails · carries 100% of traffic",
+     "rec": "run 2+ instances behind a balancer",
+     "key": "spof·api·API Server is a single point of failure",
+     "edges": []
+    },
+    {
+     "cat": "arch",
+     "sev": "warn",
+     "mark": "uncached",
+     "nodeId": "db",
+     "title": "uncached read path into Postgres",
+     "detail": "1 caller query it directly · every read pays full latency",
+     "rec": "put a cache in front of Postgres",
+     "edges": [
+      "api>db"
+     ],
+     "nodes": [
+      "api",
+      "db"
+     ],
+     "key": "arch·db·uncached read path into Postgres"
+    },
+    {
+     "cat": "cost",
+     "sev": "info",
+     "mark": "",
+     "nodeId": null,
+     "title": "data is 53% of estimated spend",
+     "detail": "$260 of $490 per month across 1 components",
+     "rec": "",
+     "key": "cost··data is 53% of estimated spend",
+     "edges": [],
+     "nodes": []
+    }
+   ],
+   "a": {
+    "label": "headroom",
+    "value": "6×+"
+   },
+   "b": {
+    "label": "est",
+    "value": "$490/mo"
+   }
+  },
+  "design": {
+   "list": [
+    {
+     "cat": "spof",
+     "sev": "warn",
+     "mark": "single point",
+     "nodeId": "api",
+     "nodes": [
+      "db"
+     ],
+     "title": "API Server is a single point of failure",
+     "detail": "one instance · 1 component unreachable if it fails",
+     "rec": "run 2+ instances behind a balancer",
+     "key": "spof·api·API Server is a single point of failure",
+     "edges": []
+    },
+    {
+     "cat": "arch",
+     "sev": "warn",
+     "mark": "uncached",
+     "nodeId": "db",
+     "title": "uncached read path into Postgres",
+     "detail": "1 caller query it directly · every read pays full latency",
+     "rec": "put a cache in front of Postgres",
+     "edges": [
+      "api>db"
+     ],
+     "nodes": [
+      "api",
+      "db"
+     ],
+     "key": "arch·db·uncached read path into Postgres"
+    },
+    {
+     "cat": "cost",
+     "sev": "info",
+     "mark": "",
+     "nodeId": null,
+     "title": "data is 53% of estimated spend",
+     "detail": "$260 of $490 per month across 1 components",
+     "rec": "",
+     "key": "cost··data is 53% of estimated spend",
+     "edges": [],
+     "nodes": []
+    }
+   ],
+   "a": {
+    "label": "headroom",
+    "value": "—"
+   },
+   "b": {
+    "label": "est",
+    "value": "$490/mo"
+   }
+  }
+ },
+ "architecture/lb": {
+  "withMetrics": {
+   "list": [
+    {
+     "cat": "spof",
+     "sev": "crit",
+     "mark": "single point",
+     "nodeId": "lb",
+     "nodes": [
+      "s1",
+      "s2",
+      "s3",
+      "db"
+     ],
+     "title": "Load Balancer is a single point of failure",
+     "detail": "one instance · 4 components unreachable if it fails · carries 100% of traffic",
+     "rec": "run 2+ instances behind a balancer",
+     "key": "spof·lb·Load Balancer is a single point of failure",
+     "edges": []
+    },
+    {
+     "cat": "arch",
+     "sev": "warn",
+     "mark": "uncached",
+     "nodeId": "db",
+     "title": "uncached read path into Postgres",
+     "detail": "3 callers query it directly · every read pays full latency",
+     "rec": "put a cache in front of Postgres",
+     "edges": [
+      "s1>db",
+      "s2>db",
+      "s3>db"
+     ],
+     "nodes": [
+      "s1",
+      "s2",
+      "s3",
+      "db"
+     ],
+     "key": "arch·db·uncached read path into Postgres"
+    }
+   ],
+   "a": {
+    "label": "headroom",
+    "value": "4.7×"
+   },
+   "b": {
+    "label": "est",
+    "value": "$860/mo"
+   }
+  },
+  "design": {
+   "list": [
+    {
+     "cat": "spof",
+     "sev": "crit",
+     "mark": "single point",
+     "nodeId": "lb",
+     "nodes": [
+      "s1",
+      "s2",
+      "s3",
+      "db"
+     ],
+     "title": "Load Balancer is a single point of failure",
+     "detail": "one instance · 4 components unreachable if it fails",
+     "rec": "run 2+ instances behind a balancer",
+     "key": "spof·lb·Load Balancer is a single point of failure",
+     "edges": []
+    },
+    {
+     "cat": "arch",
+     "sev": "warn",
+     "mark": "uncached",
+     "nodeId": "db",
+     "title": "uncached read path into Postgres",
+     "detail": "3 callers query it directly · every read pays full latency",
+     "rec": "put a cache in front of Postgres",
+     "edges": [
+      "s1>db",
+      "s2>db",
+      "s3>db"
+     ],
+     "nodes": [
+      "s1",
+      "s2",
+      "s3",
+      "db"
+     ],
+     "key": "arch·db·uncached read path into Postgres"
+    }
+   ],
+   "a": {
+    "label": "headroom",
+    "value": "—"
+   },
+   "b": {
+    "label": "est",
+    "value": "$860/mo"
+   }
+  }
+ },
+ "architecture/cache": {
+  "withMetrics": {
+   "list": [
+    {
+     "cat": "cost",
+     "sev": "info",
+     "mark": "",
+     "nodeId": null,
+     "title": "data is 58% of estimated spend",
+     "detail": "$520 of $890 per month across 2 components",
+     "rec": "",
+     "key": "cost··data is 58% of estimated spend",
+     "edges": [],
+     "nodes": []
+    }
+   ],
+   "a": {
+    "label": "headroom",
+    "value": "3.0×"
+   },
+   "b": {
+    "label": "est",
+    "value": "$890/mo"
+   }
+  },
+  "design": {
+   "list": [
+    {
+     "cat": "cost",
+     "sev": "info",
+     "mark": "",
+     "nodeId": null,
+     "title": "data is 58% of estimated spend",
+     "detail": "$520 of $890 per month across 2 components",
+     "rec": "",
+     "key": "cost··data is 58% of estimated spend",
+     "edges": [],
+     "nodes": []
+    }
+   ],
+   "a": {
+    "label": "headroom",
+    "value": "—"
+   },
+   "b": {
+    "label": "est",
+    "value": "$890/mo"
+   }
+  }
+ },
+ "architecture/workers": {
+  "withMetrics": {
+   "list": [
+    {
+     "cat": "bottleneck",
+     "sev": "crit",
+     "mark": "bottleneck",
+     "nodeId": "w",
+     "title": "Workers is the bottleneck",
+     "detail": "140% busy · p99 36.1s · 6.08k queued",
+     "rec": "add 4 instances → 60% busy",
+     "edges": [
+      "q>w",
+      "api>q",
+      "cl>api"
+     ],
+     "key": "bottleneck·w·Workers is the bottleneck",
+     "nodes": []
+    },
+    {
+     "cat": "capacity",
+     "sev": "crit",
+     "mark": "shedding",
+     "nodeId": "w",
+     "title": "Workers is shedding requests",
+     "detail": "85.0% of arrivals fail or time out here",
+     "rec": "add capacity, or buffer the caller behind a queue",
+     "key": "capacity·w·Workers is shedding requests",
+     "edges": [],
+     "nodes": []
+    },
+    {
+     "cat": "spof",
+     "sev": "crit",
+     "mark": "single point",
+     "nodeId": "q",
+     "nodes": [
+      "w",
+      "db"
+     ],
+     "title": "Job Queue is a single point of failure",
+     "detail": "one instance · 2 components unreachable if it fails · carries 100% of traffic",
+     "rec": "run 2+ instances behind a balancer",
+     "key": "spof·q·Job Queue is a single point of failure",
+     "edges": []
+    },
+    {
+     "cat": "arch",
+     "sev": "warn",
+     "mark": "uncached",
+     "nodeId": "db",
+     "title": "uncached read path into Postgres",
+     "detail": "1 caller query it directly · every read pays full latency",
+     "rec": "put a cache in front of Postgres",
+     "edges": [
+      "w>db"
+     ],
+     "nodes": [
+      "w",
+      "db"
+     ],
+     "key": "arch·db·uncached read path into Postgres"
+    },
+    {
+     "cat": "scale",
+     "sev": "warn",
+     "mark": "",
+     "nodeId": "w",
+     "title": "headroom is 0.6× current load",
+     "detail": "Workers saturates near 364 req/s",
+     "rec": "scale Workers before the next traffic step",
+     "key": "scale·w·headroom is 0.6× current load",
+     "edges": [],
+     "nodes": []
+    },
+    {
+     "cat": "idle",
+     "sev": "info",
+     "mark": "idle",
+     "nodeId": "api",
+     "title": "Ingest API is over-provisioned",
+     "detail": "2 instances holding 11% utilisation",
+     "rec": "reduce to 1 · ~$140/mo back",
+     "key": "idle·api·Ingest API is over-provisioned",
+     "edges": [],
+     "nodes": []
+    },
+    {
+     "cat": "arch",
+     "sev": "info",
+     "mark": "no dlq",
+     "nodeId": "q",
+     "title": "Job Queue has no dead-letter path",
+     "detail": "1 consumer · a poison message retries forever",
+     "rec": "attach a dead letter queue",
+     "key": "arch·q·Job Queue has no dead-letter path",
+     "edges": [],
+     "nodes": []
+    },
+    {
+     "cat": "cost",
+     "sev": "info",
+     "mark": "",
+     "nodeId": null,
+     "title": "compute is 60% of estimated spend",
+     "detail": "$700 of $1170 per month across 2 components",
+     "rec": "",
+     "key": "cost··compute is 60% of estimated spend",
+     "edges": [],
+     "nodes": []
+    }
+   ],
+   "a": {
+    "label": "headroom",
+    "value": "0.6×"
+   },
+   "b": {
+    "label": "est",
+    "value": "$1.2k/mo"
+   }
+  },
+  "design": {
+   "list": [
+    {
+     "cat": "spof",
+     "sev": "warn",
+     "mark": "single point",
+     "nodeId": "q",
+     "nodes": [
+      "w",
+      "db"
+     ],
+     "title": "Job Queue is a single point of failure",
+     "detail": "one instance · 2 components unreachable if it fails",
+     "rec": "run 2+ instances behind a balancer",
+     "key": "spof·q·Job Queue is a single point of failure",
+     "edges": []
+    },
+    {
+     "cat": "arch",
+     "sev": "warn",
+     "mark": "uncached",
+     "nodeId": "db",
+     "title": "uncached read path into Postgres",
+     "detail": "1 caller query it directly · every read pays full latency",
+     "rec": "put a cache in front of Postgres",
+     "edges": [
+      "w>db"
+     ],
+     "nodes": [
+      "w",
+      "db"
+     ],
+     "key": "arch·db·uncached read path into Postgres"
+    },
+    {
+     "cat": "arch",
+     "sev": "info",
+     "mark": "no dlq",
+     "nodeId": "q",
+     "title": "Job Queue has no dead-letter path",
+     "detail": "1 consumer · a poison message retries forever",
+     "rec": "attach a dead letter queue",
+     "key": "arch·q·Job Queue has no dead-letter path",
+     "edges": [],
+     "nodes": []
+    },
+    {
+     "cat": "cost",
+     "sev": "info",
+     "mark": "",
+     "nodeId": null,
+     "title": "compute is 60% of estimated spend",
+     "detail": "$700 of $1170 per month across 2 components",
+     "rec": "",
+     "key": "cost··compute is 60% of estimated spend",
+     "edges": [],
+     "nodes": []
+    }
+   ],
+   "a": {
+    "label": "headroom",
+    "value": "—"
+   },
+   "b": {
+    "label": "est",
+    "value": "$1.2k/mo"
+   }
+  }
+ },
+ "architecture/replicas": {
+  "withMetrics": {
+   "list": [
+    {
+     "cat": "arch",
+     "sev": "warn",
+     "mark": "uncached",
+     "nodeId": "pri",
+     "title": "uncached read path into Primary",
+     "detail": "1 caller query it directly · every read pays full latency",
+     "rec": "put a cache in front of Primary",
+     "edges": [
+      "api>pri"
+     ],
+     "nodes": [
+      "api",
+      "pri"
+     ],
+     "key": "arch·pri·uncached read path into Primary"
+    },
+    {
+     "cat": "cost",
+     "sev": "info",
+     "mark": "",
+     "nodeId": null,
+     "title": "data is 60% of estimated spend",
+     "detail": "$780 of $1290 per month across 3 components",
+     "rec": "",
+     "key": "cost··data is 60% of estimated spend",
+     "edges": [],
+     "nodes": []
+    }
+   ],
+   "a": {
+    "label": "headroom",
+    "value": "3.8×"
+   },
+   "b": {
+    "label": "est",
+    "value": "$1.3k/mo"
+   }
+  },
+  "design": {
+   "list": [
+    {
+     "cat": "arch",
+     "sev": "warn",
+     "mark": "uncached",
+     "nodeId": "pri",
+     "title": "uncached read path into Primary",
+     "detail": "1 caller query it directly · every read pays full latency",
+     "rec": "put a cache in front of Primary",
+     "edges": [
+      "api>pri"
+     ],
+     "nodes": [
+      "api",
+      "pri"
+     ],
+     "key": "arch·pri·uncached read path into Primary"
+    },
+    {
+     "cat": "cost",
+     "sev": "info",
+     "mark": "",
+     "nodeId": null,
+     "title": "data is 60% of estimated spend",
+     "detail": "$780 of $1290 per month across 3 components",
+     "rec": "",
+     "key": "cost··data is 60% of estimated spend",
+     "edges": [],
+     "nodes": []
+    }
+   ],
+   "a": {
+    "label": "headroom",
+    "value": "—"
+   },
+   "b": {
+    "label": "est",
+    "value": "$1.3k/mo"
+   }
+  }
+ },
+ "architecture/ratelimit": {
+  "withMetrics": {
+   "list": [
+    {
+     "cat": "capacity",
+     "sev": "crit",
+     "mark": "shedding",
+     "nodeId": "rl",
+     "title": "Rate Limiter is shedding requests",
+     "detail": "55.0% of arrivals fail or time out here",
+     "rec": "add capacity, or buffer the caller behind a queue",
+     "key": "capacity·rl·Rate Limiter is shedding requests",
+     "edges": [],
+     "nodes": []
+    },
+    {
+     "cat": "spof",
+     "sev": "crit",
+     "mark": "single point",
+     "nodeId": "rl",
+     "nodes": [
+      "api",
+      "db"
+     ],
+     "title": "Rate Limiter is a single point of failure",
+     "detail": "one instance · 2 components unreachable if it fails · carries 100% of traffic",
+     "rec": "run 2+ instances behind a balancer",
+     "key": "spof·rl·Rate Limiter is a single point of failure",
+     "edges": []
+    },
+    {
+     "cat": "arch",
+     "sev": "warn",
+     "mark": "uncached",
+     "nodeId": "db",
+     "title": "uncached read path into Postgres",
+     "detail": "1 caller query it directly · every read pays full latency",
+     "rec": "put a cache in front of Postgres",
+     "edges": [
+      "api>db"
+     ],
+     "nodes": [
+      "api",
+      "db"
+     ],
+     "key": "arch·db·uncached read path into Postgres"
+    }
+   ],
+   "a": {
+    "label": "headroom",
+    "value": "4.7×"
+   },
+   "b": {
+    "label": "est",
+    "value": "$670/mo"
+   }
+  },
+  "design": {
+   "list": [
+    {
+     "cat": "spof",
+     "sev": "warn",
+     "mark": "single point",
+     "nodeId": "rl",
+     "nodes": [
+      "api",
+      "db"
+     ],
+     "title": "Rate Limiter is a single point of failure",
+     "detail": "one instance · 2 components unreachable if it fails",
+     "rec": "run 2+ instances behind a balancer",
+     "key": "spof·rl·Rate Limiter is a single point of failure",
+     "edges": []
+    },
+    {
+     "cat": "arch",
+     "sev": "warn",
+     "mark": "uncached",
+     "nodeId": "db",
+     "title": "uncached read path into Postgres",
+     "detail": "1 caller query it directly · every read pays full latency",
+     "rec": "put a cache in front of Postgres",
+     "edges": [
+      "api>db"
+     ],
+     "nodes": [
+      "api",
+      "db"
+     ],
+     "key": "arch·db·uncached read path into Postgres"
+    }
+   ],
+   "a": {
+    "label": "headroom",
+    "value": "—"
+   },
+   "b": {
+    "label": "est",
+    "value": "$670/mo"
+   }
+  }
+ },
+ "workflow/release": {
+  "withMetrics": {
+   "list": [
+    {
+     "cat": "wait",
+     "sev": "crit",
+     "mark": "approval bottleneck",
+     "nodeId": "approve",
+     "title": "Approve is the approval bottleneck",
+     "detail": "9 items waiting for 6 approvers",
+     "rec": "add approvers or parallelise the review",
+     "key": "wait·approve·Approve is the approval bottleneck",
+     "edges": [],
+     "nodes": []
+    },
+    {
+     "cat": "fail",
+     "sev": "crit",
+     "mark": "unhandled",
+     "nodeId": "rollback",
+     "title": "Rollback has no failure path",
+     "detail": "10% of runs fail here and fall through as success",
+     "rec": "add a fail / deny / retry transition",
+     "key": "fail·rollback·Rollback has no failure path",
+     "edges": [],
+     "nodes": []
+    },
+    {
+     "cat": "wait",
+     "sev": "warn",
+     "mark": "long wait",
+     "nodeId": "approve",
+     "title": "Approve holds 52% of cycle time",
+     "detail": "3.0h expected wait · 9 waiting now",
+     "rec": "set an SLA, add approvers, or auto-approve low-risk changes",
+     "key": "wait·approve·Approve holds 52% of cycle time",
+     "edges": [],
+     "nodes": []
+    },
+    {
+     "cat": "own",
+     "sev": "info",
+     "mark": "",
+     "nodeId": null,
+     "title": "6 handoffs across 4 owners",
+     "detail": "Pull Request → Build (developer → ci) · Quality Gates → Approve (ci → release owner) · Quality Gates → Pull Request (ci → developer)",
+     "rec": "every handoff is a wait and a context switch · merge lanes or move steps to the owner already holding the work",
+     "edges": [
+      "pr>build",
+      "qg>approve",
+      "qg>pr",
+      "approve>pr",
+      "canary>release",
+      "canary>rollback"
+     ],
+     "key": "own··6 handoffs across 4 owners",
+     "nodes": []
+    },
+    {
+     "cat": "own",
+     "sev": "info",
+     "mark": "",
+     "nodeId": null,
+     "title": "rework leaves the release owner boundary 2 times",
+     "detail": "Approve → Pull Request (developer) · Canary → Rollback (sre)",
+     "rec": "each denial re-enters another owner's queue · state what must be true before the boundary is entered",
+     "edges": [
+      "approve>pr",
+      "canary>rollback"
+     ],
+     "key": "own··rework leaves the release owner boundary 2 times",
+     "nodes": []
+    },
+    {
+     "cat": "own",
+     "sev": "info",
+     "mark": "",
+     "nodeId": null,
+     "title": "work bounces between ci and developer",
+     "detail": "Quality Gates → Pull Request → back",
+     "rec": "a round trip between owners is usually one step in the wrong lane",
+     "edges": [
+      "qg>pr"
+     ],
+     "key": "own··work bounces between ci and developer",
+     "nodes": []
+    }
+   ],
+   "a": {
+    "label": "cycle p99",
+    "value": "0m"
+   },
+   "b": {
+    "label": "in flight",
+    "value": "79"
+   }
+  },
+  "design": {
+   "list": [
+    {
+     "cat": "fail",
+     "sev": "crit",
+     "mark": "unhandled",
+     "nodeId": "rollback",
+     "title": "Rollback has no failure path",
+     "detail": "10% of runs fail here and fall through as success",
+     "rec": "add a fail / deny / retry transition",
+     "key": "fail·rollback·Rollback has no failure path",
+     "edges": [],
+     "nodes": []
+    },
+    {
+     "cat": "wait",
+     "sev": "warn",
+     "mark": "long wait",
+     "nodeId": "approve",
+     "title": "Approve holds 52% of cycle time",
+     "detail": "3.0h expected wait",
+     "rec": "set an SLA, add approvers, or auto-approve low-risk changes",
+     "key": "wait·approve·Approve holds 52% of cycle time",
+     "edges": [],
+     "nodes": []
+    },
+    {
+     "cat": "own",
+     "sev": "info",
+     "mark": "",
+     "nodeId": null,
+     "title": "6 handoffs across 4 owners",
+     "detail": "Pull Request → Build (developer → ci) · Quality Gates → Approve (ci → release owner) · Quality Gates → Pull Request (ci → developer)",
+     "rec": "every handoff is a wait and a context switch · merge lanes or move steps to the owner already holding the work",
+     "edges": [
+      "pr>build",
+      "qg>approve",
+      "qg>pr",
+      "approve>pr",
+      "canary>release",
+      "canary>rollback"
+     ],
+     "key": "own··6 handoffs across 4 owners",
+     "nodes": []
+    },
+    {
+     "cat": "own",
+     "sev": "info",
+     "mark": "",
+     "nodeId": null,
+     "title": "rework leaves the release owner boundary 2 times",
+     "detail": "Approve → Pull Request (developer) · Canary → Rollback (sre)",
+     "rec": "each denial re-enters another owner's queue · state what must be true before the boundary is entered",
+     "edges": [
+      "approve>pr",
+      "canary>rollback"
+     ],
+     "key": "own··rework leaves the release owner boundary 2 times",
+     "nodes": []
+    },
+    {
+     "cat": "own",
+     "sev": "info",
+     "mark": "",
+     "nodeId": null,
+     "title": "work bounces between ci and developer",
+     "detail": "Quality Gates → Pull Request → back",
+     "rec": "a round trip between owners is usually one step in the wrong lane",
+     "edges": [
+      "qg>pr"
+     ],
+     "key": "own··work bounces between ci and developer",
+     "nodes": []
+    }
+   ],
+   "a": {
+    "label": "cycle p99",
+    "value": "—"
+   },
+   "b": {
+    "label": "in flight",
+    "value": "—"
+   }
+  }
+ },
+ "sequence/cachemiss": {
+  "withMetrics": {
+   "list": [
+    {
+     "cat": "latency",
+     "sev": "warn",
+     "mark": "dominant",
+     "nodeId": "pg",
+     "title": "Postgres is 49% of the round trip",
+     "detail": "query profile + metrics · 38 ms of 78 ms",
+     "rec": "cache the result or move it off the request path",
+     "edges": [
+      "api>pg#7"
+     ],
+     "key": "latency·pg·Postgres is 49% of the round trip",
+     "nodes": []
+    },
+    {
+     "cat": "cache",
+     "sev": "info",
+     "mark": "miss path",
+     "nodeId": "redis",
+     "title": "cache miss falls through to the database",
+     "detail": "38 ms extra on a miss",
+     "rec": "warm the cache or raise the TTL for this key",
+     "edges": [
+      "redis>api#6",
+      "api>pg#7"
+     ],
+     "key": "cache·redis·cache miss falls through to the database",
+     "nodes": []
+    }
+   ],
+   "a": {
+    "label": "critical path",
+    "value": "78 ms"
+   },
+   "b": {
+    "label": "round trips",
+    "value": "5"
+   }
+  },
+  "design": {
+   "list": [
+    {
+     "cat": "latency",
+     "sev": "warn",
+     "mark": "dominant",
+     "nodeId": "pg",
+     "title": "Postgres is 49% of the round trip",
+     "detail": "query profile + metrics · 38 ms of 78 ms",
+     "rec": "cache the result or move it off the request path",
+     "edges": [
+      "api>pg#7"
+     ],
+     "key": "latency·pg·Postgres is 49% of the round trip",
+     "nodes": []
+    },
+    {
+     "cat": "cache",
+     "sev": "info",
+     "mark": "miss path",
+     "nodeId": "redis",
+     "title": "cache miss falls through to the database",
+     "detail": "38 ms extra on a miss",
+     "rec": "warm the cache or raise the TTL for this key",
+     "edges": [
+      "redis>api#6",
+      "api>pg#7"
+     ],
+     "key": "cache·redis·cache miss falls through to the database",
+     "nodes": []
+    }
+   ],
+   "a": {
+    "label": "critical path",
+    "value": "78 ms"
+   },
+   "b": {
+    "label": "round trips",
+    "value": "5"
+   }
+  }
+ },
+ "dataflow/analytics": {
+  "withMetrics": {
+   "list": [
+    {
+     "cat": "lag",
+     "sev": "crit",
+     "mark": "lagging",
+     "nodeId": "ml",
+     "title": "ML Model cannot keep up",
+     "detail": "140% busy · lag grows at 650 events/s",
+     "rec": "add 3 instances or more partitions upstream",
+     "key": "lag·ml·ML Model cannot keep up",
+     "edges": [],
+     "nodes": []
+    },
+    {
+     "cat": "pii",
+     "sev": "warn",
+     "mark": "pii reach",
+     "nodeId": "wh",
+     "title": "Warehouse can receive ungoverned PII",
+     "detail": "a PII-marked source reaches it without a consent gate or governed edge",
+     "rec": "strip identity upstream or route through the consent gate",
+     "nodes": [
+      "web",
+      "mobile",
+      "wh"
+     ],
+     "key": "pii·wh·Warehouse can receive ungoverned PII",
+     "edges": []
+    },
+    {
+     "cat": "pii",
+     "sev": "warn",
+     "mark": "pii reach",
+     "nodeId": "feat",
+     "title": "Feature Store can receive ungoverned PII",
+     "detail": "a PII-marked source reaches it without a consent gate or governed edge",
+     "rec": "strip identity upstream or route through the consent gate",
+     "nodes": [
+      "web",
+      "mobile",
+      "feat"
+     ],
+     "key": "pii·feat·Feature Store can receive ungoverned PII",
+     "edges": []
+    },
+    {
+     "cat": "pii",
+     "sev": "warn",
+     "mark": "pii reach",
+     "nodeId": "dash",
+     "title": "Dashboards can receive ungoverned PII",
+     "detail": "a PII-marked source reaches it without a consent gate or governed edge",
+     "rec": "strip identity upstream or route through the consent gate",
+     "nodes": [
+      "web",
+      "mobile",
+      "dash"
+     ],
+     "key": "pii·dash·Dashboards can receive ungoverned PII",
+     "edges": []
+    },
+    {
+     "cat": "pii",
+     "sev": "warn",
+     "mark": "pii reach",
+     "nodeId": "ml",
+     "title": "ML Model can receive ungoverned PII",
+     "detail": "a PII-marked source reaches it without a consent gate or governed edge",
+     "rec": "strip identity upstream or route through the consent gate",
+     "nodes": [
+      "web",
+      "mobile",
+      "ml"
+     ],
+     "key": "pii·ml·ML Model can receive ungoverned PII",
+     "edges": []
+    }
+   ],
+   "a": {
+    "label": "pii datasets",
+    "value": "4 · 2 governed"
+   },
+   "b": {
+    "label": "end-to-end p99",
+    "value": "0ms"
+   }
+  },
+  "design": {
+   "list": [
+    {
+     "cat": "pii",
+     "sev": "warn",
+     "mark": "pii reach",
+     "nodeId": "wh",
+     "title": "Warehouse can receive ungoverned PII",
+     "detail": "a PII-marked source reaches it without a consent gate or governed edge",
+     "rec": "strip identity upstream or route through the consent gate",
+     "nodes": [
+      "web",
+      "mobile",
+      "wh"
+     ],
+     "key": "pii·wh·Warehouse can receive ungoverned PII",
+     "edges": []
+    },
+    {
+     "cat": "pii",
+     "sev": "warn",
+     "mark": "pii reach",
+     "nodeId": "feat",
+     "title": "Feature Store can receive ungoverned PII",
+     "detail": "a PII-marked source reaches it without a consent gate or governed edge",
+     "rec": "strip identity upstream or route through the consent gate",
+     "nodes": [
+      "web",
+      "mobile",
+      "feat"
+     ],
+     "key": "pii·feat·Feature Store can receive ungoverned PII",
+     "edges": []
+    },
+    {
+     "cat": "pii",
+     "sev": "warn",
+     "mark": "pii reach",
+     "nodeId": "dash",
+     "title": "Dashboards can receive ungoverned PII",
+     "detail": "a PII-marked source reaches it without a consent gate or governed edge",
+     "rec": "strip identity upstream or route through the consent gate",
+     "nodes": [
+      "web",
+      "mobile",
+      "dash"
+     ],
+     "key": "pii·dash·Dashboards can receive ungoverned PII",
+     "edges": []
+    },
+    {
+     "cat": "pii",
+     "sev": "warn",
+     "mark": "pii reach",
+     "nodeId": "ml",
+     "title": "ML Model can receive ungoverned PII",
+     "detail": "a PII-marked source reaches it without a consent gate or governed edge",
+     "rec": "strip identity upstream or route through the consent gate",
+     "nodes": [
+      "web",
+      "mobile",
+      "ml"
+     ],
+     "key": "pii·ml·ML Model can receive ungoverned PII",
+     "edges": []
+    }
+   ],
+   "a": {
+    "label": "pii datasets",
+    "value": "4 · 2 governed"
+   },
+   "b": {
+    "label": "end-to-end p99",
+    "value": "—"
+   }
+  }
+ },
+ "state/agentrun": {
+  "withMetrics": {
+   "list": [
+    {
+     "cat": "occ",
+     "sev": "crit",
+     "mark": "crowded",
+     "nodeId": "executing",
+     "title": "46 objects sit in Executing",
+     "detail": "115% of capacity 40",
+     "rec": "raise capacity or shorten the dwell",
+     "key": "occ·executing·46 objects sit in Executing",
+     "edges": [],
+     "nodes": []
+    },
+    {
+     "cat": "occ",
+     "sev": "crit",
+     "mark": "crowded",
+     "nodeId": "approval",
+     "title": "75 objects sit in Needs Approval",
+     "detail": "140% of capacity 40",
+     "rec": "add approvers or auto-approve low risk",
+     "key": "occ·approval·75 objects sit in Needs Approval",
+     "edges": [],
+     "nodes": []
+    },
+    {
+     "cat": "fail",
+     "sev": "warn",
+     "mark": "no failure path",
+     "nodeId": "reviewing",
+     "title": "Reviewing has no failure or timeout exit",
+     "detail": "a stuck object stays here forever",
+     "rec": "add a timeout or failure transition",
+     "key": "fail·reviewing·Reviewing has no failure or timeout exit",
+     "edges": [],
+     "nodes": []
+    },
+    {
+     "cat": "occ",
+     "sev": "warn",
+     "mark": "crowded",
+     "nodeId": "reviewing",
+     "title": "20 objects sit in Reviewing",
+     "detail": "100% of capacity 20",
+     "rec": "raise capacity or shorten the dwell",
+     "key": "occ·reviewing·20 objects sit in Reviewing",
+     "edges": [],
+     "nodes": []
+    },
+    {
+     "cat": "loop",
+     "sev": "info",
+     "mark": "retry cycle",
+     "nodeId": "executing",
+     "title": "2 retry cycles",
+     "detail": "Executing ↺ Retrying · Retrying ↺ Planning",
+     "rec": "bound the retry count with a counter guard",
+     "edges": [
+      "executing>retrying",
+      "retrying>planning"
+     ],
+     "key": "loop·executing·2 retry cycles",
+     "nodes": []
+    }
+   ],
+   "a": {
+    "label": "lifetime p99",
+    "value": "1.9h"
+   },
+   "b": {
+    "label": "terminal",
+    "value": "4 · 3 bad"
+   }
+  },
+  "design": {
+   "list": [
+    {
+     "cat": "fail",
+     "sev": "warn",
+     "mark": "no failure path",
+     "nodeId": "reviewing",
+     "title": "Reviewing has no failure or timeout exit",
+     "detail": "a stuck object stays here forever",
+     "rec": "add a timeout or failure transition",
+     "key": "fail·reviewing·Reviewing has no failure or timeout exit",
+     "edges": [],
+     "nodes": []
+    },
+    {
+     "cat": "loop",
+     "sev": "info",
+     "mark": "retry cycle",
+     "nodeId": "executing",
+     "title": "2 retry cycles",
+     "detail": "Executing ↺ Retrying · Retrying ↺ Planning",
+     "rec": "bound the retry count with a counter guard",
+     "edges": [
+      "executing>retrying",
+      "retrying>planning"
+     ],
+     "key": "loop·executing·2 retry cycles",
+     "nodes": []
+    }
+   ],
+   "a": {
+    "label": "lifetime p99",
+    "value": "—"
+   },
+   "b": {
+    "label": "terminal",
+    "value": "4 · 3 bad"
+   }
+  }
+ }
+}

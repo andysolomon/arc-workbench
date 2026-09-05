@@ -86,3 +86,14 @@ export function exportV1(pid: ParadigmId, title: string, s: FlatState): V1Export
     metadata: { load: s.rps }, view: s.view,
   };
 }
+
+/** the edge kind a new connection defaults to, from the two endpoint types (WB 734–742) */
+export function defaultEdgeKind(pid: ParadigmId, a: GraphNode, b: GraphNode, nextKind?: string | null): string {
+  const T = PARADIGMS[pid], ta = T.TYPES[a.type], tb = T.TYPES[b.type];
+  if (pid === 'architecture') { const asy: Record<string, 1> = { queue: 1, broker: 1, pubsub: 1, dlq: 1 }; return asy[a.type] || asy[b.type] ? 'queue' : tb?.cat === 'data' ? 'query' : 'http'; }
+  if (pid === 'sequence') return nextKind || 'request';
+  if (pid === 'workflow') return tb?.bad ? 'fail' : tb?.side ? 'observe' : ta?.human && !tb?.bad ? 'approve' : 'next';
+  if (pid === 'state') return tb?.bad ? (b.type === 'expired' ? 'timeout' : b.type === 'cancelled' ? 'cancel' : 'failure') : ta?.human ? 'approve' : 'event';
+  if (pid === 'dataflow') return b.type === 'dlq' ? 'deadletter' : tb?.gov || ta?.gov ? 'governed' : tb?.cat === 'con' ? 'query' : tb?.cat === 'sto' && ta?.cat === 'sto' ? 'batch' : 'stream';
+  return T.defaultEdge;
+}

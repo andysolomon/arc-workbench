@@ -1,3 +1,9 @@
+## [1.4.0](https://github.com/andysolomon/arc-workbench/compare/v1.3.0...v1.4.0) (2026-09-05)
+
+### Features
+
+* **persist:** autosave versioned documents with recovery, import and export ([#9](https://github.com/andysolomon/arc-workbench/issues/9)) ([905158c](https://github.com/andysolomon/arc-workbench/commit/905158c5056f31d75680f1a6eb3836174a9ef962))
+
 ## [1.3.0](https://github.com/andysolomon/arc-workbench/compare/v1.2.3...v1.3.0) (2026-09-05)
 
 ### Features

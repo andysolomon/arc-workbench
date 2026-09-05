@@ -1,3 +1,9 @@
+## [1.2.3](https://github.com/andysolomon/arc-workbench/compare/v1.2.2...v1.2.3) (2026-09-05)
+
+### Bug Fixes
+
+* **sim:** pause a running simulation on paradigm switch ([#7](https://github.com/andysolomon/arc-workbench/issues/7)) ([0629414](https://github.com/andysolomon/arc-workbench/commit/062941477c583c14cd3626617a0e68472751dd42))
+
 ## [1.2.2](https://github.com/andysolomon/arc-workbench/compare/v1.2.1...v1.2.2) (2026-09-05)
 
 ### Bug Fixes

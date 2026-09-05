@@ -1,0 +1,100 @@
+{
+ "list": [
+  {
+   "cat": "lag",
+   "sev": "crit",
+   "mark": "lagging",
+   "nodeId": "ml",
+   "title": "ML Model cannot keep up",
+   "detail": "140% busy · lag grows at 650 events/s",
+   "rec": "add 3 instances or more partitions upstream",
+   "evidence": [
+    {
+     "metric": "util",
+     "scope": "ML Model · instant",
+     "value": "140%"
+    },
+    {
+     "metric": "lag",
+     "scope": "ML Model · instant",
+     "value": "650/s"
+    }
+   ],
+   "key": "lag·ml·ML Model cannot keep up",
+   "edges": [],
+   "nodes": []
+  },
+  {
+   "cat": "pii",
+   "sev": "warn",
+   "mark": "pii reach",
+   "nodeId": "wh",
+   "title": "Warehouse can receive ungoverned PII",
+   "detail": "a PII-marked source reaches it without a consent gate or governed edge",
+   "rec": "strip identity upstream or route through the consent gate",
+   "nodes": [
+    "web",
+    "mobile",
+    "wh"
+   ],
+   "key": "pii·wh·Warehouse can receive ungoverned PII",
+   "edges": []
+  },
+  {
+   "cat": "pii",
+   "sev": "warn",
+   "mark": "pii reach",
+   "nodeId": "feat",
+   "title": "Feature Store can receive ungoverned PII",
+   "detail": "a PII-marked source reaches it without a consent gate or governed edge",
+   "rec": "strip identity upstream or route through the consent gate",
+   "nodes": [
+    "web",
+    "mobile",
+    "feat"
+   ],
+   "key": "pii·feat·Feature Store can receive ungoverned PII",
+   "edges": []
+  },
+  {
+   "cat": "pii",
+   "sev": "warn",
+   "mark": "pii reach",
+   "nodeId": "dash",
+   "title": "Dashboards can receive ungoverned PII",
+   "detail": "a PII-marked source reaches it without a consent gate or governed edge",
+   "rec": "strip identity upstream or route through the consent gate",
+   "nodes": [
+    "web",
+    "mobile",
+    "dash"
+   ],
+   "key": "pii·dash·Dashboards can receive ungoverned PII",
+   "edges": []
+  },
+  {
+   "cat": "pii",
+   "sev": "warn",
+   "mark": "pii reach",
+   "nodeId": "ml",
+   "title": "ML Model can receive ungoverned PII",
+   "detail": "a PII-marked source reaches it without a consent gate or governed edge",
+   "rec": "strip identity upstream or route through the consent gate",
+   "nodes": [
+    "web",
+    "mobile",
+    "ml"
+   ],
+   "key": "pii·ml·ML Model can receive ungoverned PII",
+   "edges": []
+  }
+ ],
+ "a": {
+  "label": "pii datasets",
+  "value": "4 · 2 governed"
+ },
+ "b": {
+  "label": "end-to-end p99",
+  "value": "102.3s"
+ }
+}

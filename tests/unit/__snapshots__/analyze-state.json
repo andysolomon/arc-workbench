@@ -1,0 +1,111 @@
+{
+ "list": [
+  {
+   "cat": "occ",
+   "sev": "crit",
+   "mark": "crowded",
+   "nodeId": "executing",
+   "title": "55 objects sit in Executing",
+   "detail": "138% of capacity 40",
+   "rec": "raise capacity or shorten the dwell",
+   "evidence": [
+    {
+     "metric": "objects",
+     "scope": "Executing · instant",
+     "value": "55"
+    },
+    {
+     "metric": "occupancy",
+     "scope": "Executing · instant",
+     "value": "138%"
+    }
+   ],
+   "key": "occ·executing·55 objects sit in Executing",
+   "edges": [],
+   "nodes": []
+  },
+  {
+   "cat": "occ",
+   "sev": "crit",
+   "mark": "crowded",
+   "nodeId": "reviewing",
+   "title": "21 objects sit in Reviewing",
+   "detail": "105% of capacity 20",
+   "rec": "raise capacity or shorten the dwell",
+   "evidence": [
+    {
+     "metric": "objects",
+     "scope": "Reviewing · instant",
+     "value": "21"
+    },
+    {
+     "metric": "occupancy",
+     "scope": "Reviewing · instant",
+     "value": "105%"
+    }
+   ],
+   "key": "occ·reviewing·21 objects sit in Reviewing",
+   "edges": [],
+   "nodes": []
+  },
+  {
+   "cat": "occ",
+   "sev": "crit",
+   "mark": "crowded",
+   "nodeId": "approval",
+   "title": "119 objects sit in Needs Approval",
+   "detail": "140% of capacity 40",
+   "rec": "add approvers or auto-approve low risk",
+   "evidence": [
+    {
+     "metric": "objects",
+     "scope": "Needs Approval · instant",
+     "value": "119"
+    },
+    {
+     "metric": "occupancy",
+     "scope": "Needs Approval · instant",
+     "value": "140%"
+    }
+   ],
+   "key": "occ·approval·119 objects sit in Needs Approval",
+   "edges": [],
+   "nodes": []
+  },
+  {
+   "cat": "fail",
+   "sev": "warn",
+   "mark": "no failure path",
+   "nodeId": "reviewing",
+   "title": "Reviewing has no failure or timeout exit",
+   "detail": "a stuck object stays here forever",
+   "rec": "add a timeout or failure transition",
+   "key": "fail·reviewing·Reviewing has no failure or timeout exit",
+   "edges": [],
+   "nodes": []
+  },
+  {
+   "cat": "loop",
+   "sev": "info",
+   "mark": "retry cycle",
+   "nodeId": "executing",
+   "title": "2 retry cycles",
+   "detail": "Executing ↺ Retrying · Retrying ↺ Planning",
+   "rec": "bound the retry count with a counter guard",
+   "edges": [
+    "executing>retrying",
+    "retrying>planning"
+   ],
+   "key": "loop·executing·2 retry cycles",
+   "nodes": []
+  }
+ ],
+ "a": {
+  "label": "lifetime p99",
+  "value": "5.3h"
+ },
+ "b": {
+  "label": "terminal",
+  "value": "4 · 3 bad"
+ }
+}

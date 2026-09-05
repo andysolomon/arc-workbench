@@ -3,3 +3,4 @@ export * from './format';
 export * from './engine';
 export * from './paradigms';
 export * from './hud';
+export * from './metrics';

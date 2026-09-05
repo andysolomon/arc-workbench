@@ -1,4 +1,6 @@
 export type Severity = 'crit' | 'warn' | 'info';
+/** the exact number a finding rests on: which metric, at what scope (node name · window), and the value as shown elsewhere */
+export interface Evidence { metric: string; scope: string; value: string }
 export interface Finding {
   key: string;
   cat: string;
@@ -10,6 +12,8 @@ export interface Finding {
   rec: string;
   edges: string[];
   nodes: string[];
+  /** metric-backed findings cite their evidence; structural ones carry none */
+  evidence?: Evidence[];
 }
 export interface Footer { label: string; value: string }
 export interface Analysis { list: Finding[]; a: Footer | null; b: Footer | null }

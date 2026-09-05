@@ -1,0 +1,221 @@
+{
+ "list": [
+  {
+   "cat": "bottleneck",
+   "sev": "crit",
+   "mark": "bottleneck",
+   "nodeId": "wrk",
+   "title": "Workers is the bottleneck",
+   "detail": "140% busy · p99 59.5s · 14.5k queued",
+   "rec": "add 6 instances → 56% busy",
+   "edges": [
+    "bus>wrk",
+    "apia>bus",
+    "gw>apia",
+    "edge>gw",
+    "cust>edge"
+   ],
+   "evidence": [
+    {
+     "metric": "util",
+     "scope": "Workers · instant",
+     "value": "140%"
+    },
+    {
+     "metric": "node p99",
+     "scope": "Workers · instant",
+     "value": "59.5s"
+    },
+    {
+     "metric": "queued",
+     "scope": "Workers · instant",
+     "value": "14.5k"
+    }
+   ],
+   "key": "bottleneck·wrk·Workers is the bottleneck",
+   "nodes": []
+  },
+  {
+   "cat": "capacity",
+   "sev": "crit",
+   "mark": "shedding",
+   "nodeId": "wrk",
+   "title": "Workers is shedding requests",
+   "detail": "85.0% of arrivals fail or time out here",
+   "rec": "add capacity, or buffer the caller behind a queue",
+   "evidence": [
+    {
+     "metric": "errors",
+     "scope": "Workers · instant",
+     "value": "85.0%"
+    }
+   ],
+   "key": "capacity·wrk·Workers is shedding requests",
+   "edges": [],
+   "nodes": []
+  },
+  {
+   "cat": "spof",
+   "sev": "crit",
+   "mark": "single point",
+   "nodeId": "edge",
+   "nodes": [
+    "gw",
+    "apia",
+    "apib",
+    "redis",
+    "pg",
+    "bus",
+    "dr",
+    "wrk",
+    "obs",
+    "audit"
+   ],
+   "title": "Global Edge is a single point of failure",
+   "detail": "one instance · 10 components unreachable if it fails · carries 100% of traffic",
+   "rec": "run 2+ instances behind a balancer",
+   "evidence": [
+    {
+     "metric": "traffic share",
+     "scope": "Global Edge · instant",
+     "value": "100%"
+    }
+   ],
+   "key": "spof·edge·Global Edge is a single point of failure",
+   "edges": []
+  },
+  {
+   "cat": "spof",
+   "sev": "warn",
+   "mark": "single point",
+   "nodeId": "pg",
+   "nodes": [
+    "dr"
+   ],
+   "title": "PostgreSQL is a single point of failure",
+   "detail": "one instance · 1 component unreachable if it fails · carries 12% of traffic",
+   "rec": "add a replica and fail reads over",
+   "evidence": [
+    {
+     "metric": "traffic share",
+     "scope": "PostgreSQL · instant",
+     "value": "12%"
+    }
+   ],
+   "key": "spof·pg·PostgreSQL is a single point of failure",
+   "edges": []
+  },
+  {
+   "cat": "arch",
+   "sev": "warn",
+   "mark": "deep chain",
+   "nodeId": "cust",
+   "title": "synchronous chain is 5 hops deep",
+   "detail": "Customers → Global Edge → API Gateway → API Pods · AZ-a → … · latency and failure compound",
+   "rec": "break the tail off behind a queue",
+   "edges": [
+    "cust>edge",
+    "edge>gw",
+    "gw>apia",
+    "apia>redis"
+   ],
+   "nodes": [
+    "cust",
+    "edge",
+    "gw",
+    "apia",
+    "redis"
+   ],
+   "key": "arch·cust·synchronous chain is 5 hops deep"
+  },
+  {
+   "cat": "scale",
+   "sev": "warn",
+   "mark": "",
+   "nodeId": "wrk",
+   "title": "headroom is 0.6× current load",
+   "detail": "Workers saturates near 2.55k req/s",
+   "rec": "scale Workers before the next traffic step",
+   "evidence": [
+    {
+     "metric": "util",
+     "scope": "Workers · instant",
+     "value": "140%"
+    },
+    {
+     "metric": "headroom",
+     "scope": "system · instant",
+     "value": "0.6×"
+    }
+   ],
+   "key": "scale·wrk·headroom is 0.6× current load",
+   "edges": [],
+   "nodes": []
+  },
+  {
+   "cat": "idle",
+   "sev": "info",
+   "mark": "idle",
+   "nodeId": "gw",
+   "title": "API Gateway is over-provisioned",
+   "detail": "2 instances holding 1% utilisation",
+   "rec": "reduce to 1 · ~$90/mo back",
+   "evidence": [
+    {
+     "metric": "util",
+     "scope": "API Gateway · instant",
+     "value": "1%"
+    }
+   ],
+   "key": "idle·gw·API Gateway is over-provisioned",
+   "edges": [],
+   "nodes": []
+  },
+  {
+   "cat": "idle",
+   "sev": "info",
+   "mark": "idle",
+   "nodeId": "apia",
+   "title": "API Pods · AZ-a is over-provisioned",
+   "detail": "3 instances holding 10% utilisation",
+   "rec": "reduce to 1 · ~$280/mo back",
+   "evidence": [
+    {
+     "metric": "util",
+     "scope": "API Pods · AZ-a · instant",
+     "value": "10%"
+    }
+   ],
+   "key": "idle·apia·API Pods · AZ-a is over-provisioned",
+   "edges": [],
+   "nodes": []
+  },
+  {
+   "cat": "idle",
+   "sev": "info",
+   "mark": "idle",
+   "nodeId": "apib",
+   "title": "API Pods · AZ-b is over-provisioned",
+   "detail": "3 instances holding 10% utilisation",
+   "rec": "reduce to 1 · ~$280/mo back",
+   "evidence": [
+    {
+     "metric": "util",
+     "scope": "API Pods · AZ-b · instant",
+     "value": "10%"
+    }
+   ],
+   "key": "idle·apib·API Pods · AZ-b is over-provisioned",
+   "edges": [],
+   "nodes": []
+  }
+ ],
+ "a": {
+  "label": "headroom",
+  "value": "0.6×"
+ },
+ "b": {
+  "label": "est",
+  "value": "$3.7k/mo"
+ }
+}

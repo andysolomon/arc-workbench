@@ -1,0 +1,120 @@
+{
+ "list": [
+  {
+   "cat": "wait",
+   "sev": "crit",
+   "mark": "approval bottleneck",
+   "nodeId": "approve",
+   "title": "Approve is the approval bottleneck",
+   "detail": "73 items waiting for 6 approvers",
+   "rec": "add approvers or parallelise the review",
+   "evidence": [
+    {
+     "metric": "waiting",
+     "scope": "Approve · instant",
+     "value": "73"
+    },
+    {
+     "metric": "occupancy",
+     "scope": "Approve · instant",
+     "value": "140%"
+    }
+   ],
+   "key": "wait·approve·Approve is the approval bottleneck",
+   "edges": [],
+   "nodes": []
+  },
+  {
+   "cat": "fail",
+   "sev": "crit",
+   "mark": "unhandled",
+   "nodeId": "rollback",
+   "title": "Rollback has no failure path",
+   "detail": "10% of runs fail here and fall through as success",
+   "rec": "add a fail / deny / retry transition",
+   "key": "fail·rollback·Rollback has no failure path",
+   "edges": [],
+   "nodes": []
+  },
+  {
+   "cat": "wait",
+   "sev": "warn",
+   "mark": "long wait",
+   "nodeId": "approve",
+   "title": "Approve holds 52% of cycle time",
+   "detail": "3.0h expected wait · 73 waiting now",
+   "rec": "set an SLA, add approvers, or auto-approve low-risk changes",
+   "evidence": [
+    {
+     "metric": "expected wait",
+     "scope": "Approve · document",
+     "value": "3.0h"
+    },
+    {
+     "metric": "waiting",
+     "scope": "Approve · instant",
+     "value": "73"
+    }
+   ],
+   "key": "wait·approve·Approve holds 52% of cycle time",
+   "edges": [],
+   "nodes": []
+  },
+  {
+   "cat": "own",
+   "sev": "info",
+   "mark": "",
+   "nodeId": null,
+   "title": "6 handoffs across 4 owners",
+   "detail": "Pull Request → Build (developer → ci) · Quality Gates → Approve (ci → release owner) · Quality Gates → Pull Request (ci → developer)",
+   "rec": "every handoff is a wait and a context switch · merge lanes or move steps to the owner already holding the work",
+   "edges": [
+    "pr>build",
+    "qg>approve",
+    "qg>pr",
+    "approve>pr",
+    "canary>release",
+    "canary>rollback"
+   ],
+   "key": "own··6 handoffs across 4 owners",
+   "nodes": []
+  },
+  {
+   "cat": "own",
+   "sev": "info",
+   "mark": "",
+   "nodeId": null,
+   "title": "rework leaves the release owner boundary 2 times",
+   "detail": "Approve → Pull Request (developer) · Canary → Rollback (sre)",
+   "rec": "each denial re-enters another owner's queue · state what must be true before the boundary is entered",
+   "edges": [
+    "approve>pr",
+    "canary>rollback"
+   ],
+   "key": "own··rework leaves the release owner boundary 2 times",
+   "nodes": []
+  },
+  {
+   "cat": "own",
+   "sev": "info",
+   "mark": "",
+   "nodeId": null,
+   "title": "work bounces between ci and developer",
+   "detail": "Quality Gates → Pull Request → back",
+   "rec": "a round trip between owners is usually one step in the wrong lane",
+   "edges": [
+    "qg>pr"
+   ],
+   "key": "own··work bounces between ci and developer",
+   "nodes": []
+  }
+ ],
+ "a": {
+  "label": "cycle p99",
+  "value": "—"
+ },
+ "b": {
+  "label": "in flight",
+  "value": "159"
+ }
+}

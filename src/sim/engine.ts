@@ -3,6 +3,7 @@
 // n.role when the paradigm sets it (data flow), else derived from the architecture type.
 import type { GraphEdge, GraphNode } from '../model/document';
 import type { Metrics, NodeStat, QueueSim } from './types';
+import { WARM, nodeLag } from './metrics';
 
 const ASYNC: Record<string, 1> = { queue: 1, event: 1, cdc: 1, repl: 1, stream: 1, batch: 1, replay: 1, deadletter: 1, replication: 1, lineage: 1 };
 const BUF: Record<string, 1> = { queue: 1, broker: 1, pubsub: 1, dlq: 1 };
@@ -14,7 +15,11 @@ export function makeSim(): QueueSim { return { q: {}, retry: {}, hist: [], noise
 /** max throughput of a capacity node: inst · cap · 1000 / ms, unbounded when ms ≤ 0 */
 const maxThrOf = (n: GraphNode): number => (n.ms ?? 0) > 0 ? ((n.inst ?? 1) * (n.cap ?? 1) * 1000) / (n.ms ?? 1) : Infinity;
 
-export function tick(sim: QueueSim, nodes: GraphNode[], edges: GraphEdge[], rps: number, dt: number): Metrics {
+export interface TickOpts {
+  /** count async hops in the system latency — a data-flow pipeline is all async, so without this its end-to-end p99 reads 0 */
+  includeAsync?: boolean;
+}
+export function tick(sim: QueueSim, nodes: GraphNode[], edges: GraphEdge[], rps: number, dt: number, opts: TickOpts = {}): Metrics {
   const byId: Record<string, GraphNode> = {}; nodes.forEach(n => byId[n.id] = n);
   const outs: Record<string, GraphEdge[]> = {}, indeg: Record<string, number> = {};
   nodes.forEach(n => { outs[n.id] = []; indeg[n.id] = 0; });
@@ -71,12 +76,15 @@ export function tick(sim: QueueSim, nodes: GraphNode[], edges: GraphEdge[], rps:
 
   // system view: latency over sync request path (visit-weighted)
   let lsum = 0, esum = 0, wsum = 0;
-  nodes.forEach(n => { const s = stats[n.id]!; if (!s.async && s.arr > 0.5) { const v = Math.min(1.2, s.arr / Math.max(rps, 1)); lsum += s.lat * v; esum += s.err * v; wsum += v; } });
+  nodes.forEach(n => { const s = stats[n.id]!; if ((!s.async || opts.includeAsync) && s.arr > 0.5) { const v = Math.min(1.2, s.arr / Math.max(rps, 1)); lsum += s.lat * v; esum += s.err * v; wsum += v; } });
   const p50 = lsum, err = Math.min(0.98, wsum ? esum / Math.max(1, wsum * 0.7) : 0);
   const sat = Math.max(0, ...nodes.map(n => stats[n.id]!.util));
   const goodput = rps * (1 - err);
   const sys = { rps, goodput, p50, p95: p50 * (1.7 + sat * 0.8), p99: p50 * (2.3 + sat * 2.2), err, qtot: nodes.reduce((s, n) => s + stats[n.id]!.q, 0), sat, drop: Math.max(0, rps - goodput) };
-  sim.hist.push({ t: Date.now(), ...sys });
+  const at = Date.now();
+  sim.hist.push({ t: at, ...sys });
   if (sim.hist.length > 140) sim.hist.shift();
-  return { nodes: stats, edges: edgeRate, sys };
+  const tickN = sim.hist.length;
+  let lag = 0; nodes.forEach(n => { lag += nodeLag(stats[n.id]!); });
+  return { nodes: stats, edges: edgeRate, sys, prov: { at, tick: tickN, window: 'instant', samples: tickN, warm: tickN >= WARM.ticks, lag } };
 }

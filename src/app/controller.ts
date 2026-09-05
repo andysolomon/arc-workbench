@@ -197,7 +197,8 @@ export class WorkbenchController {
     if (p === 'workflow') return tickWorkflow(st as ParadigmSim, nodes, edges, s.rps, dt);
     if (p === 'state') return tickState(st as ParadigmSim, nodes, edges, s.rps, dt);
     if (p === 'sequence') return tickSequence(st as ParadigmSim, nodes, edges, s.rps, dt);
-    return tick(st as QueueSim, nodes, edges, s.rps, dt);
+    // a data-flow pipeline is all async hops: its end-to-end latency has to count them (see sim/metrics.ts)
+    return tick(st as QueueSim, nodes, edges, s.rps, dt, { includeAsync: p === 'dataflow' });
   }
   defaultEdgeKind(a: GraphNode, b: GraphNode): string { return defaultEdgeKind(this.paraId(), a, b, this.state.nextKind); }
   // a document per paradigm: switching never destroys work — the other document is parked
@@ -411,6 +412,8 @@ export class WorkbenchController {
     nodes.forEach(n => { const st = m.nodes[n.id]; if (!st) return; const a = this.nhist[n.id] || (this.nhist[n.id] = []); a.push(st.arr); if (a.length > 36) a.shift(); });
     if (!this.hadM) { this.hadM = true; this.setState({}); return; }
     try { this.patchTelemetry(); } catch (err) { console.warn('[workbench] telemetry patch skipped', err); }
+    // analyze is LIVE while running: findings re-derive from the newest snapshot once a second
+    if (this.state.mode === 'analyze' && m.prov && m.prov.tick % 4 === 0) this.setState({});
   }
   private patchCtx(m: Metrics): PatchCtx {
     const s = this.state;
@@ -441,7 +444,7 @@ export class WorkbenchController {
   applyRoutes(rt: RouteMap): void { applyRoutes(this.refs, this.state.edges, rt, this.endsFor); }
   clearRuntimeDom(): void { clearRuntimeDom(this.refs); }
   resetSim(): void { this.simState = this.makeSimState(); this.metrics = null; this.nhist = {}; this.uptimeS = 0; this.hadM = false; this.setState({}); }
-  stepOnce(): void { this.setState({ running: false }); this.step(0.25); }
+  stepOnce(): void { this.step(0.25); this.setState({ running: false }); } // the render after the step sees the new snapshot
 
   // ---- analysis ----
   analyze(): Analysis { const s = this.state; const a = analyzeAll(s.paradigm, s.nodes, s.edges, this.metrics, s.regions, s.rps); this.findings = a.list; return a; }

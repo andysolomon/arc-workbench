@@ -1,3 +1,9 @@
+## [1.5.0](https://github.com/andysolomon/arc-workbench/compare/v1.4.0...v1.5.0) (2026-09-05)
+
+### Features
+
+* **chrome:** purposeful empty, loading and recovery states ([#10](https://github.com/andysolomon/arc-workbench/issues/10)) ([35e6743](https://github.com/andysolomon/arc-workbench/commit/35e6743ab1d079996ad7380238ce57a0500f1cab))
+
 ## [1.4.0](https://github.com/andysolomon/arc-workbench/compare/v1.3.0...v1.4.0) (2026-09-05)
 
 ### Features

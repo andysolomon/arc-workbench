@@ -1,3 +1,9 @@
+## [1.1.0](https://github.com/andysolomon/arc-workbench/compare/v1.0.0...v1.1.0) (2026-09-05)
+
+### Features
+
+* add optional edge hover card setting ([#3](https://github.com/andysolomon/arc-workbench/issues/3)) ([ee3dbe4](https://github.com/andysolomon/arc-workbench/commit/ee3dbe4df4cb62e9d086990835008fd82f7cb960))
+
 ## 1.0.0 (2026-09-05)
 
 ### Features

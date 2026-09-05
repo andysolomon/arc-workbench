@@ -1,3 +1,9 @@
+## [1.3.0](https://github.com/andysolomon/arc-workbench/compare/v1.2.3...v1.3.0) (2026-09-05)
+
+### Features
+
+* **presets:** make preset replacement safe and undoable ([#8](https://github.com/andysolomon/arc-workbench/issues/8)) ([40cebc3](https://github.com/andysolomon/arc-workbench/commit/40cebc3d804a82612bc62e8f867b79e5d53232d6))
+
 ## [1.2.3](https://github.com/andysolomon/arc-workbench/compare/v1.2.2...v1.2.3) (2026-09-05)
 
 ### Bug Fixes

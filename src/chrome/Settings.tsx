@@ -4,8 +4,9 @@ import type { WorkbenchController } from '../app/controller';
 
 export function Settings({ ctl }: { ctl: WorkbenchController }) {
   const s = ctl.state;
+  const insp = s.sel ? (s.ui.dense ? 'dense' : 'on') : 'off';
   return (
-    <div style={{ position: 'absolute', right: 0, top: 'calc(100% + 8px)', zIndex: 40, width: '238px', background: 'var(--surface-card)', border: '1px solid var(--border-subtle)', borderRadius: '10px', boxShadow: 'var(--shadow-panel)', padding: '12px 14px 14px', display: 'flex', flexDirection: 'column', gap: '10px', animation: 'wb-fade var(--motion-fast) ease-out' }}>
+    <div className="wb-settings" data-insp={insp} data-chrome="1" style={{ position: 'absolute', top: 'calc(100% + 8px)', zIndex: 40, width: '238px', background: 'var(--surface-card)', border: '1px solid var(--border-subtle)', borderRadius: '10px', boxShadow: 'var(--shadow-panel)', padding: '12px 14px 14px', display: 'flex', flexDirection: 'column', gap: '10px', animation: 'wb-fade var(--motion-fast) ease-out' }}>
       <div className="tg-label">canvas</div>
       {ctl.UIOPTS.map(([k, label]) => {
         const on = !!s.ui[k];

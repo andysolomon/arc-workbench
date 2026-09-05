@@ -1,6 +1,6 @@
 // Header chrome: the preset select shows whole names — no mid-word clipping at desktop widths.
 import { expect, test } from '@playwright/test';
-import { openApp } from './helpers';
+import { openApp, state } from './helpers';
 
 for (const width of [1500, 1280, 1024]) {
   test(`preset names are fully readable at ${width}px`, async ({ page }) => {
@@ -23,3 +23,27 @@ for (const width of [1500, 1280, 1024]) {
     }
   });
 }
+
+test('display settings never covers an open inspector, in either inspector density', async ({ page }) => {
+  await openApp(page);
+  await page.keyboard.press('ArrowRight');
+  const insp = page.locator('.wb-insp'); await expect(insp).toBeVisible();
+  await page.getByRole('button', { name: 'display settings' }).click();
+  const pop = page.locator('.wb-settings'); await expect(pop).toBeVisible();
+  const apart = async () => {
+    const a = (await insp.boundingBox())!, b = (await pop.boundingBox())!;
+    return a.x >= b.x + b.width || b.x >= a.x + a.width || a.y >= b.y + b.height || b.y >= a.y + a.height;
+  };
+  expect(await apart()).toBe(true);
+  await pop.getByRole('button', { name: 'compact inspector' }).click();
+  expect(await state<boolean>(page, 'ctl.state.ui.dense')).toBe(true);
+  await expect(pop).toHaveAttribute('data-insp', 'dense');
+  expect(await apart()).toBe(true);
+  await pop.getByRole('button', { name: 'compact inspector' }).click();
+  // with no inspector the popover returns to its anchor under the button
+  await page.keyboard.press('Escape'); // closes settings first
+  await expect(pop).toHaveCount(0);
+  await page.keyboard.press('Escape'); await expect(insp).toHaveCount(0);
+  await page.getByRole('button', { name: 'display settings' }).click();
+  await expect(page.locator('.wb-settings')).toHaveAttribute('data-insp', 'off');
+});

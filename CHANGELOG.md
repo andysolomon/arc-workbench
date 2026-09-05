@@ -1,3 +1,9 @@
+## [1.7.0](https://github.com/andysolomon/arc-workbench/compare/v1.6.0...v1.7.0) (2026-09-05)
+
+### Features
+
+* **a11y:** keyboard graph editing, landmarks, control states and live regions ([#12](https://github.com/andysolomon/arc-workbench/issues/12)) ([8c4263d](https://github.com/andysolomon/arc-workbench/commit/8c4263d9b02ea5bcf81ab6fce51e283dbc9fbf19))
+
 ## [1.6.0](https://github.com/andysolomon/arc-workbench/compare/v1.5.0...v1.6.0) (2026-09-05)
 
 ### Features

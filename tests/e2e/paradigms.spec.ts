@@ -60,3 +60,16 @@ test('library adds a node of the paradigm type with the family colour channel', 
   await expect(el).toHaveAttribute('data-state', 'selected');
   await expect(page.locator('.wb-insp')).toContainText('ƒ processor');
 });
+
+test('switching paradigm while simulating pauses the run and confirms it', async ({ page }) => {
+  await setMode(page, 'simulate');
+  await expect(page.getByRole('button', { name: 'run or pause' })).toHaveText('❙❙');
+  await switchParadigm(page, 'workflow');
+  await expect(page.getByRole('button', { name: 'run or pause' })).toHaveText('▶');
+  await expect(page.locator('.wb-toast')).toContainText('simulation paused');
+  const up = await state<number>(page, 'ctl.uptimeS');
+  await page.waitForTimeout(700);
+  expect(await state<number>(page, 'ctl.uptimeS')).toBe(up);
+  await page.keyboard.press('r');
+  await expect(page.getByRole('button', { name: 'run or pause' })).toHaveText('❙❙');
+});

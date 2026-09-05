@@ -1,7 +1,7 @@
 // Workbench root: subscribes to the store, builds the canvas view model, floats the chrome over
 // the canvas, and runs the prototype's lifecycle (mount · didUpdate · unmount).
 import { useEffect, useLayoutEffect, useMemo } from 'react';
-import { CommandPalette, ConfirmDialog, CreateDialog, EdgeCard, Findings, Header, Hints, Inspector, Library, Strip, Toast, ZoomControl } from '../chrome';
+import { CommandPalette, ConfirmDialog, CreateDialog, EdgeCard, EmptyState, Findings, Header, Hints, Inspector, KeyboardHelp, Library, Strip, Toast, ZoomControl } from '../chrome';
 import { GraphCanvas } from '../render';
 import { useStore } from '../store';
 import { WorkbenchController } from './controller';
@@ -34,7 +34,9 @@ export function Workbench({ controller, ...props }: WorkbenchProps & { controlle
   const linked: Record<string, 1> = {}; s.edges.forEach(e => { linked[e.from] = 1; linked[e.to] = 1; });
   const unlinked = s.nodes.filter(n => !linked[n.id]).length;
   const tierCount = s.paradigm === 'architecture' ? tiersOf(s.paradigm, s.nodes, footH).length : vm.regions.length;
-  const showHints = s.ui.hints && s.mode !== 'analyze';
+  const showHints = s.ui.hints && s.mode !== 'analyze' && s.nodes.length > 0;
+  // before mount the shell is stable and empty: nothing is drawn or replaced until storage has been read
+  const shell = !s.ready;
   return (
     <div data-screen-label="Workbench" style={{ display: 'flex', flexDirection: 'column', height: '100vh', background: 'var(--surface-page)', color: 'var(--text-body)', fontFamily: 'var(--font-mono)', fontSize: '11px', userSelect: 'none' }}>
       <Header ctl={ctl} tierCount={tierCount} unlinked={unlinked} />
@@ -42,6 +44,8 @@ export function Workbench({ controller, ...props }: WorkbenchProps & { controlle
         {s.libOpen ? <Library ctl={ctl} /> : null}
         <div style={{ flex: 1, position: 'relative', minWidth: 0, display: 'flex', flexDirection: 'column' }}>
           <GraphCanvas vm={vm} h={ctl.handlers}>
+            {shell ? <div className="wb-shell" role="status" aria-live="polite">opening your workspace…</div> : null}
+            {!shell && !s.nodes.length ? <EmptyState ctl={ctl} /> : null}
             {showHints ? <Hints ctl={ctl} /> : null}
             {an ? <Findings ctl={ctl} an={an} /> : null}
             {card && vm.cardEdge ? <EdgeCard ctl={ctl} e={vm.cardEdge} vm={card} /> : null}
@@ -56,6 +60,7 @@ export function Workbench({ controller, ...props }: WorkbenchProps & { controlle
       </div>
       {s.createOpen ? <CreateDialog ctl={ctl} /> : null}
       {s.palette ? <CommandPalette ctl={ctl} /> : null}
+      {s.helpOpen ? <KeyboardHelp ctl={ctl} /> : null}
       {s.confirm ? <ConfirmDialog ctl={ctl} c={s.confirm} /> : null}
     </div>
   );

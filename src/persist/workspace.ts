@@ -18,7 +18,7 @@ export interface StoredSession { schema: typeof SCHEMA; active: ParadigmId; upda
 export type Recovered = 'interrupted' | 'previous';
 export type LoadResult =
   | { kind: 'none' }
-  | { kind: 'ok'; record: StoredDocument; recovered: Recovered | null }
+  | { kind: 'ok'; record: StoredDocument; recovered: Recovered | null; /** the older save an interrupted-save recovery displaced, if one exists */ alternative?: StoredDocument; /** why the newest record was skipped (recovered = 'previous') */ reason?: string }
   | { kind: 'invalid'; reason: string; raw: string };
 
 const PREFIX = 'wb.doc.';
@@ -44,7 +44,7 @@ export class Workspace {
     const k = docKey(pid), raw = this.store.read(k), pendingRaw = this.store.read(k + '.pending');
     const current = this.tryParse(raw), pending = this.tryParse(pendingRaw);
     // a complete pending write that never became current is the newest state the user had
-    if (pending && (!current || pending.updatedAt > current.updatedAt)) { this.commit(k, pendingRaw!, raw); return { kind: 'ok', record: pending, recovered: 'interrupted' }; }
+    if (pending && (!current || pending.updatedAt > current.updatedAt)) { this.commit(k, pendingRaw!, raw); return current ? { kind: 'ok', record: pending, recovered: 'interrupted', alternative: current } : { kind: 'ok', record: pending, recovered: 'interrupted' }; }
     if (pendingRaw != null) this.store.remove(k + '.pending');
     if (current) return { kind: 'ok', record: current, recovered: null };
     if (raw == null) return { kind: 'none' };
@@ -53,7 +53,7 @@ export class Workspace {
     try { this.parseRecord(raw); } catch (e) { reason = e instanceof Error ? e.message : String(e); }
     try { this.store.write(k + '.broken', raw); } catch { /* best effort */ }
     const prev = this.tryParse(this.store.read(k + '.prev'));
-    if (prev) { this.store.remove(k); return { kind: 'ok', record: prev, recovered: 'previous' }; }
+    if (prev) { this.store.remove(k); return { kind: 'ok', record: prev, recovered: 'previous', reason }; }
     return { kind: 'invalid', reason, raw };
   }
   private commit(k: string, next: string, prevRaw: string | null): void {

@@ -61,7 +61,7 @@ running `pnpm preview` (and `pnpm serve:proto` for the prototype).
 
 ## Keyboard
 
-`/` or `⌘K` palette · `⌘Z` / `⇧⌘Z` undo / redo · `f` fit · `l` auto layout · `t` trace · `n` new
+`/` or `⌘K` palette · `?` keyboard help · `⌘Z` / `⇧⌘Z` undo / redo · `f` fit · `l` auto layout · `t` trace · `n` new
 diagram · `r` run / pause · `d` theme · arrows step the selection in reading order (in a sequence
 `↑↓` step messages in time order) · `Delete` / `Backspace` delete · `Escape` unwinds drag → palette
 → dialogs → card → selection.

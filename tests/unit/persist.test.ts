@@ -63,13 +63,18 @@ describe('persistence', () => {
     const rec = JSON.parse(store.read(docKey('dataflow'))!) as { updatedAt: number; title: string };
     store.write(docKey('dataflow') + '.pending', JSON.stringify({ ...rec, title: 'newer', updatedAt: rec.updatedAt + 1 }));
     const b = boot();
-    expect(b.state.title).toBe('newer'); expect(b.state.nodes.length).toBe(n); expect(b.state.toast?.text).toContain('recovered an interrupted save');
+    expect(b.state.title).toBe('newer'); expect(b.state.nodes.length).toBe(n);
+    // the dialog names the recovered version and offers the older complete save
+    expect(b.state.confirm?.title).toContain('Recovered an interrupted save of newer'); expect(b.state.confirm?.alt?.label).toBe('use previous save');
     expect(store.read(docKey('dataflow') + '.pending')).toBeNull(); expect(store.read(docKey('dataflow'))).toContain('"newer"');
+    b.state.confirm!.alt!.run(); b.setState({ confirm: null });
+    expect(b.state.title).toBe(rec.title); expect(b.state.save).toBe('saved'); expect(store.read(docKey('dataflow'))).not.toContain('"newer"');
     b.unmount();
     // the current record rots; prev is intact
     store.write(docKey('dataflow') + '.prev', store.read(docKey('dataflow'))!); store.write(docKey('dataflow'), '{"schema":1,"id":"x"');
     const c = boot();
-    expect(c.state.title).toBe('newer'); expect(c.state.toast?.text).toContain('last good save'); expect(store.read(docKey('dataflow') + '.broken')).toContain('"x"');
+    expect(c.state.title).toBe(rec.title); expect(c.state.confirm?.title).toContain('Restored the last good save'); expect(c.state.confirm?.alt?.label).toContain('export');
+    expect(store.read(docKey('dataflow') + '.broken')).toContain('"x"');
     c.unmount();
   });
   it('an unreadable record with no fallback opens a recovery dialog instead of a silent reset', () => {

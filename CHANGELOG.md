@@ -1,3 +1,9 @@
+## [1.2.1](https://github.com/andysolomon/arc-workbench/compare/v1.2.0...v1.2.1) (2026-09-05)
+
+### Bug Fixes
+
+* **chrome:** let the preset select show whole names ([#5](https://github.com/andysolomon/arc-workbench/issues/5)) ([26f3949](https://github.com/andysolomon/arc-workbench/commit/26f3949ee3aa73332fc073741daad7b90e0a02a8))
+
 ## [1.2.0](https://github.com/andysolomon/arc-workbench/compare/v1.1.0...v1.2.0) (2026-09-05)
 
 ### Features

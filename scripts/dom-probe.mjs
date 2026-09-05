@@ -1,0 +1,8 @@
+import { chromium } from '@playwright/test';
+const b = await chromium.launch(); const ctx = await b.newContext({ viewport: { width: 1500, height: 900 }, deviceScaleFactor: 1 });
+const grab = async (url) => { const p = await ctx.newPage(); await p.goto(url); await p.waitForSelector('.tg-gnode'); await p.waitForTimeout(900);
+  return p.evaluate(() => { const n = document.querySelectorAll('.tg-gnode')[2]; const strip = h => h.replace(/ data-dc-[a-z]+="[^"]*"/g, '').replace(/>\s+</g, '><').replace(/style="([^"]*)"/g, (m, s) => 'style="' + s.split(';').map(x => x.trim()).filter(Boolean).sort().join(';') + '"'); const rows = [...n.querterySelectorAll ? [] : n.querySelectorAll('.tg-gnode-row')].map(r => r.getBoundingClientRect().height.toFixed(2)); const parts = [...n.querySelectorAll('*')].map(e => e.className + ':' + e.getBoundingClientRect().height.toFixed(2)); const edge = document.querySelector('g.tg-edge-g'); return { node: strip(n.outerHTML), rows, parts, edge: strip(edge.outerHTML).slice(0, 700), region: strip(document.querySelector('.tg-region').outerHTML), ws: n.querySelector('.tg-gnode-hd').childNodes.length }; }); };
+const A = await grab('http://localhost:4180/Workbench%20v10.dc.html'), B = await grab('http://localhost:4173/');
+for (const k of ['node', 'edge', 'region']) { if (A[k] !== B[k]) { console.log('DIFF', k); console.log(' proto:', A[k]); console.log(' port :', B[k]); } else console.log('same', k); }
+console.log('hd childNodes', A.ws, B.ws); console.log('rows', A.rows, B.rows); console.log('parts proto', A.parts.join(' ')); console.log('parts port ', B.parts.join(' '));
+await b.close();

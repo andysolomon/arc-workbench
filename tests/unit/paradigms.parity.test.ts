@@ -1,7 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import { BLANK, EXAMPLES, ORDER, PARADIGMS, edgeDefaults, exportV1, familyOf, familyOfGk, gkOf, nodeDefaults, relOf } from '../../src/paradigms';
 import type { ParadigmId } from '../../src/model';
+import { existsSync } from 'node:fs';
 import { protoExamples, protoParadigms } from './proto';
+
+// the prototype export is not part of the repository; without it these parity suites skip
+const HAS_PROTO = existsSync(new URL('../../Form submission process/paradigms.js', import.meta.url));
 
 // prototype flags are `1`; the port types them as `true`. Normalise for deep equality.
 const norm = (v: unknown): unknown => {
@@ -18,7 +22,7 @@ const norm = (v: unknown): unknown => {
   return v;
 };
 
-describe('paradigm registry parity with paradigms.js', async () => {
+describe.skipIf(!HAS_PROTO)('paradigm registry parity with paradigms.js', async () => {
   const PD = await protoParadigms();
   it('same paradigm order', () => { expect(ORDER).toEqual(PD.ORDER); });
   for (const pid of ORDER as ParadigmId[]) {
@@ -58,7 +62,7 @@ describe('paradigm registry parity with paradigms.js', async () => {
   });
 });
 
-describe('examples parity with examples.js', async () => {
+describe.skipIf(!HAS_PROTO)('examples parity with examples.js', async () => {
   const X = await protoExamples(), PD = await protoParadigms();
   for (const pid of ORDER as ParadigmId[]) {
     it(`${pid}: same documents, regions keyed by family`, () => {

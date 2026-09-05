@@ -14,6 +14,7 @@ import { History, createStore, initialState, type Docks, type Mode, type Patch, 
 import type { Handlers } from '../render/types';
 import { resolveProps, type ResolvedProps, type WorkbenchProps } from './props';
 import { W } from './viewModel';
+import { stressDoc } from './stress';
 import { Gestures } from './gestures';
 import { onKey } from './keyboard';
 
@@ -656,4 +657,12 @@ export class WorkbenchController {
     }
     return { fromName, toName, proto: protoTxt, left: this.cardPos.left, top: this.cardPos.top };
   }
+}
+
+/** test/perf hook: replace the current document with a generated topology at the given scale */
+export function loadStress(ctl: WorkbenchController, pid: ParadigmId, nodes: number, edges: number): void {
+  if (pid !== ctl.state.paradigm) { ctl.switchParadigm(pid); ctl.store.drainAfterCommit(); ctl.store.drainAfterCommit(); }
+  const d = stressDoc(pid, nodes, edges, ctl.W);
+  ctl.clearRuntimeDom(); ctl.simState = ctl.makeSimState(); ctl.metrics = null; ctl.nhist = {}; ctl.history.reset(); ctl.planner.invalidate(); ctl.hadM = false; ctl.uptimeS = 0;
+  ctl.setState({ presetId: 'stress', nodes: d.nodes, edges: d.edges, regions: d.regions, rps: d.rps, sel: null, connect: null, rewire: null, hoverEdge: null, focus: null }, () => ctl.fitWhenReady());
 }

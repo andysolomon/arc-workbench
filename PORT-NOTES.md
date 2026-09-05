@@ -21,10 +21,10 @@ v2.dc.html · `DMS` = Design Mode Spec.dc.html · `DS` = `_ds/…/` design syste
 | `analyze/` | `architecture.ts`, `paradigms.ts`, `index.ts` | WB 1649–1810 (`analyzeArch`, `tiersOf` helpers), `analyze-paradigms.js` | Finding shape unchanged: `{key, cat, sev, mark, nodeId, title, detail, rec, edges, nodes}`. |
 | `view/` | `zoom.ts` (ladder, crisp*, `zoomLevelOf`), `grid.ts`, `transform.ts` (`viewCss`), `fit.ts` (`docBounds`, `fit`, `zoomBy` math), `cull.ts` | WB 1137–1170, 1171–1208 (probe stays in app), 1838–1886, 2113–2116 | `zoomSafe` probe needs the DOM, so it lives in `app/`; `viewCss` takes the probe result as an argument. |
 | `render/` | `GraphCanvas.tsx`, `GraphNode.tsx`, `GraphEdge.tsx`, `NodePort.tsx`, `GraphRegion.tsx`, `EdgeMarkerDefs.tsx`, `SequenceLayer.tsx`, `EndpointHandles.tsx`, `TierBand.tsx` | WB 301–401 (canvas markup) | Never imports `sim`. All telemetry strings arrive as props or via the patcher. |
-| `telemetry/` | `refs.ts` (element registry + cached child refs), `patch.ts` (`patchTelemetry`, `patchPackets`, `patchRun`, `applyEdgeGeo`), `spark.ts` | WB 1519–1647 | Child refs are cached per element and invalidated on re-render (prototype re-queried every tick). Output strings identical. |
+| `telemetry/` | `refs.ts` (element registry + cached child refs), `patch.ts` (`patchTelemetry`, `patchPackets`, `patchRun`, `applyEdgeGeo`, `clearRuntimeDom`) | WB 1519–1647, 2060–2066 | Child refs are cached per element and invalidated on re-render (prototype re-queried every tick). Output strings identical. |
 | `store/` | `state.ts`, `store.ts`, `history.ts`, `park.ts` | WB 708–711 (state), 1822–1828 (snap/restore), 758–774 (park/switch) | Hand-written external store; `useSyncExternalStore` on the React side. |
-| `chrome/` | `Header.tsx` (title · switcher · lens · HUD · presets · settings), `ParadigmSwitcher.tsx`, `Hud.tsx`, `DraftingHud.tsx`, `Library.tsx`, `Inspector.tsx` (node · edge · lane), `Findings.tsx`, `EdgeCard.tsx`, `Hints.tsx`, `Strip.tsx`, `TelemetryDrawer.tsx`, `CreateDialog.tsx`, `CommandPalette.tsx`, `Settings.tsx`, `ds/ZoomControl.tsx`, `ds/LogoMark.tsx` | WB 135–299, 405–457, 459–461, 463–612, 615–661, 665–703 | Never touches canvas DOM; calls controller methods only. `ZoomControl`/`LogoMark` are TSX copies of the DS JSX (identical DOM). |
-| `app/` | `Workbench.tsx`, `controller.ts`, `viewModel.ts`, `keyboard.ts`, `gestures.ts`, `props.ts` | WB 707–2485 (component class), 2006–2057 (keys), 1222–1517 (gestures) | The controller is the prototype class with `this.state` → store and no render. |
+| `chrome/` | `Header.tsx` (title · switcher · lens · HUD · presets · settings), `ParadigmSwitcher.tsx`, `Hud.tsx` (`Hud` + `DraftingHud`), `Library.tsx`, `Inspector.tsx` (node · edge · lane), `Findings.tsx`, `EdgeCard.tsx`, `Hints.tsx`, `Strip.tsx` (strip + telemetry drawer), `CreateDialog.tsx`, `CommandPalette.tsx`, `Settings.tsx`, `ds/ZoomControl.tsx`, `ds/LogoMark.tsx` | WB 135–299, 405–457, 459–461, 463–612, 615–661, 665–703 | Never touches canvas DOM; calls controller methods only. `ZoomControl`/`LogoMark` are TSX copies of the DS JSX (identical DOM). |
+| `app/` | `Workbench.tsx`, `controller.ts`, `viewModel.ts`, `keyboard.ts`, `gestures.ts`, `props.ts`, `stress.ts` (Stress Lab topology generator for the perf spec), `StaticCanvas.tsx` (chrome-less harness) | WB 707–2485 (component class), 2006–2057 (keys), 1222–1517 (gestures) | The controller is the prototype class with `this.state` → store and no render. |
 
 Prototype method → port location (WB lines):
 
@@ -142,12 +142,32 @@ Prototype method → port location (WB lines):
     `stopPropagation` (WB 1310) no longer stops the canvas `onPointerDown`. The handler wrappers
     stop the synthetic event as well; without it every node press also started a pan that
     cleared the selection on release.
+11. The inspector (`right:14px; top:12px; bottom:12px; z-index:7`) covers the zoom control
+    (`right:16px; bottom:16px`) whenever something is selected — in the prototype too. Kept; the
+    wheel, `f` and the palette still zoom. A chrome change is out of scope (§9).
+12. The pan-frame budget cannot be verified on a software rasteriser. Headless Chromium
+    (SwiftShader) repaints the four-layer gradient grid in ~2 vsyncs whatever the app does; the
+    app's own main-thread cost per pan frame measures 0.4–0.6 ms at p95. The perf spec asserts the
+    main-thread cost strictly everywhere and the vsync cadence strictly only on a hardware
+    renderer or with `PERF_STRICT=1`.
 
 ## 5 · Verification
 
 - Goldens (`tests/golden/`): produced by `scripts/goldens.mjs`, which runs the **original**
   `sim-engine.js`, `sim-paradigms.js`, `layout.js`, `analyze-paradigms.js` and a verbatim
-  extract of the WB router with `Math.random` and `Date.now` stubbed. The TS port must
-  reproduce path strings exactly and metrics within 1e-6.
-- Playwright (`tests/e2e/`): keyboard map, paradigm park/restore, edge card timing, and the
-  three perf budgets at preset scale.
+  extract of the WB router / analyzer / lane code (`scripts/extract-proto.sh` →
+  `scripts/proto-app.mjs`) with `Math.random` and `Date.now` stubbed. The TS port reproduces
+  every path string exactly and every metric within 1e-6 across the twelve example documents.
+- Parity (`tests/unit/paradigms.parity.test.ts`): registry, defaults, families, a11y sentences,
+  examples and the v1 export compared against the prototype modules imported from the export.
+- DOM contract (`tests/unit/render.test.tsx`): the attribute set on nodes, edges, regions, canvas.
+- Playwright (`tests/e2e/`): every shortcut in §4 of the brief, all five paradigms through
+  load · layout · simulate · analyze · trace, park/restore, edge-card timing and pinning,
+  endpoint handles, the three perf budgets, and visual parity.
+- Visual parity: the original prototype is served from the export folder (port 4180) and the
+  canvas is diffed against the port at four zoom levels × two themes. Measured: overview 0.10 %,
+  compact 0.17 %, working 0.43 %, detail 0.00 % (dark; light within 0.05 % of these). The DOM is
+  identical at the selector level; the residue is anti-aliasing around the DC harness's
+  `<span class="sc-interp">` interpolation wrappers, which the port does not emit. Working is
+  compared at 100 % — at the fitted 0.82 css zoom those wrappers shift glyph runs by a sub-pixel
+  and the same identical DOM reads as 1.4 %.

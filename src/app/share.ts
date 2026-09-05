@@ -9,12 +9,12 @@ import type { WorkbenchState } from '../store';
 export const SHARE_KEY = 'd';
 export const SHARED_PRESET = 'shared';
 
-type ShareSource = Pick<WorkbenchState, 'paradigm' | 'nodes' | 'edges' | 'regions' | 'rps' | 'view' | 'presetId'>;
+type ShareSource = Pick<WorkbenchState, 'paradigm' | 'nodes' | 'edges' | 'regions' | 'rps' | 'view' | 'presetId' | 'docId' | 'title'>;
 
 /** The exchange document for the live state; `rps` travels as `metadata.load`. */
 export function docOf(s: ShareSource, title?: string): GraphDocument {
   return {
-    version: 3, id: 'wb-' + s.paradigm, title: title ?? s.presetId, paradigm: s.paradigm,
+    version: 3, id: s.docId || 'wb-' + s.paradigm, title: title ?? (s.title || s.presetId), paradigm: s.paradigm,
     nodes: s.nodes.map(n => ({ ...n })), edges: s.edges.map(e => ({ ...e })), regions: s.regions.map(r => ({ ...r })),
     metadata: { load: s.rps, presetId: s.presetId }, view: { ...s.view },
   };

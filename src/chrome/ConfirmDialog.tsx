@@ -16,8 +16,9 @@ export function ConfirmDialog({ ctl, c }: { ctl: WorkbenchController; c: Confirm
         <div id="wb-confirm-detail" style={{ padding: '0 18px 14px', color: 'var(--text-secondary)', fontSize: '11px', lineHeight: 1.5 }}>{c.detail}</div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 18px', borderTop: '1px solid var(--border-subtle)' }}>
           <span style={{ fontSize: '10px', color: 'var(--text-faint)' }}>esc cancel</span>
-          <button className="tg-btn" onClick={close} style={{ marginLeft: 'auto' }}>cancel</button>
-          <button ref={okRef} className="tg-btn tg-btn--primary" onClick={() => { c.run(); }}>{c.ok}</button>
+          {c.alt ? <button className="tg-btn" onClick={() => { close(); c.alt!.run(); }} style={{ marginLeft: 'auto' }}>{c.alt.label}</button> : null}
+          <button className="tg-btn" onClick={close} style={c.alt ? undefined : { marginLeft: 'auto' }}>cancel</button>
+          <button ref={okRef} className="tg-btn tg-btn--primary" onClick={() => { close(); c.run(); }}>{c.ok}</button>
         </div>
       </div>
     </div>

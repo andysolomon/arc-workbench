@@ -66,7 +66,7 @@ describe('controller share', () => {
     expect(live.state.paradigm).toBe('workflow'); expect(live.state.presetId).toBe(SHARED_PRESET);
     live.unmount();
     history.replaceState(null, '', location.pathname + '#d=garbage');
-    const other = new WorkbenchController(); other.openLocation();
-    expect(other.state.presetId).toBe(EXAMPLES.dataflow[0]!.id); expect(other.state.toast?.tone).toBe('warn');
+    const other = new WorkbenchController(); other.openPreset(EXAMPLES.dataflow[0]!.id); const kept = other.state.nodes; other.openLocation();
+    expect(other.state.nodes).toBe(kept); expect(other.state.toast?.tone).toBe('warn');
   });
 });

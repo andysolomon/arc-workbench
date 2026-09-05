@@ -24,6 +24,11 @@ a{color:var(--link)}a:hover{color:var(--link-hover)}
    lives; with an inspector open it steps left of it (inspector width + 8px) so neither panel hides
    the other. The offsets track the two inspector widths above. */
 .wb-settings{right:0}
+/* document title: reads as text until hovered or focused */
+.wb-title{width:180px;height:25px;padding:0 8px;background:transparent;border-color:transparent;color:var(--text-body);font-size:12px;text-overflow:ellipsis}
+.wb-title:hover,.wb-title:focus{border-color:var(--border-strong);background:var(--surface-raised)}
+.wb-save[data-save="failed"]{color:var(--health-critical)}
+.wb-save[data-save="dirty"]{color:var(--text-faint)}
 .wb-settings[data-insp="on"]{right:272px}
 .wb-settings[data-insp="dense"]{right:222px}
 /* the sections carry inline padding, so the dense override has to outrank it */

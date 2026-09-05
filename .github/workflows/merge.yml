@@ -15,15 +15,16 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 'lts/*'
+          node-version: 22
 
-      - run: npm ci
+      - uses: pnpm/action-setup@v4
+      - run: pnpm install --frozen-lockfile
 
       - name: Validate commits
-        run: npx commitlint --from ${{ github.event.pull_request.base.sha }} --to ${{ github.event.pull_request.head.sha }} --verbose
+        run: pnpm exec commitlint --from ${{ github.event.pull_request.base.sha }} --to ${{ github.event.pull_request.head.sha }} --verbose
 
       - name: Lint
-        run: npm run lint --if-present
+        run: pnpm lint
 
       - name: Test
-        run: npm test --if-present
+        run: pnpm test

@@ -1,0 +1,34 @@
+/* official Typegram dark graph theme: warm stone dark, never blue-black. apply data-theme="dark" on <html>. */
+[data-theme="dark"]{
+--surface-page:#1c1917;--surface-canvas:#181512;--surface-card:#292524;--surface-raised:#322e2b;--surface-inset:#211d1b;--surface-code:#141110;
+--border-subtle:#35302c;--border-strong:#4a443f;--border-code:#292524;
+--text-body:var(--stone-200);--text-secondary:var(--stone-300);--text-control:var(--stone-300);--text-muted:var(--stone-400);--text-faint:var(--stone-500);
+--accent:#818cf8;--accent-strong:#a5b4fc;--accent-deep:#c7d2fe;--accent-tint:color-mix(in srgb,#818cf8 16%,#1c1917);--accent-border:#4338ca;--accent-ink:#e0e7ff;
+--danger:#f87171;--danger-text:#fca5a5;--danger-border:#7f1d1d;--danger-tint:#2d1a18;--danger-hover:#3b2220;
+--graph-canvas:var(--surface-canvas);
+--graph-grid-minor-color:rgba(129,140,248,0.07);--graph-grid-major-color:rgba(129,140,248,0.14);
+--kind-class-bg:color-mix(in srgb,#818cf8 12%,#1c1917);--kind-class-border:#818cf8;--kind-class-text:#a5b4fc;--kind-class-chip:#3730a3;
+--kind-type-bg:color-mix(in srgb,#34d399 10%,#1c1917);--kind-type-border:#34d399;--kind-type-text:#6ee7b7;--kind-type-chip:#065f46;
+--kind-union-bg:color-mix(in srgb,#c084fc 10%,#1c1917);--kind-union-border:#c084fc;--kind-union-text:#d8b4fe;--kind-union-chip:#6b21a8;
+--kind-interface-bg:color-mix(in srgb,#fbbf24 9%,#1c1917);--kind-interface-border:#fbbf24;--kind-interface-text:#fcd34d;--kind-interface-chip:#92400e;
+--kind-function-bg:color-mix(in srgb,#22d3ee 10%,#1c1917);--kind-function-border:#22d3ee;--kind-function-text:#67e8f9;--kind-function-chip:#155e75;
+--kind-component-bg:color-mix(in srgb,#a5b4fc 12%,#1c1917);--kind-component-border:#a5b4fc;--kind-component-text:#c7d2fe;--kind-component-chip:#4338ca;
+--kind-instance-bg:color-mix(in srgb,#fb923c 10%,#1c1917);--kind-instance-border:#fb923c;--kind-instance-text:#fdba74;--kind-instance-chip:#9a3412;
+--kind-external-bg:color-mix(in srgb,#78716c 14%,#1c1917);--kind-external-border:#78716c;--kind-external-text:#a8a29e;--kind-external-chip:#57534e;
+--edge-default:#78716c;--edge-hover:#d6d3d1;--edge-selected:#818cf8;--edge-muted:#3a3530;--edge-label:#a8a29e;
+--selection:#818cf8;--selection-ring:#4338ca;--selection-marquee-bg:rgba(129,140,248,0.08);
+--health-ok:#34d399;--health-warn:#fbbf24;--health-critical:#f87171;
+--telemetry-bar-track:#3a3530;--telemetry-bar-fill:#a8a29e;
+--shadow-float:0 6px 18px rgba(0,0,0,0.45);
+--shadow-panel:0 10px 28px rgba(0,0,0,0.5);
+--gradient-header:linear-gradient(to right,#292524,#1c1917); /* @kind color */
+--link:#5eead4;--link-hover:#99f6e4;
+}
+/* dark node shadows: both pixel offsets stay, but the second reads as an echo of the first rather
+   than a second equally visible card layer — kind borders are bright against the near-black canvas,
+   so the light-mode 12% echo over-reads. Selector is html[…] so it outranks :root in tokens/graph.css
+   regardless of import order. */
+html[data-theme="dark"]{
+--node-shadow:4px 4px 0 color-mix(in srgb,var(--nb,var(--stone-400)) 28%,transparent),8px 8px 0 color-mix(in srgb,var(--nb,var(--stone-400)) 3%,transparent); /* @kind other */
+--node-shadow-drag:6px 6px 0 color-mix(in srgb,var(--nb,var(--stone-400)) 28%,transparent),12px 12px 0 color-mix(in srgb,var(--nb,var(--stone-400)) 4%,transparent); /* @kind other */
+}

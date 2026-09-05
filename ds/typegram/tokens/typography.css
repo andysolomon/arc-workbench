@@ -1,0 +1,13 @@
+:root{
+--font-sans:'IBM Plex Sans',sans-serif;
+--font-mono:'IBM Plex Mono',monospace;
+--text-title:16px;   /* app title, 600 */
+--text-code:13px;    /* code editor, mono, lh 1.7 */
+--text-diagram:12px; /* diagram members, mono */
+--text-error:12px;   /* error banner, mono */
+--text-ui:11px;      /* all chrome: buttons, chips, labels, mono */
+--text-hint:10px;    /* panel hints, mono */
+--leading-code:1.7;
+--tracking-label:0.08em; /* uppercase section labels */
+--tracking-title:-0.01em;
+}

@@ -1,0 +1,38 @@
+:root{
+/* stone neutrals (base) */
+--stone-0:#ffffff;--stone-25:#fdfdfc;--stone-50:#fafaf9;--stone-100:#f5f5f4;--stone-200:#e7e5e4;--stone-300:#d6d3d1;--stone-400:#a8a29e;--stone-500:#78716c;--stone-600:#57534e;--stone-700:#44403c;--stone-800:#292524;--stone-900:#1c1917;
+/* indigo primary (base) */
+--indigo-50:#eef2ff;--indigo-200:#c7d2fe;--indigo-500:#6366f1;--indigo-600:#4f46e5;--indigo-700:#4338ca;--indigo-950:#1e1b4b;--violet-500:#8b5cf6;
+/* surfaces */
+--surface-page:var(--stone-50);--surface-canvas:var(--stone-25);--surface-card:var(--stone-0);--surface-raised:var(--stone-50);--surface-inset:var(--stone-100);--surface-code:var(--stone-900);
+/* borders */
+--border-subtle:var(--stone-200);--border-strong:var(--stone-300);--border-code:var(--stone-800);
+/* text */
+--text-body:var(--stone-900);--text-secondary:var(--stone-600);--text-control:var(--stone-700);--text-muted:var(--stone-500);--text-faint:var(--stone-400);--text-on-dark:var(--stone-200);
+/* accent */
+--accent:var(--indigo-500);--accent-strong:var(--indigo-600);--accent-deep:var(--indigo-700);--accent-tint:var(--indigo-50);--accent-border:var(--indigo-200);--accent-ink:var(--indigo-950);
+--brand-gradient:linear-gradient(135deg,#6366f1,#8b5cf6); /* @kind color */
+/* danger */
+--danger-tint:#fef2f2;--danger-border:#fecaca;--danger-hover:#fee2e2;--danger-text:#b91c1c;--danger:#ef4444;
+/* node-kind triads: bg / border / text / chip(soft border) */
+--kind-class-bg:#eef2ff;--kind-class-border:#6366f1;--kind-class-text:#4338ca;--kind-class-chip:#c7d2fe;
+--kind-type-bg:#ecfdf5;--kind-type-border:#059669;--kind-type-text:#047857;--kind-type-chip:#a7f3d0;
+--kind-union-bg:#fdf4ff;--kind-union-border:#a855f7;--kind-union-text:#9333ea;--kind-union-chip:#e9d5ff;
+--kind-interface-bg:#fffbeb;--kind-interface-border:#d97706;--kind-interface-text:#b45309;--kind-interface-chip:#fde68a;
+--kind-function-bg:#ecfeff;--kind-function-border:#0891b2;--kind-function-text:#0e7490;--kind-function-chip:#a5f3fc;
+--kind-component-bg:#eef2ff;--kind-component-border:#4f46e5;--kind-component-text:#4338ca;--kind-component-chip:#c7d2fe;
+--kind-instance-bg:#fff7ed;--kind-instance-border:#ea580c;--kind-instance-text:#c2410c;--kind-instance-chip:#fed7aa;
+--kind-external-bg:#f5f5f4;--kind-external-border:#a8a29e;--kind-external-text:#57534e;--kind-external-chip:#d6d3d1;
+/* code syntax (on --surface-code) */
+--code-kw:#c4b5fd;--code-str:#86efac;--code-com:#78716c;--code-num:#fdba74;--code-type:#7dd3fc;--code-text:#e7e5e4;--code-caret:#fafaf9;
+/* visual families: the public colour channel (data-family). Each aliases a kind triad, so themes remap through */
+--family-indigo-bg:var(--kind-class-bg);--family-indigo-border:var(--kind-class-border);--family-indigo-text:var(--kind-class-text);--family-indigo-chip:var(--kind-class-chip);
+--family-emerald-bg:var(--kind-type-bg);--family-emerald-border:var(--kind-type-border);--family-emerald-text:var(--kind-type-text);--family-emerald-chip:var(--kind-type-chip);
+--family-amber-bg:var(--kind-interface-bg);--family-amber-border:var(--kind-interface-border);--family-amber-text:var(--kind-interface-text);--family-amber-chip:var(--kind-interface-chip);
+--family-purple-bg:var(--kind-union-bg);--family-purple-border:var(--kind-union-border);--family-purple-text:var(--kind-union-text);--family-purple-chip:var(--kind-union-chip);
+--family-cyan-bg:var(--kind-function-bg);--family-cyan-border:var(--kind-function-border);--family-cyan-text:var(--kind-function-text);--family-cyan-chip:var(--kind-function-chip);
+--family-orange-bg:var(--kind-instance-bg);--family-orange-border:var(--kind-instance-border);--family-orange-text:var(--kind-instance-text);--family-orange-chip:var(--kind-instance-chip);
+--family-stone-bg:var(--kind-external-bg);--family-stone-border:var(--kind-external-border);--family-stone-text:var(--kind-external-text);--family-stone-chip:var(--kind-external-chip);
+/* links */
+--link:#0f766e;--link-hover:#115e59;
+}

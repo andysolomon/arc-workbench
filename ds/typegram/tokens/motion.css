@@ -1,0 +1,11 @@
+:root{
+/* motion: restrained + functional; animate opacity/transform only */
+--motion-instant:0ms; /* @kind other */
+--motion-fast:120ms; /* @kind other */
+--motion-medium:180ms; /* @kind other */
+--ease-standard:cubic-bezier(0.2,0,0,1); /* @kind other */
+}
+@media (prefers-reduced-motion:reduce){:root{
+--motion-fast:0ms; /* @kind other */
+--motion-medium:0ms; /* @kind other */
+}}

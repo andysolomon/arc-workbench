@@ -1,3 +1,9 @@
+## [1.10.0](https://github.com/andysolomon/arc-workbench/compare/v1.9.0...v1.10.0) (2026-09-05)
+
+### Features
+
+* **design-system:** make @typegram/graph the canonical Graph Layer ([#15](https://github.com/andysolomon/arc-workbench/issues/15)) ([7e2561d](https://github.com/andysolomon/arc-workbench/commit/7e2561dbb06f702f053538949a09b4ba3491a2d5))
+
 ## [1.9.0](https://github.com/andysolomon/arc-workbench/compare/v1.8.0...v1.9.0) (2026-09-05)
 
 ### Features

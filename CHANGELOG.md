@@ -1,3 +1,9 @@
+## [1.6.0](https://github.com/andysolomon/arc-workbench/compare/v1.5.0...v1.6.0) (2026-09-05)
+
+### Features
+
+* **metrics:** one definition per measure, provenance, evidence and live/frozen analysis ([#11](https://github.com/andysolomon/arc-workbench/issues/11)) ([3649958](https://github.com/andysolomon/arc-workbench/commit/3649958e09affb4b83d3edb52cec140c095a8fd1))
+
 ## [1.5.0](https://github.com/andysolomon/arc-workbench/compare/v1.4.0...v1.5.0) (2026-09-05)
 
 ### Features

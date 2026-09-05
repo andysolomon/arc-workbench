@@ -32,6 +32,42 @@ test('edge card: open intent, pinned position, keep-alive halo, close delay', as
   expect(bb.width).toBeGreaterThan(0);
 });
 
+test('edge card setting hides hovered and selected cards, persists, and re-enables on later hover', async ({ page }) => {
+  await page.goto('/');
+  await page.evaluate(() => localStorage.removeItem('wb.ui'));
+  await openApp(page);
+  const hit = page.locator('g.tg-edge-g .tg-edge-hit').nth(5);
+  const point = async () => await hit.evaluate(p => {
+    const el = p as SVGPathElement, l = el.getTotalLength(), q = el.getPointAtLength(l / 2), m = el.getScreenCTM()!;
+    return { x: m.a * q.x + m.c * q.y + m.e, y: m.b * q.x + m.d * q.y + m.f };
+  });
+  const card = page.locator('[data-chrome]').filter({ hasText: '○—○' });
+  const mid = await point();
+  await page.mouse.move(mid.x, mid.y);
+  await expect(card).toBeVisible({ timeout: 400 });
+
+  await page.getByRole('button', { name: 'display settings' }).click();
+  await page.getByRole('button', { name: 'edge hover card', exact: true }).click();
+  await expect.poll(() => page.evaluate(() => window.__workbench.ctl.state.ui.edgeCard)).toBe(false);
+  await expect(card).toHaveCount(0);
+  await page.mouse.move(mid.x + 3, mid.y + 2);
+  await page.waitForTimeout(150);
+  await expect(card).toHaveCount(0);
+  await hit.dispatchEvent('click');
+  await expect.poll(() => page.evaluate(() => window.__workbench.ctl.state.sel?.kind)).toBe('edge');
+  await expect(card).toHaveCount(0);
+  await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('wb.ui') || '{}').edgeCard)).toBe(false);
+
+  await openApp(page);
+  await expect.poll(() => page.evaluate(() => window.__workbench.ctl.state.ui.edgeCard)).toBe(false);
+  await page.getByRole('button', { name: 'display settings' }).click();
+  await page.getByRole('button', { name: 'edge hover card', exact: true }).click();
+  await expect.poll(() => page.evaluate(() => window.__workbench.ctl.state.ui.edgeCard)).toBe(true);
+  const later = await point();
+  await page.mouse.move(later.x, later.y);
+  await expect(card).toBeVisible({ timeout: 400 });
+});
+
 test('endpoint handles are screen-constant and rewire on drop', async ({ page }) => {
   await openApp(page);
   await page.locator('.tg-zoom-label').click(); // k = 1

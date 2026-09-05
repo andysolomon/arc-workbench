@@ -30,7 +30,7 @@ export function Workbench({ controller, ...props }: WorkbenchProps & { controlle
     viewStyle: ctl.viewCss(v, false), gridStyle: ctl.gridStyleFor(v),
   });
   ctl.endsFor = vm.ends ? vm.ends.edgeId : null;
-  const card = vm.cardEdge && vm.cardGeo ? ctl.edgeCard(vm.cardEdge, vm.cardGeo) : null;
+  const card = s.ui.edgeCard && vm.cardEdge && vm.cardGeo ? ctl.edgeCard(vm.cardEdge, vm.cardGeo) : null;
   const linked: Record<string, 1> = {}; s.edges.forEach(e => { linked[e.from] = 1; linked[e.to] = 1; });
   const unlinked = s.nodes.filter(n => !linked[n.id]).length;
   const tierCount = s.paradigm === 'architecture' ? tiersOf(s.paradigm, s.nodes, footH).length : vm.regions.length;

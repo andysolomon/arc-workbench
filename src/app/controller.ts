@@ -114,6 +114,7 @@ export class WorkbenchController {
   setUi(k: UiKey): void {
     const ui = { ...this.state.ui, [k]: !this.state.ui[k] };
     try { localStorage.setItem('wb.ui', JSON.stringify(ui)); } catch { /* storage unavailable */ }
+    if (k === 'edgeCard' && !ui.edgeCard) this.closeCard(false);
     this.setState({ ui });
   }
   setMode(mode: Mode): void {
@@ -625,7 +626,7 @@ export class WorkbenchController {
     this._hoverOff = window.setTimeout(() => { if (this.state.hoverEdge === id && !this.gestures.drag) this.closeCard(); }, 700);
   }
   keepCardAlive(): void { clearTimeout(this._hoverOff); }
-  closeCard(): void { clearTimeout(this._hoverOn); clearTimeout(this._hoverOff); this.cardFor = null; this.cardPos = null; if (this.state.hoverEdge) this.setState({ hoverEdge: null }); }
+  closeCard(clearHover = true): void { clearTimeout(this._hoverOn); clearTimeout(this._hoverOff); this.cardFor = null; this.cardPos = null; if (clearHover && this.state.hoverEdge) this.setState({ hoverEdge: null }); }
   edgeMove(_id: string, e: { clientX: number; clientY: number }): void {
     if (this.gestures.drag || !this.refs.canvas) return;
     const r = this.refs.canvas.getBoundingClientRect();

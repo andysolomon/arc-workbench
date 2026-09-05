@@ -1,3 +1,9 @@
+## [1.9.0](https://github.com/andysolomon/arc-workbench/compare/v1.8.0...v1.9.0) (2026-09-05)
+
+### Features
+
+* **shell:** adaptive iPad and tablet layout ([#14](https://github.com/andysolomon/arc-workbench/issues/14)) ([ffecbcc](https://github.com/andysolomon/arc-workbench/commit/ffecbccd27283118e6d05681dbfcfe76dd68b6f9))
+
 ## [1.8.0](https://github.com/andysolomon/arc-workbench/compare/v1.7.0...v1.8.0) (2026-09-05)
 
 ### Features

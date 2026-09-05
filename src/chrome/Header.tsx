@@ -19,6 +19,7 @@ export function Header({ ctl, tierCount, unlinked }: { ctl: WorkbenchController;
         <LogoMark size={22} />
         <span style={{ fontFamily: 'var(--font-sans)', fontSize: '15px', fontWeight: 600, letterSpacing: '-0.01em', color: 'var(--text-body)' }}>Workbench</span>
         <ParadigmSwitcher ctl={ctl} />
+        <input className="tg-input wb-title" value={s.title} onChange={e => ctl.setTitle(e.target.value)} aria-label="document title" title="document title" spellCheck={false} />
         <div style={{ display: 'flex', gap: '4px', paddingLeft: '2px' }}>
           <button className="tg-btn wb-ico" onClick={() => ctl.undo()} title="undo" aria-label="undo" style={{ opacity: ctl.history.canUndo ? 1 : 0.4, minWidth: '30px' }}>↩</button>
           <button className="tg-btn wb-ico" onClick={() => ctl.redo()} title="redo" aria-label="redo" style={{ opacity: ctl.history.canRedo ? 1 : 0.4, minWidth: '30px' }}>↪</button>

@@ -3,7 +3,7 @@
 // history, parked documents) lives here. React components read the store and call methods.
 import type { GraphEdge, GraphNode, GraphRegion, Graph, ParadigmId, Selection, View } from '../model/document';
 import { edgeId as newEdgeId, laneId, nodeId, phaseId } from '../model/ids';
-import { BLANK, EXAMPLES, ORDER, PARADIGMS, defaultEdgeKind, edgeDefaults, familyOf, nodeDefaults, type Field, type Paradigm } from '../paradigms';
+import { BLANK, EXAMPLES, ORDER, PARADIGMS, defaultEdgeKind, edgeDefaults, familyOf, familyOfGk, nodeDefaults, type Field, type Paradigm } from '../paradigms';
 import { OWNER_KINDS, autoLayout, deoverlap as deoverlapNodes, fitLanes as fitLanesPure, laneMembers as laneMembersPure, laneOf as laneOfPure, lanes as lanesPure } from '../layout';
 import { RoutePlanner, SEQ, anchorOf, geomOfWith, seqGeo as seqGeoPure, seqMsgs as seqMsgsPure, type Box, type EdgeGeo, type Overrides, type PlanInput, type Ptr, type RouteMap, type SeqGeo, type Side } from '../router';
 import { analyze as analyzeAll, handoffs, type Analysis, type Finding } from '../analyze';
@@ -17,12 +17,15 @@ import { W } from './viewModel';
 import { stressDoc } from './stress';
 import { Gestures } from './gestures';
 import { onKey } from './keyboard';
-import { SHARED_PRESET, decodeDocument, sharePayload, shareUrl } from './share';
-import type { GraphDocument } from '../model';
+import { SHARED_PRESET, decodeDocument, docOf, sharePayload, shareUrl } from './share';
+import { LocalStorageStore, Workspace, newDocumentId, type KeyValueStore, type LoadResult, type StoredDocument } from '../persist';
+import { migrate, type GraphDocument } from '../model';
 import type { Toast } from '../store';
 
 export interface PaletteItem { label: string; hint: string; run: () => void }
 export interface EdgeCardVM { fromName: string; toName: string; proto: string; left: number; top: number }
+/** the slice of state a stored record is built from — a save is due when any of these change identity */
+interface DocSig { paradigm: ParadigmId; nodes: GraphNode[]; edges: GraphEdge[]; regions: GraphRegion[]; rps: number; view: View; title: string; presetId: string }
 export interface InspectorField { key: string; label: string; half: '1' | null; isText: boolean; isNum: boolean; isSel: boolean; isCheck: boolean; ph: string; min: number | undefined; max: number | undefined; step: number | undefined; value: string | number; checked: boolean; options: Array<{ v: string; l: string }>; onChange: (v: string | boolean) => void }
 
 const GAPS = { tight: 6, normal: 8, loose: 12 } as const;
@@ -32,6 +35,7 @@ export class WorkbenchController {
   readonly refs = new Refs();
   readonly planner = new RoutePlanner();
   readonly history = new History();
+  readonly workspace: Workspace;
   readonly gestures: Gestures;
   props: ResolvedProps;
   docs: Docks = {};
@@ -76,13 +80,19 @@ export class WorkbenchController {
   private _sharedPayload: string | null = null;
   /** the document as loaded (JSON); the doc is dirty when the live graph differs from it */
   private _cleanDoc: string | null = null;
+  private _savedSig: DocSig | null = null;
+  private _seenSig: DocSig | null = null;
+  private _saveT = 0;
+  private _hide: (() => void) | null = null;
   private ro: ResizeObserver | null = null;
   private _kd: ((e: KeyboardEvent) => void) | null = null;
   readonly handlers: Handlers;
 
-  constructor(props: WorkbenchProps = {}) {
+  constructor(props: WorkbenchProps = {}, opts: { storage?: KeyValueStore } = {}) {
     this.props = resolveProps(props);
     this.store = createStore(initialState());
+    this.workspace = new Workspace(opts.storage ?? new LocalStorageStore(), { familyOfAlias: familyOfGk });
+    this.store.subscribe(() => this.onStoreChange());
     this.touch = typeof navigator !== 'undefined' && (navigator.maxTouchPoints || 0) > 0 && !!(typeof matchMedia === 'function' && matchMedia('(hover:none)').matches);
     this.tev = typeof window !== 'undefined' && typeof (window as Window & { ontouchstart?: unknown }).ontouchstart !== 'undefined';
     this.gestures = new Gestures(this);
@@ -140,8 +150,14 @@ export class WorkbenchController {
     try { const u = JSON.parse(localStorage.getItem('wb.ui') || 'null') as Partial<WorkbenchState['ui']> | null; if (u) this.setState(s => ({ ui: { ...s.ui, ...u } })); } catch { /* storage unavailable */ }
     this.metrics = null; this.nhist = {}; this.history.reset();
     this.simState = this.makeSimState();
-    this.openLocation(); // a `#d=` share link opens as the document; otherwise the default example
-    this.setState({ ready: true, mode: 'design', libOpen: window.innerWidth > 1060 });
+    const invalid = this.restoreSession(); // the stored workspace (or the default example), then a `#d=` share link on top
+    this.openLocation();
+    this._savedSig = this._seenSig = this.docSig();
+    this.setState({ ready: true, mode: 'design', libOpen: window.innerWidth > 1060, save: this.workspace.stored().includes(this.state.paradigm) ? 'saved' : 'clean' });
+    if (invalid.length) this.recoveryDialog(invalid[0]!.pid, invalid[0]!.reason);
+    // a hidden tab or a closing page flushes whatever the debounce still holds
+    this._hide = () => { if (document.visibilityState === 'hidden') this.flushSave(); };
+    document.addEventListener('visibilitychange', this._hide); window.addEventListener('pagehide', this._hide);
     // simulation: 4Hz metric snapshots; the tick path is worker-shaped (snapshot in, patch out)
     this.timer = window.setInterval(() => { if (this.state.running && this.state.mode !== 'design') this.step(0.25); }, 250);
     this.gestures.mountWindow();
@@ -152,7 +168,9 @@ export class WorkbenchController {
   unmount(): void {
     if (this.ro) this.ro.disconnect();
     for (const id of [this._fitRaf, this._zq, this._roq, this._doq]) if (id) cancelAnimationFrame(id);
-    clearInterval(this.timer); clearTimeout(this._rf); clearTimeout(this._toastT); clearTimeout(this._rpsT); clearTimeout(this._hoverOn); clearTimeout(this._hoverOff);
+    clearInterval(this.timer); clearTimeout(this._rf); clearTimeout(this._toastT);
+    this.flushSave(); clearTimeout(this._saveT);
+    if (this._hide) { document.removeEventListener('visibilitychange', this._hide); window.removeEventListener('pagehide', this._hide); } clearTimeout(this._rpsT); clearTimeout(this._hoverOn); clearTimeout(this._hoverOff);
     this.gestures.unmountWindow();
     if (this._kd) window.removeEventListener('keydown', this._kd);
     if (this._hc) window.removeEventListener('hashchange', this._hc);
@@ -179,23 +197,25 @@ export class WorkbenchController {
   }
   defaultEdgeKind(a: GraphNode, b: GraphNode): string { return defaultEdgeKind(this.paraId(), a, b, this.state.nextKind); }
   // a document per paradigm: switching never destroys work — the other document is parked
-  parkDoc(): void { const s = this.state; this.docs[s.paradigm] = { nodes: s.nodes, edges: s.edges, regions: s.regions, rps: s.rps, presetId: s.presetId, view: s.view, touched: this.touched, hist: this.history.hist, future: this.history.future, clean: this._cleanDoc }; }
+  parkDoc(): void { const s = this.state; this.docs[s.paradigm] = { nodes: s.nodes, edges: s.edges, regions: s.regions, rps: s.rps, presetId: s.presetId, view: s.view, touched: this.touched, hist: this.history.hist, future: this.history.future, clean: this._cleanDoc, docId: s.docId, title: s.title }; }
   switchParadigm(pid: ParadigmId): void {
     if (pid === this.state.paradigm) { this.setState({ paraOpen: false }); return; }
     // a running simulation never carries over: the new model waits for an explicit run
     const wasRunning = this.state.running && this.state.mode !== 'design';
     if (wasRunning) { this.setState({ running: false }); this.notify('simulation paused · press run or r to start it on ' + PARADIGMS[pid].label, 'ok', 4000); }
+    this.flushSave(); // the outgoing document is durable before it parks
     this.parkDoc(); this.clearRuntimeDom();
     const d: ParkedDoc | null = this.docs[pid] ?? null;
     this.simState = null; this.metrics = null; this.nhist = {}; this.hadM = false; this.uptimeS = 0; this.planner.invalidate(); this.nodeH = {}; this.nodeHMax = {}; this._maxSig = null;
     this.setState({ paradigm: pid, nodes: [], edges: [], regions: [], paraOpen: false, createOpen: false, sel: null, connect: null, rewire: null, hoverEdge: null, focus: null, nextKind: null, search: '', collapsed: {} }, () => {
       this.simState = this.makeSimState();
-      if (d) { this.history.reset(d.hist || [], d.future || []); this.touched = false; this._cleanDoc = d.clean ?? null; this.setState({ nodes: d.nodes, edges: d.edges, regions: d.regions, rps: d.rps, presetId: d.presetId, view: d.view }, () => this.fitWhenReady()); }
+      if (d) { this.history.reset(d.hist || [], d.future || []); this.touched = false; this._cleanDoc = d.clean ?? null; this.setState({ nodes: d.nodes, edges: d.edges, regions: d.regions, rps: d.rps, presetId: d.presetId, view: d.view, docId: d.docId ?? newDocumentId(), title: d.title ?? this.titleFor(d.presetId) }, () => this.fitWhenReady()); }
       else this.openPreset(EXAMPLES[pid][0]!.id);
+      this.saveNow(); // the session's active paradigm moves with the switch
     });
   }
   createDoc(pid: ParadigmId): void {
-    const go = (): void => { this.snapDoc(); const b = BLANK(pid); this.setState({ nodes: [], edges: [], regions: [], rps: b.rps, presetId: 'blank', sel: null, createOpen: false, paraOpen: false }, () => { this.simState = this.makeSimState(); this.metrics = null; this.hadM = false; }); this.markClean(); };
+    const go = (): void => { this.snapDoc(); const b = BLANK(pid); this.setState({ nodes: [], edges: [], regions: [], rps: b.rps, presetId: 'blank', docId: newDocumentId(), title: this.titleFor('blank'), sel: null, createOpen: false, paraOpen: false }, () => { this.simState = this.makeSimState(); this.metrics = null; this.hadM = false; }); this.markClean(); };
     if (pid === this.state.paradigm) go(); else { this.parkDoc(); this.docs[pid] = null; this.switchParadigm(pid); setTimeout(go, 0); }
   }
   autoLayout(): void {
@@ -436,7 +456,7 @@ export class WorkbenchController {
   snap(): void { this.history.snap(this.graph()); }
   /** a document-level transaction: graph + preset + load + clean mark, so one undo restores it all */
   snapDoc(): void { this.history.snap(this.docSnapshot()); }
-  private docSnapshot(): Snapshot { const s = this.state; return { ...this.graph(), presetId: s.presetId, rps: s.rps, clean: this._cleanDoc }; }
+  private docSnapshot(): Snapshot { const s = this.state; return { ...this.graph(), presetId: s.presetId, rps: s.rps, clean: this._cleanDoc, docId: s.docId, title: s.title }; }
   undo(): void { const g = this.history.undo(this.docSnapshot()); if (g) this.applySnapshot(g); }
   redo(): void { const g = this.history.redo(this.docSnapshot()); if (g) this.applySnapshot(g); }
   private applySnapshot(g: Snapshot): void {
@@ -484,33 +504,140 @@ export class WorkbenchController {
   }
   private applyPreset(id: string, p: { nodes: GraphNode[]; edges: GraphEdge[]; regions?: GraphRegion[]; rps: number }): void {
     this.resetDocRuntime(); this.touched = false;
-    this.setState({ presetId: id, nodes: p.nodes.map(n => ({ ...n })), edges: p.edges.map(e => ({ ...e })), regions: (p.regions || []).map(r => ({ ...r })), rps: p.rps, sel: null, connect: null, rewire: null, hoverEdge: null, focus: null, confirm: null }, () => this.fitWhenReady());
+    this.setState({ presetId: id, docId: newDocumentId(), title: this.titleFor(id), nodes: p.nodes.map(n => ({ ...n })), edges: p.edges.map(e => ({ ...e })), regions: (p.regions || []).map(r => ({ ...r })), rps: p.rps, sel: null, connect: null, rewire: null, hoverEdge: null, focus: null, confirm: null }, () => this.fitWhenReady());
     this.markClean();
   }
-  /** open the document a `#d=` share link carries, or fall back to the default example */
+  /** open the document a `#d=` share link carries, if there is one; a broken link says so */
   openLocation(): void {
     const payload = typeof location !== 'undefined' ? sharePayload(location.hash) : null;
     this._sharedPayload = payload;
     const doc = payload ? decodeDocument(payload) : null;
-    if (doc) { this.loadDocument(doc); return; }
-    this.openPreset(EXAMPLES[this.state.paradigm][0]!.id);
-    if (payload) this.notify('shared link could not be read · opened the default example', 'warn', 5000);
+    if (doc) this.loadDocument(doc);
+    else if (payload) this.notify('shared link could not be read · your document is unchanged', 'warn', 5000);
   }
-  /** replace the live document with an exchange document (share link · file); parks nothing it overwrites */
-  loadDocument(doc: GraphDocument, presetId: string = SHARED_PRESET): void {
+  /**
+   * Bring an exchange document (share link · import) onto the canvas. In the current paradigm it
+   * is one undoable transaction; into another paradigm it replaces that paradigm's stored
+   * document, which asks first when that document has content.
+   */
+  loadDocument(doc: GraphDocument, presetId: string = SHARED_PRESET, confirmed = false): void {
     const pid = doc.paradigm;
-    if (pid !== this.state.paradigm) { this.parkDoc(); this.docs[pid] = null; }
-    this.clearRuntimeDom();
-    this.simState = null; this.metrics = null; this.nhist = {}; this.hadM = false; this.uptimeS = 0; this.findings = [];
-    this.history.reset(); this.planner.invalidate(); this.nodeH = {}; this.nodeHMax = {}; this._maxSig = null; this.touched = false;
+    if (pid !== this.state.paradigm) {
+      const parked = this.docs[pid];
+      if (parked && parked.nodes.length && !confirmed) {
+        this.setState({ confirm: { title: 'Replace ' + (parked.title ?? this.titleFor(parked.presetId)) + '?', detail: 'The incoming ' + PARADIGMS[pid].label + ' document replaces your stored one (' + parked.nodes.length + ' ' + PARADIGMS[pid].unitNoun + '). Undo is not available across paradigms.', ok: 'replace', run: () => this.loadDocument(doc, presetId, true) } });
+        return;
+      }
+      this.flushSave(); this.parkDoc(); this.docs[pid] = null; this.history.reset();
+    } else if (this.state.nodes.length || this.state.edges.length || this.state.regions.length || this.history.canUndo) this.snapDoc();
+    else this.history.reset();
+    this.resetDocRuntime(); this.nodeH = {}; this.nodeHMax = {}; this._maxSig = null; this.touched = false;
     const rps = typeof doc.metadata.load === 'number' ? doc.metadata.load : BLANK(pid).rps;
     this.setState({
-      paradigm: pid, presetId, nodes: doc.nodes.map(n => ({ ...n })), edges: doc.edges.map(e => ({ ...e })), regions: doc.regions.map(r => ({ ...r })), rps, view: { ...doc.view },
-      sel: null, connect: null, rewire: null, hoverEdge: null, focus: null, paraOpen: false, createOpen: false, nextKind: null, search: '', collapsed: {},
+      paradigm: pid, presetId, docId: newDocumentId(), title: doc.title || this.titleFor(presetId, pid), nodes: doc.nodes.map(n => ({ ...n })), edges: doc.edges.map(e => ({ ...e })), regions: doc.regions.map(r => ({ ...r })), rps, view: { ...doc.view },
+      sel: null, connect: null, rewire: null, hoverEdge: null, focus: null, paraOpen: false, createOpen: false, nextKind: null, search: '', collapsed: {}, confirm: null,
     });
     this.simState = this.makeSimState();
     this.markClean();
     this.fitWhenReady();
+  }
+
+  // ---- persistence: one named record per paradigm, autosaved, restored on mount ----
+  private docSig(): DocSig { const s = this.state; return { paradigm: s.paradigm, nodes: s.nodes, edges: s.edges, regions: s.regions, rps: s.rps, view: s.view, title: s.title, presetId: s.presetId }; }
+  private static sameContent(a: DocSig, b: DocSig | null): boolean { return !!b && a.paradigm === b.paradigm && a.nodes === b.nodes && a.edges === b.edges && a.regions === b.regions && a.rps === b.rps && a.title === b.title && a.presetId === b.presetId; }
+  private static sameSig(a: DocSig, b: DocSig | null): boolean { return WorkbenchController.sameContent(a, b) && a.view === b!.view; }
+  /**
+   * Every store change: a new document signature arms the save debounce (once per change, so a
+   * failed save does not retry itself). Content edits flip the visible state to dirty; a viewport
+   * change only schedules — pan and zoom must never trigger a React render of their own.
+   */
+  private onStoreChange(): void {
+    if (!this.state.ready || !this._savedSig) return;
+    const sig = this.docSig();
+    if (WorkbenchController.sameSig(sig, this._savedSig) || WorkbenchController.sameSig(sig, this._seenSig)) return;
+    this._seenSig = sig;
+    if (!WorkbenchController.sameContent(sig, this._savedSig) && this.state.save !== 'dirty') this.setState({ save: 'dirty' });
+    clearTimeout(this._saveT); this._saveT = window.setTimeout(() => this.saveNow(), 600);
+  }
+  record(): StoredDocument { const s = this.state; return { schema: 1, id: s.docId, title: s.title, paradigm: s.paradigm, presetId: s.presetId, updatedAt: Date.now(), doc: docOf(s) }; }
+  /** write the live document and the session; false (and a failed state) when the provider refuses */
+  saveNow(): boolean {
+    clearTimeout(this._saveT);
+    if (!this.state.ready) return false;
+    const sig = this.docSig();
+    try {
+      this.workspace.save(this.record()); this.workspace.saveSession(this.state.paradigm);
+      this._savedSig = sig; this._seenSig = sig;
+      if (this.state.save !== 'saved' && this.state.save !== 'clean') this.setState({ save: 'saved' }); // a viewport-only save is silent
+      return true;
+    } catch (e) {
+      this.setState({ save: 'failed' });
+      this.notify('save failed · ' + (e instanceof Error ? e.message : String(e)) + ' — your edits are still on the canvas', 'warn', 6000);
+      return false;
+    }
+  }
+  flushSave(): void { if (this.state.save === 'dirty' || this.state.save === 'failed') this.saveNow(); }
+  retrySave(): void { if (this.saveNow()) this.notify('saved'); }
+  setTitle(title: string): void { this.setState({ title }); }
+  titleFor(presetId: string, pid: ParadigmId = this.state.paradigm): string { return presetId === 'blank' ? 'Untitled ' + PARADIGMS[pid].label : presetId === SHARED_PRESET ? 'Shared ' + PARADIGMS[pid].label : EXAMPLES[pid].find(x => x.id === presetId)?.name ?? presetId; }
+  /** put the stored workspace on the canvas; returns the paradigms whose records could not be read */
+  restoreSession(): Array<{ pid: ParadigmId; reason: string }> {
+    const invalid: Array<{ pid: ParadigmId; reason: string }> = [];
+    const session = this.workspace.loadSession(), active = session?.active ?? this.state.paradigm;
+    const results: Partial<Record<ParadigmId, LoadResult>> = {};
+    for (const pid of this.workspace.stored()) {
+      const r = results[pid] = this.workspace.load(pid);
+      if (r.kind === 'invalid') invalid.push({ pid, reason: r.reason });
+      else if (r.kind === 'ok' && r.recovered) this.notify(r.recovered === 'interrupted' ? 'recovered an interrupted save of ' + r.record.title : 'restored the last good save of ' + r.record.title, 'warn', 6000);
+    }
+    for (const pid of ORDER) {
+      const r = results[pid]; if (!r || r.kind !== 'ok' || pid === active) continue;
+      const d = r.record.doc;
+      this.docs[pid] = { nodes: d.nodes, edges: d.edges, regions: d.regions, rps: typeof d.metadata.load === 'number' ? d.metadata.load : BLANK(pid).rps, presetId: r.record.presetId, view: d.view, touched: false, hist: [], future: [], clean: JSON.stringify({ nodes: d.nodes, edges: d.edges, regions: d.regions }), docId: r.record.id, title: r.record.title };
+    }
+    if (active !== this.state.paradigm) { this.setState({ paradigm: active }); this.simState = this.makeSimState(); }
+    const r = results[active];
+    if (r && r.kind === 'ok') this.applyRecord(r.record);
+    else this.openPreset(EXAMPLES[active][0]!.id);
+    return invalid;
+  }
+  private applyRecord(rec: StoredDocument): void {
+    const d = rec.doc;
+    this.history.reset(); this.resetDocRuntime(); this.touched = false;
+    this.setState({ presetId: rec.presetId, docId: rec.id, title: rec.title, nodes: d.nodes, edges: d.edges, regions: d.regions, rps: typeof d.metadata.load === 'number' ? d.metadata.load : BLANK(rec.paradigm).rps, view: { ...d.view }, sel: null, connect: null, rewire: null, hoverEdge: null, focus: null }, () => this.fitWhenReady());
+    this.markClean();
+  }
+  private recoveryDialog(pid: ParadigmId, reason: string): void {
+    this.setState({ confirm: {
+      title: 'Stored ' + PARADIGMS[pid].label + ' document could not be read',
+      detail: reason + '. The unreadable copy is kept until the next save — export it now if you want to keep it. The canvas shows the example instead.',
+      ok: 'continue', run: () => { /* the example is already on the canvas */ },
+      alt: { label: 'export unreadable copy', run: () => this.download(this.workspace.broken(pid) ?? '', PARADIGMS[pid].label + '-unreadable.json') },
+    } });
+  }
+  /** the live document as exchange JSON */
+  exportText(): string { return JSON.stringify(docOf(this.state), null, 2); }
+  exportDoc(): void { this.download(this.exportText(), (this.state.title || 'workbench').replace(/[^\w.-]+/g, '-').toLowerCase() + '.workbench.json'); this.notify('exported ' + this.state.title); }
+  private download(text: string, name: string): void {
+    if (typeof URL === 'undefined' || typeof URL.createObjectURL !== 'function') { this.notify('download is not available here', 'warn'); return; }
+    const url = URL.createObjectURL(new Blob([text], { type: 'application/json' }));
+    const a = document.createElement('a'); a.href = url; a.download = name; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 0);
+  }
+  /** import exchange JSON; migrations run, garbage is refused with a toast and nothing changes */
+  importText(text: string, name = 'document'): boolean {
+    let doc: GraphDocument;
+    try { doc = migrate(JSON.parse(text), { familyOfAlias: familyOfGk }); }
+    catch (e) { this.notify('could not import ' + name + ' · ' + (e instanceof Error ? e.message : 'not a workbench document'), 'warn', 6000); return false; }
+    this.loadDocument(doc, 'import');
+    this.notify('imported ' + (doc.title || name));
+    return true;
+  }
+  /** open a file picker for a .json document */
+  importDoc(): void {
+    const input = document.createElement('input'); input.type = 'file'; input.accept = '.json,application/json';
+    input.onchange = () => { const f = input.files?.[0]; if (!f) return; void f.text().then(t => this.importText(t, f.name)); };
+    input.click();
   }
   /** share: the document becomes the URL fragment, the link goes to the clipboard, and a toast says which */
   async share(): Promise<boolean> {
@@ -702,6 +829,9 @@ export class WorkbenchController {
     all.push({ label: 'create diagram…', hint: 'n', run: () => this.setState({ createOpen: true, palette: false }) });
     EXAMPLES[s.paradigm].forEach(p => all.push({ label: 'load example · ' + p.name.toLowerCase(), hint: 'example', run: () => { this.loadPreset(p.id); this.setState({ palette: false }); } }));
     if (s.paradigm === 'workflow') all.push({ label: '+ lane', hint: 'owner', run: () => this.addLane() });
+    all.push({ label: 'export document · json', hint: 'file', run: () => { this.exportDoc(); this.setState({ palette: false }); } });
+    all.push({ label: 'import document · json', hint: 'file', run: () => { this.setState({ palette: false }); this.importDoc(); } });
+    all.push({ label: 'save now', hint: 'file', run: () => { this.retrySave(); this.setState({ palette: false }); } });
     all.push({ label: 'auto layout', hint: 'l', run: () => { this.autoLayout(); this.setState({ palette: false }); } });
     all.push({ label: (s.ui.trace ? 'hide' : 'show') + ' execution trace', hint: 't', run: () => { this.setUi('trace'); this.setState({ palette: false }); } });
     all.push({ label: this.th() === 'dark' ? 'switch to light mode' : 'switch to dark mode', hint: 'd', run: () => this.setState({ theme: this.th() === 'dark' ? 'light' : 'dark', palette: false }) });

@@ -28,6 +28,19 @@ Node 22+, pnpm 9. Zero UI dependencies: React 18 and nothing else at runtime.
 | `pnpm lint` | typecheck + the acceptance greps (no hex literals, no aliases in `model`/`store`, no `any`, no TODO) |
 | `pnpm goldens` | regenerate `tests/golden/data` from the **original** prototype modules |
 
+## Documents
+
+Every paradigm holds one named document; all five and the active paradigm are **autosaved** to the
+browser (600 ms after the last edit, and on tab hide / close) and restored on reload. The status
+strip shows whether the latest edit is durable — `unsaved` · `saved` · `save failed` (with retry and
+export-copy). Saves go through a small key/value seam (`src/persist/store.ts`) so the graph model is
+never tied to one provider; records are versioned and wrap a versioned `GraphDocument`, so older
+documents migrate on read (v1 → v3 is covered). Writes are interrupted-save safe: a crash mid-save
+leaves either a complete pending record (recovered) or the previous good one (restored); a record
+that cannot be read opens a recovery dialog with an export of the unreadable copy instead of a silent
+reset. `commands → export / import document · json` move documents as files; the title in the header
+is editable.
+
 **Presets** replace the live document as one undoable transaction: a single `⌘Z` brings back the
 previous graph, preset selection and load. If the document has edits since it was loaded, the preset
 picker asks first; cancelling changes nothing. Loading a preset — or undoing / redoing across one —

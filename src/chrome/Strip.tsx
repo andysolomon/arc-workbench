@@ -5,6 +5,8 @@ import { fL, fmt, polyline } from '../sim';
 const CARD = { background: 'var(--surface-raised)', border: '1px solid var(--border-subtle)', borderRadius: '10px', padding: '10px 12px' } as const;
 const HEAD = { display: 'flex', justifyContent: 'space-between', gap: '10px', whiteSpace: 'nowrap', marginBottom: '6px' } as const;
 const SVG = { width: '100%', height: '58px', display: 'block' } as const;
+const SAVE_TEXT = { clean: '', dirty: 'unsaved', saving: 'saving…', saved: 'saved', failed: 'save failed' } as const;
+const BTN = { flex: 'none', whiteSpace: 'nowrap', letterSpacing: '0.06em', textTransform: 'uppercase', fontSize: '10px' } as const;
 const line = (stroke: string, w: number) => ({ fill: 'none', stroke, strokeWidth: w, vectorEffect: 'non-scaling-stroke' as const });
 
 export function Strip({ ctl }: { ctl: WorkbenchController }) {
@@ -23,6 +25,10 @@ export function Strip({ ctl }: { ctl: WorkbenchController }) {
         <span style={{ minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{statMix}</span>
         <span style={{ whiteSpace: 'nowrap' }}>{s.edges.length} {T.edgeNoun}</span>
         <span style={{ whiteSpace: 'nowrap' }} data-t="uptime">{Math.floor(up / 60) + 'm ' + String(up % 60).padStart(2, '0') + 's'}</span>
+        <span className="wb-save" data-save={s.save} role="status" style={{ whiteSpace: 'nowrap', display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
+          {SAVE_TEXT[s.save]}
+          {s.save === 'failed' ? <><button className="tg-btn" onClick={() => ctl.retrySave()} style={BTN}>retry</button><button className="tg-btn" onClick={() => ctl.exportDoc()} style={BTN}>export copy</button></> : null}
+        </span>
         <button onClick={() => { if (!isDesign) ctl.setState({ drawerOpen: !s.drawerOpen }); }} className="tg-btn wb-tel" data-off={isDesign ? '1' : '0'} title={isDesign ? 'telemetry · available in simulate' : 'toggle telemetry drawer'} style={{ marginLeft: 'auto', flex: 'none', whiteSpace: 'nowrap', letterSpacing: '0.06em', textTransform: 'uppercase', fontSize: '10px' }}>telemetry {s.drawerOpen ? '▾' : '▴'}</button>
       </div>
       {s.drawerOpen ? (

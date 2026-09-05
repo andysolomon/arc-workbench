@@ -11,7 +11,9 @@ export const UIOPTS: ReadonlyArray<readonly [UiKey, string]> = [['labels', 'edge
 
 export interface Toast { text: string; tone: 'ok' | 'warn' }
 /** a modal yes/no; `run` is the confirmed action, Escape / cancel / scrim leave everything untouched */
-export interface Confirm { title: string; detail: string; ok: string; run: () => void }
+export interface Confirm { title: string; detail: string; ok: string; run: () => void; /** an optional second, non-destructive action */ alt?: { label: string; run: () => void } }
+/** whether the latest edit is durable: clean (nothing to save) · dirty · saving · saved · failed */
+export type SaveState = 'clean' | 'dirty' | 'saving' | 'saved' | 'failed';
 export interface Connect { from: string; side: Side }
 export interface Rewire { edgeId: string; end: 'from' | 'to' }
 export interface Focus { key: string; nodes: Record<string, 1>; edges: Record<string, 1>; keep: Record<string, 1> }
@@ -24,6 +26,10 @@ export interface WorkbenchState {
   rps: number;
   sel: Selection | null;
   presetId: string;
+  /** the named document record this paradigm's canvas belongs to */
+  docId: string;
+  title: string;
+  save: SaveState;
   paradigm: ParadigmId;
   nodes: GraphNode[];
   edges: GraphEdge[];
@@ -54,7 +60,7 @@ export interface WorkbenchState {
 
 export const INITIAL_UI: UiFlags = { labels: true, rates: true, edgeCard: true, packets: true, spark: true, grid: true, pixel: true, hints: true, channels: false, dense: false, semantic: true, tidy: false, tiers: true, trace: false };
 export const initialState = (): WorkbenchState => ({
-  ready: false, theme: null, mode: 'simulate', running: true, rps: 2400, sel: null, presetId: 'video', paradigm: 'dataflow',
+  ready: false, theme: null, mode: 'simulate', running: true, rps: 2400, sel: null, presetId: 'video', docId: '', title: '', save: 'clean', paradigm: 'dataflow',
   nodes: [], edges: [], regions: [], view: { x: 60, y: 30, k: 1 }, search: '', collapsed: {}, drawerOpen: false, libOpen: true,
   palette: false, pq: '', pi: 0, connect: null, hoverEdge: null, rewire: null, geo: 0, focus: null, paraOpen: false, createOpen: false, nextKind: null,
   settingsOpen: false, toast: null, confirm: null, ui: { ...INITIAL_UI },

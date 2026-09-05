@@ -7,7 +7,7 @@ import type { Graph } from '../model/document';
  * document) also carries the preset id, the load slider and the clean-document mark, so one undo
  * restores the whole document state — and one redo re-applies it.
  */
-export interface Snapshot extends Graph { presetId?: string; rps?: number; clean?: string | null }
+export interface Snapshot extends Graph { presetId?: string; rps?: number; clean?: string | null; docId?: string; title?: string }
 const isDocLevel = (g: Partial<Snapshot>): boolean => g.presetId !== undefined;
 
 export class History {
@@ -25,6 +25,8 @@ export class History {
     if (g.presetId !== undefined) out.presetId = g.presetId;
     if (g.rps !== undefined) out.rps = g.rps;
     if (g.clean !== undefined) out.clean = g.clean;
+    if (g.docId !== undefined) out.docId = g.docId;
+    if (g.title !== undefined) out.title = g.title;
     return out;
   }
   undo(current: Snapshot): Snapshot | null { return this.restore(this.hist, this.future, current); }

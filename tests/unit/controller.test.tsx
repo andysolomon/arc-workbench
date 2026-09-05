@@ -92,6 +92,21 @@ describe('controller', () => {
     key(ctl, 'z', { metaKey: true, shiftKey: true }); expect(ctl.state.nodes.length).toBe(n - 1);
     ctl.setState({ sel: { kind: 'node', id: ctl.state.nodes[0]!.id } }); key(ctl, 'Escape'); expect(ctl.state.sel).toBeNull();
   });
+  it('keyboard editing: shift+arrows move, c + arrows + Enter connect, Enter inspects, announcements follow', () => {
+    key(ctl, 'ArrowRight'); const id = ctl.state.sel!.id, n0 = ctl.nById[id]!, h = ctl.history.hist.length;
+    key(ctl, 'ArrowRight', { shiftKey: true }); key(ctl, 'ArrowDown', { shiftKey: true });
+    expect(ctl.nById[id]).toMatchObject({ x: n0.x + 16, y: n0.y + 16 }); expect(ctl.history.hist.length).toBe(h + 1); // one entry per burst
+    expect(ctl.state.announce).toContain('moved ' + n0.name);
+    ctl.undo(); expect(ctl.nById[id]).toMatchObject({ x: n0.x, y: n0.y });
+    key(ctl, 'ArrowRight'); const e0 = ctl.state.edges.length;
+    key(ctl, 'c'); expect(ctl.state.kbConnect).toBe(id);
+    key(ctl, 'ArrowRight'); const to = ctl.state.sel!.id; expect(to).not.toBe(id);
+    key(ctl, 'Enter'); expect(ctl.state.kbConnect).toBeNull(); expect(ctl.state.edges.length).toBe(e0 + 1);
+    expect(ctl.state.edges[e0]).toMatchObject({ from: id, to }); expect(ctl.state.announce).toContain('connected');
+    key(ctl, 'c'); key(ctl, 'Escape'); expect(ctl.state.kbConnect).toBeNull(); expect(ctl.state.sel).not.toBeNull(); expect(ctl.state.announce).toContain('cancelled');
+    key(ctl, 'c'); key(ctl, 'Enter'); expect(ctl.state.edges.length).toBe(e0 + 1); // same node: cancelled, nothing added
+    key(ctl, 'Delete'); expect(ctl.state.announce).toContain('deleted');
+  });
   it('? opens keyboard help, Escape closes it first, and the palette lists it', () => {
     key(ctl, '?'); expect(ctl.state.helpOpen).toBe(true);
     key(ctl, '/'); expect(ctl.state.palette).toBe(false); // modal: other bindings wait

@@ -34,22 +34,22 @@ export function Library({ ctl }: { ctl: WorkbenchController }) {
     return { id: pid, label: TT.label, tag: TT.label, fam: TT.family, items };
   }).filter(g => g.items.length) : [];
   return (
-    <div style={{ width: '228px', flex: 'none', display: 'flex', flexDirection: 'column', background: 'var(--surface-page)', borderRight: '1px solid var(--border-subtle)' }}>
+    <nav aria-label="component library" style={{ width: '228px', flex: 'none', display: 'flex', flexDirection: 'column', background: 'var(--surface-page)', borderRight: '1px solid var(--border-subtle)' }}>
       <div style={{ padding: '12px 12px 6px' }}>
-        <input className="tg-input" value={s.search} onChange={e => ctl.setState({ search: e.target.value })} placeholder="search components" style={{ width: '100%' }} />
+        <input className="tg-input" type="search" value={s.search} onChange={e => ctl.setState({ search: e.target.value })} placeholder="search components" aria-label="search components" style={{ width: '100%' }} />
       </div>
       {T.FORMS ? <div className="wb-formkey"><span><b>≡ data</b> · at rest / in transit</span><span><b>ƒ process</b> · transformation / execution</span></div> : null}
       <div style={{ flex: 1, overflowY: 'auto', overflowX: 'hidden', padding: '0 8px 14px' }}>
         {groups.map(g => (
           <div key={g.id} style={{ marginTop: '10px' }}>
-            <button onClick={() => ctl.setState({ collapsed: { ...s.collapsed, [g.id]: !s.collapsed[g.id] } })} className="tg-label" style={{ display: 'flex', alignItems: 'center', gap: '8px', width: '100%', background: 'none', border: 'none', padding: '4px 4px 6px', cursor: 'pointer' }}>
+            <button onClick={() => ctl.setState({ collapsed: { ...s.collapsed, [g.id]: !s.collapsed[g.id] } })} className="tg-label" aria-expanded={g.open} style={{ display: 'flex', alignItems: 'center', gap: '8px', width: '100%', background: 'none', border: 'none', padding: '4px 4px 6px', cursor: 'pointer' }}>
               <span className="tg-chip-swatch" style={swatch(g.fam)} />{g.label}
               <span style={{ marginLeft: 'auto', color: 'var(--text-faint)', letterSpacing: 0 }}>{g.open ? '−' : '+'}</span>
             </button>
             {g.open ? (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
                 {g.items.map(it => (
-                  <button key={it.key} className={'tg-btn ' + it.cls} data-tint={g.fam} onClick={it.onAdd} title={it.title} style={ROW}>
+                  <button key={it.key} className={'tg-btn ' + it.cls} data-tint={g.fam} onClick={it.onAdd} title={it.title} aria-label={it.label + ' · ' + it.title} aria-pressed={it.cls ? true : undefined} style={ROW}>
                     <Icon d={it.icon} /><span style={LBL}>{it.label}</span><span style={{ color: 'var(--text-faint)', flex: 'none' }}>+</span>
                   </button>
                 ))}
@@ -70,6 +70,6 @@ export function Library({ ctl }: { ctl: WorkbenchController }) {
           </div>
         ))}
       </div>
-    </div>
+    </nav>
   );
 }

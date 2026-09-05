@@ -47,7 +47,7 @@ test('edge card setting hides hovered and selected cards, persists, and re-enabl
   await expect(card).toBeVisible({ timeout: 400 });
 
   await page.getByRole('button', { name: 'display settings' }).click();
-  await page.getByRole('button', { name: 'edge hover card', exact: true }).click();
+  await page.getByRole('switch', { name: 'edge hover card', exact: true }).click();
   await expect.poll(() => page.evaluate(() => window.__workbench.ctl.state.ui.edgeCard)).toBe(false);
   await expect(card).toHaveCount(0);
   await page.mouse.move(mid.x + 3, mid.y + 2);
@@ -61,7 +61,7 @@ test('edge card setting hides hovered and selected cards, persists, and re-enabl
   await openApp(page);
   await expect.poll(() => page.evaluate(() => window.__workbench.ctl.state.ui.edgeCard)).toBe(false);
   await page.getByRole('button', { name: 'display settings' }).click();
-  await page.getByRole('button', { name: 'edge hover card', exact: true }).click();
+  await page.getByRole('switch', { name: 'edge hover card', exact: true }).click();
   await expect.poll(() => page.evaluate(() => window.__workbench.ctl.state.ui.edgeCard)).toBe(true);
   const later = await point();
   await page.mouse.move(later.x, later.y);

@@ -9,6 +9,7 @@ export { EdgeCard } from './EdgeCard';
 export { Inspector } from './Inspector';
 export { Strip } from './Strip';
 export { Toast } from './Toast';
+export { SrLive } from './SrLive';
 export { CreateDialog } from './CreateDialog';
 export { ConfirmDialog } from './ConfirmDialog';
 export { EmptyState } from './EmptyState';

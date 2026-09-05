@@ -18,9 +18,9 @@ export function Strip({ ctl }: { ctl: WorkbenchController }) {
   const hist = ctl.simState ? ctl.simState.hist : [], m = ctl.metrics, sys = m ? m.sys : null;
   const latMax = Math.max(1, ...hist.map(h => h.p99)), thrMax = Math.max(1, ...hist.map(h => h.rps));
   return (
-    <div style={{ flex: 'none', background: 'var(--surface-card)', borderTop: '1px solid var(--border-subtle)' }}>
+    <section aria-label="status" style={{ flex: 'none', background: 'var(--surface-card)', borderTop: '1px solid var(--border-subtle)' }}>
       <div ref={el => { ctl.refs.strip = el; }} style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '6px 18px', padding: '7px 20px', color: 'var(--text-muted)', fontSize: '10px', letterSpacing: '0.06em', textTransform: 'uppercase' }}>
-        <button onClick={() => ctl.setState({ libOpen: !s.libOpen })} className="tg-btn" style={{ flex: 'none', whiteSpace: 'nowrap', letterSpacing: '0.06em', textTransform: 'uppercase', fontSize: '10px' }}>library {s.libOpen ? '‹' : '›'}</button>
+        <button onClick={() => ctl.setState({ libOpen: !s.libOpen })} className="tg-btn" aria-expanded={s.libOpen} aria-label="component library" style={{ flex: 'none', whiteSpace: 'nowrap', letterSpacing: '0.06em', textTransform: 'uppercase', fontSize: '10px' }}>library {s.libOpen ? '‹' : '›'}</button>
         <span style={{ whiteSpace: 'nowrap' }}>{s.nodes.length} {T.unitNoun}</span>
         <span style={{ minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{statMix}</span>
         <span style={{ whiteSpace: 'nowrap' }}>{s.edges.length} {T.edgeNoun}</span>
@@ -29,7 +29,7 @@ export function Strip({ ctl }: { ctl: WorkbenchController }) {
           {SAVE_TEXT[s.save]}
           {s.save === 'failed' ? <><button className="tg-btn" onClick={() => ctl.retrySave()} style={BTN}>retry</button><button className="tg-btn" onClick={() => ctl.exportDoc()} style={BTN}>export copy</button></> : null}
         </span>
-        <button onClick={() => { if (!isDesign) ctl.setState({ drawerOpen: !s.drawerOpen }); }} className="tg-btn wb-tel" data-off={isDesign ? '1' : '0'} title={isDesign ? 'telemetry · available in simulate' : 'toggle telemetry drawer'} style={{ marginLeft: 'auto', flex: 'none', whiteSpace: 'nowrap', letterSpacing: '0.06em', textTransform: 'uppercase', fontSize: '10px' }}>telemetry {s.drawerOpen ? '▾' : '▴'}</button>
+        <button onClick={() => { if (!isDesign) ctl.setState({ drawerOpen: !s.drawerOpen }); }} className="tg-btn wb-tel" data-off={isDesign ? '1' : '0'} title={isDesign ? 'telemetry · available in simulate' : 'toggle telemetry drawer'} aria-expanded={s.drawerOpen} aria-disabled={isDesign} style={{ marginLeft: 'auto', flex: 'none', whiteSpace: 'nowrap', letterSpacing: '0.06em', textTransform: 'uppercase', fontSize: '10px' }}>telemetry {s.drawerOpen ? '▾' : '▴'}</button>
       </div>
       {s.drawerOpen ? (
         <div ref={el => { ctl.refs.drawer = el; }} style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(190px,1fr))', gap: '12px', padding: '12px 20px 14px', borderTop: '1px solid var(--border-subtle)', maxHeight: 'min(40vh,240px)', overflowY: 'auto' }}>
@@ -62,6 +62,6 @@ export function Strip({ ctl }: { ctl: WorkbenchController }) {
           </div>
         </div>
       ) : null}
-    </div>
+    </section>
   );
 }

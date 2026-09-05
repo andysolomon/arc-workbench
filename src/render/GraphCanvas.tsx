@@ -34,6 +34,9 @@ export function GraphCanvas({ vm, h, children }: { vm: CanvasVM; h: Handlers; ch
       data-o-chan={a.oChan}
       data-chan={a.chan}
       onPointerDown={h.onBgDown}
+      role="application"
+      aria-label={'diagram canvas · ' + a.paradigm + ' · arrow keys select, shift + arrows move, c connects, Enter inspects, Delete removes, ? for help'}
+      tabIndex={0}
       style={ROOT}
     >
       <div ref={h.setGridEl} style={{ ...GRID_BASE, ...vm.gridStyle }} />

@@ -55,6 +55,7 @@ export interface WorkbenchState {
   /** transient confirmation strip (share · load failures); cleared by a timer */
   toast: Toast | null;
   confirm: Confirm | null;
+  helpOpen: boolean;
   ui: UiFlags;
 }
 
@@ -63,5 +64,5 @@ export const initialState = (): WorkbenchState => ({
   ready: false, theme: null, mode: 'simulate', running: true, rps: 2400, sel: null, presetId: 'video', docId: '', title: '', save: 'clean', paradigm: 'dataflow',
   nodes: [], edges: [], regions: [], view: { x: 60, y: 30, k: 1 }, search: '', collapsed: {}, drawerOpen: false, libOpen: true,
   palette: false, pq: '', pi: 0, connect: null, hoverEdge: null, rewire: null, geo: 0, focus: null, paraOpen: false, createOpen: false, nextKind: null,
-  settingsOpen: false, toast: null, confirm: null, ui: { ...INITIAL_UI },
+  settingsOpen: false, toast: null, confirm: null, helpOpen: false, ui: { ...INITIAL_UI },
 });

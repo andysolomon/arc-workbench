@@ -92,6 +92,13 @@ describe('controller', () => {
     key(ctl, 'z', { metaKey: true, shiftKey: true }); expect(ctl.state.nodes.length).toBe(n - 1);
     ctl.setState({ sel: { kind: 'node', id: ctl.state.nodes[0]!.id } }); key(ctl, 'Escape'); expect(ctl.state.sel).toBeNull();
   });
+  it('? opens keyboard help, Escape closes it first, and the palette lists it', () => {
+    key(ctl, '?'); expect(ctl.state.helpOpen).toBe(true);
+    key(ctl, '/'); expect(ctl.state.palette).toBe(false); // modal: other bindings wait
+    key(ctl, 'Escape'); expect(ctl.state.helpOpen).toBe(false);
+    key(ctl, '?'); key(ctl, '?'); expect(ctl.state.helpOpen).toBe(false);
+    expect(ctl.paletteItems().map(i => i.label)).toContain('keyboard shortcuts');
+  });
   it('typing in an input never triggers single-key bindings but ⌘Z still undoes', () => {
     const input = document.createElement('input'); document.body.appendChild(input);
     const ev = new KeyboardEvent('keydown', { key: 'f' }); Object.defineProperty(ev, 'target', { value: input });

@@ -24,6 +24,7 @@ import type { Toast } from '../store';
 
 export interface PaletteItem { label: string; hint: string; run: () => void }
 export interface EdgeCardVM { fromName: string; toName: string; proto: string; left: number; top: number }
+export type RestoreNotice = { kind: 'invalid'; pid: ParadigmId; reason: string } | { kind: 'recovered'; pid: ParadigmId; record: StoredDocument; recovered: 'interrupted' | 'previous'; alternative?: StoredDocument; reason?: string };
 /** the slice of state a stored record is built from — a save is due when any of these change identity */
 interface DocSig { paradigm: ParadigmId; nodes: GraphNode[]; edges: GraphEdge[]; regions: GraphRegion[]; rps: number; view: View; title: string; presetId: string }
 export interface InspectorField { key: string; label: string; half: '1' | null; isText: boolean; isNum: boolean; isSel: boolean; isCheck: boolean; ph: string; min: number | undefined; max: number | undefined; step: number | undefined; value: string | number; checked: boolean; options: Array<{ v: string; l: string }>; onChange: (v: string | boolean) => void }
@@ -150,11 +151,14 @@ export class WorkbenchController {
     try { const u = JSON.parse(localStorage.getItem('wb.ui') || 'null') as Partial<WorkbenchState['ui']> | null; if (u) this.setState(s => ({ ui: { ...s.ui, ...u } })); } catch { /* storage unavailable */ }
     this.metrics = null; this.nhist = {}; this.history.reset();
     this.simState = this.makeSimState();
-    const invalid = this.restoreSession(); // the stored workspace (or the default example), then a `#d=` share link on top
+    const notices = this.restoreSession(); // the stored workspace (or the default example), then a `#d=` share link on top
     this.openLocation();
     this._savedSig = this._seenSig = this.docSig();
     this.setState({ ready: true, mode: 'design', libOpen: window.innerWidth > 1060, save: this.workspace.stored().includes(this.state.paradigm) ? 'saved' : 'clean' });
-    if (invalid.length) this.recoveryDialog(invalid[0]!.pid, invalid[0]!.reason);
+    // one dialog: the active paradigm's notice if it has one, else the first; the rest are toasts
+    const first = notices.find(n => n.pid === this.state.paradigm) ?? notices[0];
+    notices.forEach(n => { if (n !== first) this.notify(n.kind === 'invalid' ? 'stored ' + PARADIGMS[n.pid].label + ' document could not be read' : (n.recovered === 'interrupted' ? 'recovered an interrupted save of ' : 'restored the last good save of ') + n.record.title, 'warn', 6000); });
+    if (first) { if (first.kind === 'invalid') this.recoveryDialog(first.pid, first.reason); else this.recoveredDialog(first); }
     // a hidden tab or a closing page flushes whatever the debounce still holds
     this._hide = () => { if (document.visibilityState === 'hidden') this.flushSave(); };
     document.addEventListener('visibilitychange', this._hide); window.addEventListener('pagehide', this._hide);
@@ -580,15 +584,15 @@ export class WorkbenchController {
   retrySave(): void { if (this.saveNow()) this.notify('saved'); }
   setTitle(title: string): void { this.setState({ title }); }
   titleFor(presetId: string, pid: ParadigmId = this.state.paradigm): string { return presetId === 'blank' ? 'Untitled ' + PARADIGMS[pid].label : presetId === SHARED_PRESET ? 'Shared ' + PARADIGMS[pid].label : EXAMPLES[pid].find(x => x.id === presetId)?.name ?? presetId; }
-  /** put the stored workspace on the canvas; returns the paradigms whose records could not be read */
-  restoreSession(): Array<{ pid: ParadigmId; reason: string }> {
-    const invalid: Array<{ pid: ParadigmId; reason: string }> = [];
+  /** put the stored workspace on the canvas; returns what needs telling: unreadable records and recoveries */
+  restoreSession(): RestoreNotice[] {
+    const notices: RestoreNotice[] = [];
     const session = this.workspace.loadSession(), active = session?.active ?? this.state.paradigm;
     const results: Partial<Record<ParadigmId, LoadResult>> = {};
     for (const pid of this.workspace.stored()) {
       const r = results[pid] = this.workspace.load(pid);
-      if (r.kind === 'invalid') invalid.push({ pid, reason: r.reason });
-      else if (r.kind === 'ok' && r.recovered) this.notify(r.recovered === 'interrupted' ? 'recovered an interrupted save of ' + r.record.title : 'restored the last good save of ' + r.record.title, 'warn', 6000);
+      if (r.kind === 'invalid') notices.push({ kind: 'invalid', pid, reason: r.reason });
+      else if (r.kind === 'ok' && r.recovered) notices.push({ kind: 'recovered', pid, record: r.record, recovered: r.recovered, ...(r.alternative ? { alternative: r.alternative } : {}), ...(r.reason ? { reason: r.reason } : {}) });
     }
     for (const pid of ORDER) {
       const r = results[pid]; if (!r || r.kind !== 'ok' || pid === active) continue;
@@ -599,13 +603,34 @@ export class WorkbenchController {
     const r = results[active];
     if (r && r.kind === 'ok') this.applyRecord(r.record);
     else this.openPreset(EXAMPLES[active][0]!.id);
-    return invalid;
+    return notices;
   }
   private applyRecord(rec: StoredDocument): void {
     const d = rec.doc;
     this.history.reset(); this.resetDocRuntime(); this.touched = false;
     this.setState({ presetId: rec.presetId, docId: rec.id, title: rec.title, nodes: d.nodes, edges: d.edges, regions: d.regions, rps: typeof d.metadata.load === 'number' ? d.metadata.load : BLANK(rec.paradigm).rps, view: { ...d.view }, sel: null, connect: null, rewire: null, hoverEdge: null, focus: null }, () => this.fitWhenReady());
     this.markClean();
+  }
+  /** crash recovery names the version on the canvas and lets the user keep it or go back */
+  private recoveredDialog(n: Extract<RestoreNotice, { kind: 'recovered' }>): void {
+    const when = (t: number): string => t ? new Date(t).toLocaleString() : 'an unknown time';
+    const label = PARADIGMS[n.pid].label, other = n.pid === this.state.paradigm ? '' : ' (in ' + label + ')';
+    if (n.recovered === 'interrupted') {
+      const alt = n.alternative;
+      this.setState({ confirm: {
+        title: 'Recovered an interrupted save of ' + n.record.title + other,
+        detail: 'This version was written at ' + when(n.record.updatedAt) + ' but the save never completed. ' + (alt ? 'The previous complete save is from ' + when(alt.updatedAt) + '. Keep the recovered version, or go back to the previous one?' : 'There is no older save to go back to.'),
+        ok: 'keep recovered', run: () => { /* already on the canvas and committed */ },
+        ...(alt ? { alt: { label: 'use previous save', run: () => { if (n.pid === this.state.paradigm) { this.applyRecord(alt); this.saveNow(); } else { this.workspace.save(alt); this.docs[n.pid] = null; } this.notify('back on the save from ' + when(alt.updatedAt)); } } } : {}),
+      } });
+    } else {
+      this.setState({ confirm: {
+        title: 'Restored the last good save of ' + n.record.title + other,
+        detail: 'The newest record could not be read' + (n.reason ? ' (' + n.reason + ')' : '') + '. The unreadable copy is kept until the next save — export it if you want to inspect it.',
+        ok: 'keep restored', run: () => { /* already on the canvas */ },
+        alt: { label: 'export unreadable copy', run: () => this.download(this.workspace.broken(n.pid) ?? '', label + '-unreadable.json') },
+      } });
+    }
   }
   private recoveryDialog(pid: ParadigmId, reason: string): void {
     this.setState({ confirm: {
@@ -831,6 +856,7 @@ export class WorkbenchController {
     if (s.paradigm === 'workflow') all.push({ label: '+ lane', hint: 'owner', run: () => this.addLane() });
     all.push({ label: 'export document · json', hint: 'file', run: () => { this.exportDoc(); this.setState({ palette: false }); } });
     all.push({ label: 'import document · json', hint: 'file', run: () => { this.setState({ palette: false }); this.importDoc(); } });
+    all.push({ label: 'keyboard shortcuts', hint: '?', run: () => this.setState({ helpOpen: true, palette: false }) });
     all.push({ label: 'save now', hint: 'file', run: () => { this.retrySave(); this.setState({ palette: false }); } });
     all.push({ label: 'auto layout', hint: 'l', run: () => { this.autoLayout(); this.setState({ palette: false }); } });
     all.push({ label: (s.ui.trace ? 'hide' : 'show') + ' execution trace', hint: 't', run: () => { this.setUi('trace'); this.setState({ palette: false }); } });

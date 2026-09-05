@@ -68,3 +68,27 @@ test('replacing an edited document with a preset asks first, and one undo brings
   await page.keyboard.press('Shift+Control+z');
   await expect(select).toHaveValue('blank'); expect(await count()).toBe(0);
 });
+
+test('a blank document offers its first actions; ? opens keyboard help', async ({ page }) => {
+  await openApp(page);
+  await expect(page.locator('.wb-empty')).toHaveCount(0);
+  await page.getByRole('combobox', { name: 'example preset' }).selectOption('blank');
+  const empty = page.getByRole('region', { name: /originate|transformed/ });
+  await expect(empty).toBeVisible();
+  await expect(empty.getByRole('button', { name: /^\+ add / })).toBeVisible();
+  await expect(empty.getByRole('button', { name: /load example/ })).toBeVisible();
+  await expect(empty.getByRole('button', { name: 'import json' })).toBeVisible();
+  await empty.getByRole('button', { name: /keyboard help/ }).click();
+  const help = page.getByRole('dialog', { name: 'Keyboard' }); await expect(help).toBeVisible();
+  await expect(help).toContainText('command palette');
+  await page.keyboard.press('Escape'); await expect(help).toHaveCount(0);
+  await page.keyboard.press('?'); await expect(help).toBeVisible(); await page.keyboard.press('Escape');
+  // guidance follows the paradigm
+  await page.getByRole('button', { name: 'diagram paradigm' }).click();
+  await page.locator('.tg-pmenu .tg-pitem').filter({ hasText: 'sequence' }).first().click();
+  await page.getByRole('combobox', { name: 'example preset' }).selectOption('blank');
+  await expect(page.locator('.wb-empty')).toContainText(/participant|message/i);
+  await page.locator('.wb-empty').getByRole('button', { name: /^\+ add / }).click();
+  await expect(page.locator('.tg-gnode')).toHaveCount(1);
+  await expect(page.locator('.wb-empty')).toHaveCount(0);
+});

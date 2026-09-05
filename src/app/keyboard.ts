@@ -1,6 +1,6 @@
 // Keyboard map (WB 2006–2043): / or ⌘K palette · ⌘Z / ⇧⌘Z undo · f fit · l layout · t trace ·
 // n new · r run/pause · d theme · arrows step selection · Delete/Backspace deletes ·
-// Escape unwinds drag → confirm → palette → create → switcher → settings → card → selection.
+// ? keyboard help · Escape unwinds drag → confirm → help → palette → create → switcher → settings → card → selection.
 import type { WorkbenchController } from './controller';
 
 export function onKey(c: WorkbenchController, e: KeyboardEvent): void {
@@ -10,6 +10,7 @@ export function onKey(c: WorkbenchController, e: KeyboardEvent): void {
   if (e.key === 'Escape') {
     if (c.gestures.cancelDrag()) return;
     if (s.confirm) c.setState({ confirm: null });
+    else if (s.helpOpen) c.setState({ helpOpen: false });
     else if (s.palette) c.setState({ palette: false });
     else if (s.createOpen) c.setState({ createOpen: false });
     else if (s.paraOpen) c.setState({ paraOpen: false });
@@ -27,6 +28,8 @@ export function onKey(c: WorkbenchController, e: KeyboardEvent): void {
   }
   if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'z') { e.preventDefault(); if (e.shiftKey) c.redo(); else c.undo(); return; }
   if (typing) return;
+  if (e.key === '?') { e.preventDefault(); c.setState({ helpOpen: !s.helpOpen }); return; }
+  if (s.helpOpen) return; // the help card is modal: only ? and Escape reach past it
   if (e.key === '/' || ((e.metaKey || e.ctrlKey) && e.key === 'k')) { e.preventDefault(); c.openPalette(); }
   if ((e.key === 'Delete' || e.key === 'Backspace') && s.sel) c.deleteSel();
   if (e.key === 'f') c.userFit();

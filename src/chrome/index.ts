@@ -11,6 +11,8 @@ export { Strip } from './Strip';
 export { Toast } from './Toast';
 export { CreateDialog } from './CreateDialog';
 export { ConfirmDialog } from './ConfirmDialog';
+export { EmptyState } from './EmptyState';
+export { KeyboardHelp } from './KeyboardHelp';
 export { CommandPalette } from './CommandPalette';
 export { ZoomControl } from './ds/ZoomControl';
 export { LogoMark } from './ds/LogoMark';

@@ -1,3 +1,9 @@
+## [1.8.0](https://github.com/andysolomon/arc-workbench/compare/v1.7.0...v1.8.0) (2026-09-05)
+
+### Features
+
+* **perf:** stress lab, benchmark matrix with budgets, sequence culling ([#13](https://github.com/andysolomon/arc-workbench/issues/13)) ([772629c](https://github.com/andysolomon/arc-workbench/commit/772629c701e22bbb27498f826e25a664af7f9446))
+
 ## [1.7.0](https://github.com/andysolomon/arc-workbench/compare/v1.6.0...v1.7.0) (2026-09-05)
 
 ### Features

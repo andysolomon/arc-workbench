@@ -1,3 +1,9 @@
+## [1.2.2](https://github.com/andysolomon/arc-workbench/compare/v1.2.1...v1.2.2) (2026-09-05)
+
+### Bug Fixes
+
+* **chrome:** keep display settings clear of an open inspector ([#6](https://github.com/andysolomon/arc-workbench/issues/6)) ([66bdbee](https://github.com/andysolomon/arc-workbench/commit/66bdbee256986eae7aa44877d2c18cdfc2ca22d1))
+
 ## [1.2.1](https://github.com/andysolomon/arc-workbench/compare/v1.2.0...v1.2.1) (2026-09-05)
 
 ### Bug Fixes

@@ -35,11 +35,11 @@ test('display settings never covers an open inspector, in either inspector densi
     return a.x >= b.x + b.width || b.x >= a.x + a.width || a.y >= b.y + b.height || b.y >= a.y + a.height;
   };
   expect(await apart()).toBe(true);
-  await pop.getByRole('button', { name: 'compact inspector' }).click();
+  await pop.getByRole('switch', { name: 'compact inspector' }).click();
   expect(await state<boolean>(page, 'ctl.state.ui.dense')).toBe(true);
   await expect(pop).toHaveAttribute('data-insp', 'dense');
   expect(await apart()).toBe(true);
-  await pop.getByRole('button', { name: 'compact inspector' }).click();
+  await pop.getByRole('switch', { name: 'compact inspector' }).click();
   // with no inspector the popover returns to its anchor under the button
   await page.keyboard.press('Escape'); // closes settings first
   await expect(pop).toHaveCount(0);

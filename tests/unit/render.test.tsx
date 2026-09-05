@@ -32,7 +32,7 @@ describe('render DOM contract', () => {
     const { host, ex } = mount('workflow');
     const el = host.querySelector('.tg-gnode[data-kind="approval"]')!;
     expect(el.getAttribute('data-family')).toBe('amber');
-    expect(el.getAttribute('role')).toBe('img');
+    expect(el.getAttribute('role')).toBe('button');
     expect(el.getAttribute('aria-label')).toBe('Approval Approve');
     expect(el.querySelector('.tg-gnode-kind')!.textContent).toBe('approval');
     expect(el.querySelector('.tg-gnode-title')!.textContent).toBe('Approve');

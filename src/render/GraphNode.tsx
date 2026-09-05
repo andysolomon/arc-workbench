@@ -38,8 +38,10 @@ export const NodeView = memo(function NodeView({ n, h }: { n: NodeVM; h: Handler
       data-form={n.form ?? undefined}
       data-run={n.run ?? undefined}
       data-density={n.density ?? undefined}
-      role="img"
+      role="button"
       aria-label={n.aria}
+      aria-pressed={n.state === 'selected'}
+      tabIndex={n.state === 'selected' ? 0 : -1}
       ref={el => h.setNodeEl(n.id, el)}
       onPointerDown={e => h.onNodeDown(n.id, e)}
       style={style}

@@ -81,6 +81,9 @@ export class WorkbenchController {
   private _sharedPayload: string | null = null;
   /** the document as loaded (JSON); the doc is dirty when the live graph differs from it */
   private _cleanDoc: string | null = null;
+  private _annN = 0;
+  private _nudgeT = 0;
+  private _focusSel: string | null = null;
   private _savedSig: DocSig | null = null;
   private _seenSig: DocSig | null = null;
   private _saveT = 0;
@@ -187,7 +190,51 @@ export class WorkbenchController {
     // React re-renders reset data-state; restore the transient drag-target highlight
     const d = this.gestures.drag;
     if (d && this.prevOver) { const el = this.refs.nodeEl(this.prevOver); if (el) el.dataset['state'] = (d.t === 'connect' && this.connectInvalid && this.connectInvalid[this.prevOver]) ? 'invalid-target' : 'compatible'; }
+    this.focusFollowsSelection();
     this.store.drainAfterCommit();
+  }
+  /** roving focus: when the selection moves while focus is on the canvas or a node, focus follows it */
+  private focusFollowsSelection(): void {
+    const sel = this.state.sel, key = sel ? sel.kind + ':' + sel.id : null;
+    if (key === this._focusSel) return;
+    this._focusSel = key;
+    if (!sel || sel.kind !== 'node' || typeof document === 'undefined') return;
+    const active = document.activeElement as HTMLElement | null;
+    const onCanvas = !!active && (active === this.refs.canvas || active.classList.contains('tg-gnode'));
+    if (!onCanvas) return;
+    const el = this.refs.nodeEl(sel.id); if (el) el.focus({ preventScroll: true });
+  }
+  // ---- keyboard editing: move, connect, announce ----
+  announce(text: string): void { this._annN++; this.setState({ announce: text + (this._annN % 2 ? '' : '\u200b') }); }
+  /** Shift + arrows: move the selected node one grid step; one history entry per burst */
+  nudgeSel(dx: number, dy: number): void {
+    const { sel, nodes } = this.state; if (!sel || sel.kind !== 'node') return;
+    const n = this.nById[sel.id]; if (!n) return;
+    if (!this._nudgeT) this.snap();
+    clearTimeout(this._nudgeT); this._nudgeT = window.setTimeout(() => { this._nudgeT = 0; }, 600);
+    const x = n.x + dx, y = n.y + dy;
+    this.touched = true; this.planner.invalidate();
+    this.setState({ nodes: nodes.map(m => m.id === n.id ? { ...m, x, y } : m) });
+    this.announce('moved ' + n.name + ' to ' + x + ', ' + y);
+  }
+  /** c: start connecting from the selected node; Enter on another node completes it */
+  startConnect(): void {
+    const { sel } = this.state; if (!sel || sel.kind !== 'node') return;
+    this.setState({ kbConnect: sel.id });
+  }
+  finishConnect(): boolean {
+    const { sel, kbConnect } = this.state; if (!kbConnect) return false;
+    const a = this.nById[kbConnect], b = sel && sel.kind === 'node' ? this.nById[sel.id] : undefined;
+    if (!a || !b || a.id === b.id) { this.setState({ kbConnect: null }); this.announce('connect cancelled'); return true; }
+    this.addEdge(a.id, b.id, this.defaultEdgeKind(a, b));
+    this.setState({ kbConnect: null });
+    this.announce('connected ' + a.name + ' to ' + b.name);
+    return true;
+  }
+  /** Enter on a selection: move focus into the inspector's first field */
+  focusInspector(): boolean {
+    const el = this.refs.insp?.querySelector<HTMLElement>('input,select,button'); if (!el) return false;
+    el.focus(); return true;
   }
 
   // ---- paradigm dispatch: the paradigm decides grammar; the lens (mode) decides information ----
@@ -736,6 +783,7 @@ export class WorkbenchController {
   deleteSel(): void {
     const { sel, nodes, edges } = this.state; if (!sel) return;
     this.snap();
+    this.announce('deleted ' + (sel.kind === 'node' ? this.nById[sel.id]?.name ?? 'node' : sel.kind === 'edge' ? this.T.edgeNoun.replace(/s$/, '') : 'lane'));
     if (sel.kind === 'node') this.setState({ nodes: nodes.filter(n => n.id !== sel.id), edges: edges.filter(e => e.from !== sel.id && e.to !== sel.id), sel: null });
     else if (sel.kind === 'region') this.deleteLane(sel.id);
     else this.setState({ edges: edges.filter(e => e.id !== sel.id), sel: null, hoverEdge: null });

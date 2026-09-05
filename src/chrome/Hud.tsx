@@ -19,7 +19,7 @@ export function Hud({ ctl }: { ctl: WorkbenchController }) {
         <span style={{ fontSize: '9.5px', color: 'var(--text-faint)' }}>{H.unit}</span>
       </div>
       <div style={{ flex: '0 1 150px', minWidth: '90px' }}>
-        <input type="range" min="0" max="1000" value={rpsSlider} onChange={e => onRps(e.target.value)} onInput={e => onRps((e.target as HTMLInputElement).value)} aria-label="offered load" style={{ width: '100%', height: '12px', cursor: 'pointer', display: 'block' }} />
+        <input type="range" min="0" max="1000" value={rpsSlider} onChange={e => onRps(e.target.value)} onInput={e => onRps((e.target as HTMLInputElement).value)} aria-label={H.load + ' · offered load'} aria-valuetext={fmt(s.rps) + ' ' + H.unit} style={{ width: '100%', height: '12px', cursor: 'pointer', display: 'block' }} />
         <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '9px', letterSpacing: '0.06em', color: 'var(--text-faint)', padding: '1px 1px 0' }}>
           <span>{tickLbl(H.min)}</span><span>{tickLbl(Math.round(H.min * Math.exp(lg / 3)))}</span><span>{tickLbl(Math.round(H.min * Math.exp(lg * 2 / 3)))}</span><span>{tickLbl(H.max)}</span>
         </div>
@@ -32,10 +32,10 @@ export function Hud({ ctl }: { ctl: WorkbenchController }) {
         <div><div className="tg-label">{H.d}</div><div style={{ ...STAT, minWidth: '46px' }}><span data-t="drop" data-hud-tone={dropTone(p, dropped, sys)} title={p === 'dataflow' ? 'Σ node lag · instant' : 'offered − goodput · instant'}>{m ? fmt(dropped) : '—'}</span><span style={{ color: 'var(--text-faint)' }}>{p === 'workflow' || p === 'state' ? '' : H.rate}</span></div></div>
       </div>
       <div style={{ display: 'flex', gap: '4px', flex: 'none', paddingLeft: '10px', borderLeft: '1px solid var(--border-subtle)' }}>
-        <button className={'tg-btn wb-ico ' + (s.running ? 'tg-btn--active' : '')} onClick={() => ctl.toggleRunning()} title="run / pause" aria-label="run or pause">{s.running ? '❙❙' : '▶'}</button>
+        <button className={'tg-btn wb-ico ' + (s.running ? 'tg-btn--active' : '')} onClick={() => ctl.toggleRunning()} title="run / pause" aria-label="run or pause" aria-pressed={s.running}>{s.running ? '❙❙' : '▶'}</button>
         <button className="tg-btn wb-ico" onClick={() => ctl.stepOnce()} title="step one tick" aria-label="step">▷</button>
         <button className="tg-btn wb-ico" onClick={() => ctl.resetSim()} title="reset metrics" aria-label="reset metrics">↺</button>
-        <button className={'tg-btn ' + (s.ui.trace ? 'tg-btn--active' : '')} onClick={() => ctl.setUi('trace')} title={s.ui.trace ? 'hide the traced execution' : 'follow one execution through the diagram'}>trace</button>
+        <button className={'tg-btn ' + (s.ui.trace ? 'tg-btn--active' : '')} onClick={() => ctl.setUi('trace')} aria-pressed={s.ui.trace} title={s.ui.trace ? 'hide the traced execution' : 'follow one execution through the diagram'}>trace</button>
       </div>
     </div>
   );
@@ -48,8 +48,8 @@ export function DraftingHud({ ctl, tierCount, unlinked }: { ctl: WorkbenchContro
     <div className="wb-hud" style={{ display: 'flex', flexWrap: 'nowrap', alignItems: 'center', gap: '8px 14px', minWidth: 0 }}>
       <div className="tg-label" style={{ flex: 'none' }}>drafting</div>
       <div style={{ display: 'flex', alignItems: 'center', gap: '4px', flex: 'none' }}>
-        {s.paradigm === 'architecture' ? <button className={'tg-btn ' + (s.ui.tiers ? 'tg-btn--active' : '')} onClick={() => ctl.setUi('tiers')} title="tier bands behind the topology">tiers</button> : null}
-        <button className={'tg-btn ' + (s.ui.labels ? 'tg-btn--active' : '')} onClick={() => ctl.setUi('labels')} title="labels on relationships">labels</button>
+        {s.paradigm === 'architecture' ? <button className={'tg-btn ' + (s.ui.tiers ? 'tg-btn--active' : '')} onClick={() => ctl.setUi('tiers')} aria-pressed={s.ui.tiers} title="tier bands behind the topology">tiers</button> : null}
+        <button className={'tg-btn ' + (s.ui.labels ? 'tg-btn--active' : '')} onClick={() => ctl.setUi('labels')} aria-pressed={s.ui.labels} title="labels on relationships">labels</button>
         <button className="tg-btn" onClick={() => { ctl.snap(); ctl.deoverlap(true); }} title="align to the 16px grid">tidy</button>
         <button className="tg-btn" onClick={() => ctl.autoLayout()} title={'auto layout · ' + T.layout}>auto layout</button>
       </div>

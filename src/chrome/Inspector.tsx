@@ -27,7 +27,7 @@ function Fields({ fields }: { fields: InspectorField[] }) {
 function HeadButtons({ ctl }: { ctl: WorkbenchController }) {
   const dense = ctl.state.ui.dense, title = dense ? 'full inspector' : 'compact inspector';
   return (<>
-    <button className="tg-btn wb-ico" onClick={() => ctl.setUi('dense')} title={title} aria-label={title} style={ICO}>{dense ? '⇱' : '⇲'}</button>
+    <button className="tg-btn wb-ico" onClick={() => ctl.setUi('dense')} title={title} aria-label="compact inspector" aria-pressed={dense} style={ICO}>{dense ? '⇱' : '⇲'}</button>
     <button className="tg-btn wb-ico" onClick={() => ctl.select(null)} title="close" aria-label="close inspector" style={ICO}>✕</button>
   </>);
 }
@@ -43,7 +43,7 @@ function NodeInspector({ ctl, n }: { ctl: WorkbenchController; n: GraphNode }) {
   const delLbl = 'delete ' + (p === 'sequence' ? 'participant' : p === 'workflow' ? 'step' : p === 'state' ? 'state' : p === 'dataflow' ? (t?.form === 'process' ? 'processor' : 'dataset') : 'node');
   return (<>
     <div data-sec="" data-hd="" style={{ ...SEC_HD, gap: '10px', alignItems: 'flex-start' }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', width: '100%' }}><div style={TITLE}>{n.name}</div><HeadButtons ctl={ctl} /></div>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', width: '100%' }}><h2 style={{ ...TITLE, margin: 0 }}>{n.name}</h2><HeadButtons ctl={ctl} /></div>
       <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
         <span className="tg-badge" style={{ background: 'var(--family-' + fam + '-bg)', borderColor: 'var(--family-' + fam + '-border)', color: 'var(--family-' + fam + '-text)', flex: 'none', maxWidth: '150px' }}>«{(t?.label ?? n.type).toLowerCase()}»</span>
         {st && simOn ? <span className="tg-chip"><span className="tg-chip-swatch" style={{ background: hc, borderColor: hc }} />{HW[st.health]}</span> : null}
@@ -60,9 +60,9 @@ function NodeInspector({ ctl, n }: { ctl: WorkbenchController; n: GraphNode }) {
       {wires.map(e => { const out = e.from === n.id, peer = by[out ? e.to : e.from]; return (
         <div key={e.id} onPointerEnter={() => ctl.setState({ hoverEdge: e.id })} onPointerLeave={() => ctl.setState({ hoverEdge: null })} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '4px 0', borderBottom: '1px solid var(--border-subtle)' }}>
           <span style={{ color: 'var(--text-muted)', flex: 'none' }}>{out ? '→' : '←'}</span>
-          <button onClick={() => ctl.select({ kind: 'edge', id: e.id })} className="tg-btn" style={{ flex: 1, minWidth: 0, textAlign: 'left', background: 'transparent', borderColor: 'transparent', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{peer ? peer.name : '(missing)'}</button>
+          <button onClick={() => ctl.select({ kind: 'edge', id: e.id })} className="tg-btn" aria-label={'select ' + (out ? 'outgoing' : 'incoming') + ' ' + ctl.protoOf(e) + ' ' + (out ? 'to' : 'from') + ' ' + (peer ? peer.name : 'missing node')} style={{ flex: 1, minWidth: 0, textAlign: 'left', background: 'transparent', borderColor: 'transparent', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{peer ? peer.name : '(missing)'}</button>
           <span style={{ color: 'var(--text-faint)', flex: 'none', fontSize: '10px' }}>{ctl.protoOf(e)}</span>
-          <button onClick={() => ctl.delEdge(e.id)} className="tg-btn wb-ico" title="detach" aria-label="detach" style={{ flex: 'none', ...ICO }}>✕</button>
+          <button onClick={() => ctl.delEdge(e.id)} className="tg-btn wb-ico" title="detach" aria-label={'detach ' + (peer ? peer.name : 'relationship')} style={{ flex: 'none', ...ICO }}>✕</button>
         </div>
       ); })}
     </div>
@@ -90,16 +90,16 @@ function EdgeInspector({ ctl, e }: { ctl: WorkbenchController; e: GraphEdge }) {
   const delLbl = 'delete ' + (p === 'sequence' ? 'message' : p === 'state' || p === 'workflow' ? 'transition' : p === 'dataflow' ? 'movement' : 'relationship');
   return (<>
     <div data-sec="" data-hd="" style={SEC_HD}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><div style={{ fontSize: '12.5px', fontWeight: 500, lineHeight: 1.5, color: 'var(--text-body)', flex: 1 }}>{(by[e.from]?.name ?? '') + ' → ' + (by[e.to]?.name ?? '')}</div><HeadButtons ctl={ctl} /></div>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><h2 style={{ margin: 0, fontSize: '12.5px', fontWeight: 500, lineHeight: 1.5, color: 'var(--text-body)', flex: 1 }}>{(by[e.from]?.name ?? '') + ' → ' + (by[e.to]?.name ?? '')}</h2><HeadButtons ctl={ctl} /></div>
       <div style={{ color: 'var(--text-muted)' }}>{ctl.protoOf(e) + ' · ' + (T.EDGES[e.kind]?.desc || T.edgeNoun)}</div>
     </div>
     <div data-sec="" style={{ ...SEC, borderBottom: '1px solid var(--border-subtle)' }}>
       <div className="tg-label">endpoints</div>
       <div style={{ display: 'grid', gridTemplateColumns: 'auto minmax(0,1fr)', gap: '7px 10px', alignItems: 'center' }}>
         <span style={{ color: 'var(--text-muted)' }}>from</span>
-        <select className="tg-select" value={e.from} onChange={ev => ctl.setEnd(e.id, 'from', ev.target.value)} style={{ cursor: 'pointer', width: '100%' }}>{s.nodes.map(n => <option key={n.id} value={n.id}>{n.name}</option>)}</select>
+        <select className="tg-select" value={e.from} onChange={ev => ctl.setEnd(e.id, 'from', ev.target.value)} aria-label="from" style={{ cursor: 'pointer', width: '100%' }}>{s.nodes.map(n => <option key={n.id} value={n.id}>{n.name}</option>)}</select>
         <span style={{ color: 'var(--text-muted)' }}>to</span>
-        <select className="tg-select" value={e.to} onChange={ev => ctl.setEnd(e.id, 'to', ev.target.value)} style={{ cursor: 'pointer', width: '100%' }}>{s.nodes.map(n => <option key={n.id} value={n.id}>{n.name}</option>)}</select>
+        <select className="tg-select" value={e.to} onChange={ev => ctl.setEnd(e.id, 'to', ev.target.value)} aria-label="to" style={{ cursor: 'pointer', width: '100%' }}>{s.nodes.map(n => <option key={n.id} value={n.id}>{n.name}</option>)}</select>
       </div>
       <button className="tg-btn" onClick={() => ctl.flipEdge(e.id)} style={{ width: '100%' }}>⇄ reverse direction</button>
     </div>
@@ -120,7 +120,7 @@ function LaneInspector({ ctl, r }: { ctl: WorkbenchController; r: GraphRegion })
   const focus = ctl.takeLaneFocus(), lanes = ctl.lanes(), idx = lanes.findIndex(l => l.id === r.id);
   return (<>
     <div data-sec="" data-hd="" style={SEC_HD}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><div style={{ ...TITLE, lineHeight: 1.5 }}>{r.label}</div><HeadButtons ctl={ctl} /></div>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><h2 style={{ ...TITLE, lineHeight: 1.5, margin: 0 }}>{r.label}</h2><HeadButtons ctl={ctl} /></div>
       <div style={{ color: 'var(--text-muted)' }}>{'lane ' + (idx + 1) + ' of ' + lanes.length + ' · ' + (r.owner ? kindRow[1] + ' · ' + r.owner : 'no owner yet')}</div>
     </div>
     <div data-sec="" style={{ ...SEC, borderBottom: '1px solid var(--border-subtle)' }}>
@@ -154,8 +154,8 @@ export function Inspector({ ctl }: { ctl: WorkbenchController }) {
   else { const r = s.regions.find(x => x.id === sel.id); if (r) body = <LaneInspector ctl={ctl} r={r} />; }
   if (!body) return null;
   return (
-    <div ref={el => { ctl.refs.insp = el; }} className="wb-insp" data-chrome="1" data-dense={s.ui.dense ? 'on' : 'off'} style={{ position: 'absolute', right: '14px', top: '12px', bottom: '12px', zIndex: 7, background: 'var(--surface-card)', border: '1px solid var(--border-subtle)', borderRadius: '10px', boxShadow: 'var(--shadow-panel)', overflowY: 'auto', display: 'flex', flexDirection: 'column', animation: 'wb-fade var(--motion-fast) ease-out' }}>
+    <aside ref={el => { ctl.refs.insp = el; }} aria-label="inspector" className="wb-insp" data-chrome="1" data-dense={s.ui.dense ? 'on' : 'off'} style={{ position: 'absolute', right: '14px', top: '12px', bottom: '12px', zIndex: 7, background: 'var(--surface-card)', border: '1px solid var(--border-subtle)', borderRadius: '10px', boxShadow: 'var(--shadow-panel)', overflowY: 'auto', display: 'flex', flexDirection: 'column', animation: 'wb-fade var(--motion-fast) ease-out' }}>
       {body}
-    </div>
+    </aside>
   );
 }

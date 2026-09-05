@@ -1,7 +1,7 @@
 // Workbench root: subscribes to the store, builds the canvas view model, floats the chrome over
 // the canvas, and runs the prototype's lifecycle (mount · didUpdate · unmount).
 import { useEffect, useLayoutEffect, useMemo } from 'react';
-import { CommandPalette, ConfirmDialog, CreateDialog, EdgeCard, EmptyState, Findings, Header, Hints, Inspector, KeyboardHelp, Library, Strip, Toast, ZoomControl } from '../chrome';
+import { CommandPalette, ConfirmDialog, CreateDialog, EdgeCard, EmptyState, Findings, Header, Hints, Inspector, KeyboardHelp, Library, SrLive, Strip, Toast, ZoomControl } from '../chrome';
 import { GraphCanvas } from '../render';
 import { useStore } from '../store';
 import { WorkbenchController } from './controller';
@@ -42,7 +42,7 @@ export function Workbench({ controller, ...props }: WorkbenchProps & { controlle
       <Header ctl={ctl} tierCount={tierCount} unlinked={unlinked} />
       <div style={{ flex: 1, display: 'flex', minHeight: 0 }}>
         {s.libOpen ? <Library ctl={ctl} /> : null}
-        <div style={{ flex: 1, position: 'relative', minWidth: 0, display: 'flex', flexDirection: 'column' }}>
+        <main aria-label={(s.title || 'document') + ' · ' + ctl.T.label + ' · ' + s.mode} style={{ flex: 1, position: 'relative', minWidth: 0, display: 'flex', flexDirection: 'column' }}>
           <GraphCanvas vm={vm} h={ctl.handlers}>
             {shell ? <div className="wb-shell" role="status" aria-live="polite">opening your workspace…</div> : null}
             {!shell && !s.nodes.length ? <EmptyState ctl={ctl} /> : null}
@@ -56,8 +56,9 @@ export function Workbench({ controller, ...props }: WorkbenchProps & { controlle
             <Toast ctl={ctl} />
           </GraphCanvas>
           <Strip ctl={ctl} />
-        </div>
+        </main>
       </div>
+      <SrLive ctl={ctl} />
       {s.createOpen ? <CreateDialog ctl={ctl} /> : null}
       {s.palette ? <CommandPalette ctl={ctl} /> : null}
       {s.helpOpen ? <KeyboardHelp ctl={ctl} /> : null}

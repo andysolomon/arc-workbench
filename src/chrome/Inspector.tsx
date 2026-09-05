@@ -154,7 +154,7 @@ export function Inspector({ ctl }: { ctl: WorkbenchController }) {
   else { const r = s.regions.find(x => x.id === sel.id); if (r) body = <LaneInspector ctl={ctl} r={r} />; }
   if (!body) return null;
   return (
-    <aside ref={el => { ctl.refs.insp = el; }} aria-label="inspector" className="wb-insp" data-chrome="1" data-dense={s.ui.dense ? 'on' : 'off'} style={{ position: 'absolute', right: '14px', top: '12px', bottom: '12px', zIndex: 7, background: 'var(--surface-card)', border: '1px solid var(--border-subtle)', borderRadius: '10px', boxShadow: 'var(--shadow-panel)', overflowY: 'auto', display: 'flex', flexDirection: 'column', animation: 'wb-fade var(--motion-fast) ease-out' }}>
+    <aside ref={el => { ctl.refs.insp = el; }} aria-label="inspector" className="wb-insp" data-chrome="1" data-dense={s.ui.dense ? 'on' : 'off'} style={{ position: 'absolute', zIndex: 7, background: 'var(--surface-card)', border: '1px solid var(--border-subtle)', borderRadius: '10px', boxShadow: 'var(--shadow-panel)', overflowY: 'auto', display: 'flex', flexDirection: 'column', animation: 'wb-fade var(--motion-fast) ease-out' }}>
       {body}
     </aside>
   );

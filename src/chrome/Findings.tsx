@@ -10,7 +10,7 @@ export function Findings({ ctl, an }: { ctl: WorkbenchController; an: Analysis }
   const fc = s.focus && an.list.some(f => f.key === s.focus!.key) ? s.focus : null;
   const noneNote = s.paradigm === 'architecture' ? 'topology is inside capacity at ' + fmt(s.rps) + ' req/s' : s.paradigm === 'sequence' ? 'the call path is short and direct' : 'the ' + T.label + ' has no structural gaps';
   return (
-    <aside ref={el => { ctl.refs.find = el; }} aria-label="findings" data-chrome="1" style={{ position: 'absolute', left: '14px', top: '12px', bottom: '12px', zIndex: 6, width: '308px', maxWidth: 'calc(100% - 28px)', display: 'flex', flexDirection: 'column', background: 'var(--surface-card)', border: '1px solid var(--border-subtle)', borderRadius: '10px', boxShadow: 'var(--shadow-panel)', overflow: 'hidden', animation: 'wb-fade var(--motion-fast) ease-out' }}>
+    <aside ref={el => { ctl.refs.find = el; }} aria-label="findings" data-chrome="1" className="wb-find" style={{ position: 'absolute', zIndex: 6, display: 'flex', flexDirection: 'column', background: 'var(--surface-card)', border: '1px solid var(--border-subtle)', borderRadius: '10px', boxShadow: 'var(--shadow-panel)', overflow: 'hidden', animation: 'wb-fade var(--motion-fast) ease-out' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '11px 13px', borderBottom: '1px solid var(--border-subtle)' }}>
         <h2 className="tg-label" style={{ margin: 0 }}>findings</h2>
         <span style={{ color: 'var(--text-faint)' }}>{an.list.length}</span>

@@ -34,7 +34,7 @@ export function Library({ ctl }: { ctl: WorkbenchController }) {
     return { id: pid, label: TT.label, tag: TT.label, fam: TT.family, items };
   }).filter(g => g.items.length) : [];
   return (
-    <nav aria-label="component library" style={{ width: '228px', flex: 'none', display: 'flex', flexDirection: 'column', background: 'var(--surface-page)', borderRight: '1px solid var(--border-subtle)' }}>
+    <nav aria-label="component library" className="wb-lib" style={{ width: '228px', flex: 'none', display: 'flex', flexDirection: 'column', background: 'var(--surface-page)', borderRight: '1px solid var(--border-subtle)' }}>
       <div style={{ padding: '12px 12px 6px' }}>
         <input className="tg-input" type="search" value={s.search} onChange={e => ctl.setState({ search: e.target.value })} placeholder="search components" aria-label="search components" style={{ width: '100%' }} />
       </div>

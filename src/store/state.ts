@@ -2,6 +2,7 @@
 // fields (nodes · edges · regions · view · rps) are the GraphDocument; everything else is lens state.
 import type { GraphEdge, GraphNode, GraphRegion, ParadigmId, Selection, View } from '../model/document';
 import type { Side } from '../router/geometry';
+import type { Form } from '../app/form';
 
 export type Theme = 'dark' | 'light';
 export type Mode = 'design' | 'simulate' | 'analyze';
@@ -57,6 +58,8 @@ export interface WorkbenchState {
   confirm: Confirm | null;
   helpOpen: boolean;
   stressOpen: boolean;
+  /** shell form factor, from the viewport width (README § Tablet) */
+  form: Form;
   /** keyboard connect: the source node while the user picks a target with the arrow keys */
   kbConnect: string | null;
   /** the last explicit screen-reader message (a zero-width toggle makes repeats re-announce) */
@@ -69,5 +72,5 @@ export const initialState = (): WorkbenchState => ({
   ready: false, theme: null, mode: 'simulate', running: true, rps: 2400, sel: null, presetId: 'video', docId: '', title: '', save: 'clean', paradigm: 'dataflow',
   nodes: [], edges: [], regions: [], view: { x: 60, y: 30, k: 1 }, search: '', collapsed: {}, drawerOpen: false, libOpen: true,
   palette: false, pq: '', pi: 0, connect: null, hoverEdge: null, rewire: null, geo: 0, focus: null, paraOpen: false, createOpen: false, nextKind: null,
-  settingsOpen: false, toast: null, confirm: null, helpOpen: false, stressOpen: false, kbConnect: null, announce: '', ui: { ...INITIAL_UI },
+  settingsOpen: false, toast: null, confirm: null, helpOpen: false, stressOpen: false, form: 'desktop', kbConnect: null, announce: '', ui: { ...INITIAL_UI },
 });

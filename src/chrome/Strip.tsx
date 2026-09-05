@@ -18,7 +18,7 @@ export function Strip({ ctl }: { ctl: WorkbenchController }) {
   const hist = ctl.simState ? ctl.simState.hist : [], m = ctl.metrics, sys = m ? m.sys : null;
   const latMax = Math.max(1, ...hist.map(h => h.p99)), thrMax = Math.max(1, ...hist.map(h => h.rps));
   return (
-    <section aria-label="status" style={{ flex: 'none', background: 'var(--surface-card)', borderTop: '1px solid var(--border-subtle)' }}>
+    <section aria-label="status" className="wb-strip" style={{ flex: 'none', background: 'var(--surface-card)', borderTop: '1px solid var(--border-subtle)' }}>
       <div ref={el => { ctl.refs.strip = el; }} style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '6px 18px', padding: '7px 20px', color: 'var(--text-muted)', fontSize: '10px', letterSpacing: '0.06em', textTransform: 'uppercase' }}>
         <button onClick={() => ctl.setState({ libOpen: !s.libOpen })} className="tg-btn" aria-expanded={s.libOpen} aria-label="component library" style={{ flex: 'none', whiteSpace: 'nowrap', letterSpacing: '0.06em', textTransform: 'uppercase', fontSize: '10px' }}>library {s.libOpen ? '‹' : '›'}</button>
         <span style={{ whiteSpace: 'nowrap' }}>{s.nodes.length} {T.unitNoun}</span>

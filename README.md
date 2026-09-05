@@ -59,6 +59,20 @@ The parity tests, the golden generator and the visual spec read the prototype ex
 `visual-probe`, `dom-probe`, `proto-shot`): `node scripts/<name>.mjs <out-dir>` against a
 running `pnpm preview` (and `pnpm serve:proto` for the prototype).
 
+## Tablet
+
+Two supported tablet forms, chosen by viewport width and written to `<html data-form>` (`src/app/form.ts`):
+**tablet-landscape** ≤ 1180 px (iPad landscape, split view) and **tablet-portrait** ≤ 900 px (iPad
+portrait); everything wider is the desktop shell. On both, the library is an overlay drawer (a canvas
+tap dismisses it) and the canvas keeps at least half the viewport with every panel open. Landscape keeps
+the inspector and findings as side panels (240 / 264 px); portrait turns them into bottom sheets capped
+at half the canvas height that split the width when both are open, and moves the zoom control and toasts to the top.
+Coarse pointers get 44 × 44 px targets on every control and port; ports stay faintly visible on touch;
+tap selects, one-finger drag moves or pans, two fingers pinch-zoom, dragging a port connects, and the
+inspector edits everything hover would. `viewport-fit=cover` + safe-area insets, `100dvh` and
+`interactive-widget=resizes-content` handle notches, rotation, browser chrome and the virtual keyboard.
+`tests/e2e/tablet.spec.ts` drives both forms with touch emulation.
+
 ## Keyboard
 
 Everything on the canvas is reachable without a pointer: `Tab` to the canvas, arrows select (focus

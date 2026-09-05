@@ -13,6 +13,8 @@ export function Header({ ctl, tierCount, unlinked }: { ctl: WorkbenchController;
   const s = ctl.state, simOn = s.mode !== 'design';
   const presets = EXAMPLES[s.paradigm].map(p => ({ id: p.id, name: p.name })).concat([{ id: 'blank', name: 'Blank' }]);
   if (s.presetId === SHARED_PRESET) presets.unshift({ id: SHARED_PRESET, name: 'Shared link' });
+  if (s.presetId === 'stress') presets.unshift({ id: 'stress', name: 'Stress fixture' });
+  if (s.presetId === 'import') presets.unshift({ id: 'import', name: 'Imported' });
   return (
     <header style={{ flex: 'none', display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '8px 10px', padding: '7px 14px', background: 'var(--surface-page)', borderBottom: '1px solid var(--border-subtle)' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flex: 'none' }}>

@@ -147,3 +147,11 @@ input[type=checkbox]{accent-color:var(--accent)}
 .tg-gcanvas:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
 .tg-gnode:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
 .tg-btn:focus-visible,.tg-select:focus-visible,.tg-input:focus-visible,.tg-pswitch:focus-visible,.tg-pitem:focus-visible,.wb-frow:focus-visible,input[type=range]:focus-visible,[role="switch"]:focus-visible,.wb-settings button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+/* stress lab (ARC-162) */
+.wb-bench{width:100%;border-collapse:collapse;font-size:11px}
+.wb-bench th{text-align:left;font-weight:500;color:var(--text-muted);padding:4px 6px;border-bottom:1px solid var(--border-subtle)}
+.wb-bench td{padding:4px 6px;border-bottom:1px solid var(--border-subtle);vertical-align:middle}
+.wb-bench tr[data-pass="0"] td:last-child{color:var(--health-critical)}
+.wb-bench tr[data-pass="1"] td:last-child{color:var(--health-ok)}
+.wb-bench-report{border:1px solid var(--border-subtle);border-radius:8px;padding:6px 10px}
+.wb-bench-report summary{cursor:pointer;color:var(--text-secondary)}

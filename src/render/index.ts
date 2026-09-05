@@ -8,3 +8,4 @@ export { EdgeMarkerDefs } from './EdgeMarkerDefs';
 export { SequenceLayer } from './SequenceLayer';
 export { EndpointHandles } from './EndpointHandles';
 export { TierBand } from './TierBand';
+export * from './stats';

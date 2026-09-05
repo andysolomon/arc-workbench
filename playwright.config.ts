@@ -7,6 +7,8 @@ export const HAS_PROTO = existsSync('Form submission process/Workbench v10.dc.ht
 // 4180 so the visual spec can diff the two renderings of the same document.
 export default defineConfig({
   testDir: 'tests/e2e',
+  // the benchmark matrix is its own workflow (pnpm bench · .github/workflows/bench.yml)
+  testIgnore: process.env['BENCH'] ? [] : ['**/bench.spec.ts'],
   timeout: 90_000,
   expect: { timeout: 10_000 },
   fullyParallel: false,

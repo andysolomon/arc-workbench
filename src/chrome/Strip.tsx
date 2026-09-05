@@ -26,7 +26,7 @@ export function Strip({ ctl }: { ctl: WorkbenchController }) {
         <span style={{ whiteSpace: 'nowrap' }}>{s.edges.length} {T.edgeNoun}</span>
         <span style={{ whiteSpace: 'nowrap' }} data-t="uptime">{Math.floor(up / 60) + 'm ' + String(up % 60).padStart(2, '0') + 's'}</span>
         <span className="wb-save" data-save={s.save} role="status" style={{ whiteSpace: 'nowrap', display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
-          {SAVE_TEXT[s.save]}
+          {s.presetId === 'stress' ? 'fixture · not saved' : SAVE_TEXT[s.save]}
           {s.save === 'failed' ? <><button className="tg-btn" onClick={() => ctl.retrySave()} style={BTN}>retry</button><button className="tg-btn" onClick={() => ctl.exportDoc()} style={BTN}>export copy</button></> : null}
         </span>
         <button onClick={() => { if (!isDesign) ctl.setState({ drawerOpen: !s.drawerOpen }); }} className="tg-btn wb-tel" data-off={isDesign ? '1' : '0'} title={isDesign ? 'telemetry · available in simulate' : 'toggle telemetry drawer'} aria-expanded={s.drawerOpen} aria-disabled={isDesign} style={{ marginLeft: 'auto', flex: 'none', whiteSpace: 'nowrap', letterSpacing: '0.06em', textTransform: 'uppercase', fontSize: '10px' }}>telemetry {s.drawerOpen ? '▾' : '▴'}</button>

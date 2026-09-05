@@ -171,3 +171,12 @@ Prototype method → port location (WB lines):
   `<span class="sc-interp">` interpolation wrappers, which the port does not emit. Working is
   compared at 100 % — at the fitted 0.82 css zoom those wrappers shift glyph runs by a sub-pixel
   and the same identical DOM reads as 1.4 %.
+
+## 5 · Post-port divergences (deliberate)
+
+| Change | Why | Where |
+| --- | --- | --- |
+| Data-flow system latency counts async hops (`tick(…, { includeAsync: true })`) | the prototype excluded async nodes, so an all-async pipeline reported an end-to-end p99 of 0 ms (ARC-169) | `sim/engine.ts`, `app/controller.ts` · goldens keep the prototype path (no flag) |
+| Token engines report `err` over the same ≤300-completion window as p99 (`doneBad`) | the prototype's cumulative `badN/doneN` and windowed p99 could disagree on what "the run" was | `sim/paradigms.ts` · identical to the prototype until 300 completions |
+| `Metrics.prov` (timestamp · tick · window · samples · warm) | provenance for every surface; absent only on legacy fixtures | `sim/metrics.ts` |
+| Findings carry `evidence[]`; the state bad-exit finding cites observed completions; p99 footers print through `fL` like the HUD | ARC-169 acceptance: evidence, observed counts, one formatter per unit | `analyze/*` · `tests/golden/analyze.test.ts` normalises both |

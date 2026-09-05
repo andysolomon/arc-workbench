@@ -2,6 +2,7 @@
 import type { GraphEdge, GraphNode } from '../model/document';
 import { PARADIGMS } from '../paradigms/registry';
 import { fmt, fmtMs } from '../sim/format';
+import { nodeP99 } from '../sim/metrics';
 import type { Metrics, NodeStat } from '../sim/types';
 import { ORD, mkAdd, type Analysis, type Finding } from './types';
 
@@ -56,17 +57,19 @@ export function analyzeArch(s: ArchInput): ArchAnalysis {
     const x = st(top.id)!, need = Math.max(0, Math.ceil(inst(top) * x.util / 0.6) - inst(top));
     add({ cat: 'bottleneck', sev: x.util > 0.9 ? 'crit' : 'warn', mark: 'bottleneck', nodeId: top.id,
       title: top.name + ' is the bottleneck',
-      detail: Math.round(x.util * 100) + '% busy · p99 ' + fmtMs(x.lat * 2.2) + ' · ' + fmt(x.q) + ' queued',
+      detail: Math.round(x.util * 100) + '% busy · p99 ' + fmtMs(nodeP99(x)) + ' · ' + fmt(x.q) + ' queued',
       rec: need ? 'add ' + need + ' instance' + (need > 1 ? 's' : '') + ' → ' + Math.round(x.util * inst(top) / (inst(top) + need) * 100) + '% busy' : 'cut the ' + top.ms + ' ms service time or raise concurrency',
-      edges: heaviestPathTo(s.edges, m, top.id) });
+      edges: heaviestPathTo(s.edges, m, top.id),
+      evidence: [{ metric: 'util', scope: top.name + ' · instant', value: Math.round(x.util * 100) + '%' }, { metric: 'node p99', scope: top.name + ' · instant', value: fmtMs(nodeP99(x)) }, { metric: 'queued', scope: top.name + ' · instant', value: fmt(x.q) }] });
   }
   ranked.slice(0, 5).forEach(n => {
     const x = st(n.id); if (!x || (top && n.id === top.id) || x.util <= 0.78) return;
     add({ cat: 'capacity', sev: 'warn', mark: 'at capacity', nodeId: n.id, title: n.name + ' is near capacity',
       detail: fmt(x.arr) + '/s arriving against ' + (capOf(n) ? fmt(capOf(n)) + '/s' : 'unbounded') + ' capacity',
-      rec: 'scale to ' + Math.ceil(inst(n) * x.util / 0.6) + ' instances' });
+      rec: 'scale to ' + Math.ceil(inst(n) * x.util / 0.6) + ' instances',
+      evidence: [{ metric: 'arrivals', scope: n.name + ' · instant', value: fmt(x.arr) + '/s' }, { metric: 'util', scope: n.name + ' · instant', value: Math.round(x.util * 100) + '%' }] });
   });
-  s.nodes.forEach(n => { const x = st(n.id); if (x && x.err > 0.02) add({ cat: 'capacity', sev: 'crit', mark: 'shedding', nodeId: n.id, title: n.name + ' is shedding requests', detail: (x.err * 100).toFixed(1) + '% of arrivals fail or time out here', rec: 'add capacity, or buffer the caller behind a queue' }); });
+  s.nodes.forEach(n => { const x = st(n.id); if (x && x.err > 0.02) add({ cat: 'capacity', sev: 'crit', mark: 'shedding', nodeId: n.id, title: n.name + ' is shedding requests', detail: (x.err * 100).toFixed(1) + '% of arrivals fail or time out here', rec: 'add capacity, or buffer the caller behind a queue', evidence: [{ metric: 'errors', scope: n.name + ' · instant', value: (x.err * 100).toFixed(1) + '%' }] }); });
   const before = reachFrom(s.nodes, s.edges, null);
   s.nodes.forEach(n => {
     if (inst(n) > 1 || n.type === 'client' || !inD[n.id]) return;
@@ -77,7 +80,8 @@ export function analyzeArch(s: ArchInput): ArchAnalysis {
     add({ cat: 'spof', sev: share > 0.3 || lost.length > 2 ? 'crit' : 'warn', mark: 'single point', nodeId: n.id, nodes: lost,
       title: n.name + ' is a single point of failure',
       detail: 'one instance · ' + lost.length + ' component' + (lost.length > 1 ? 's' : '') + ' unreachable if it fails' + (share > 0.02 ? ' · carries ' + Math.round(share * 100) + '% of traffic' : ''),
-      rec: n.type === 'sql' || n.type === 'nosql' ? 'add a replica and fail reads over' : 'run 2+ instances behind a balancer' });
+      rec: n.type === 'sql' || n.type === 'nosql' ? 'add a replica and fail reads over' : 'run 2+ instances behind a balancer',
+      ...(x && m ? { evidence: [{ metric: 'traffic share', scope: n.name + ' · instant', value: Math.round(share * 100) + '%' }] } : {}) });
   });
   s.nodes.forEach(n => {
     const x = st(n.id); if (!x || inst(n) < 2 || x.util > 0.12) return;
@@ -85,7 +89,8 @@ export function analyzeArch(s: ArchInput): ArchAnalysis {
     if (to >= inst(n)) return;
     add({ cat: 'idle', sev: 'info', mark: 'idle', nodeId: n.id, title: n.name + ' is over-provisioned',
       detail: inst(n) + ' instances holding ' + Math.round(x.util * 100) + '% utilisation',
-      rec: 'reduce to ' + to + ' · ~$' + ((inst(n) - to) * (COST[catOf(n)] || 60)) + '/mo back' });
+      rec: 'reduce to ' + to + ' · ~$' + ((inst(n) - to) * (COST[catOf(n)] || 60)) + '/mo back',
+      evidence: [{ metric: 'util', scope: n.name + ' · instant', value: Math.round(x.util * 100) + '%' }] });
   });
   s.nodes.filter(n => n.type === 'sql' || n.type === 'nosql').forEach(db => {
     const readers = s.edges.filter(e => e.to === db.id && nById[e.from] && (e.kind === 'query' || e.kind === 'http' || e.kind === 'grpc'));
@@ -139,7 +144,8 @@ export function analyzeArch(s: ArchInput): ArchAnalysis {
     if (fo && headroom && headroom < 2.2) add({ cat: 'scale', sev: headroom < 1 ? 'warn' : 'info', mark: '', nodeId: fo.id,
       title: 'headroom is ' + headroom.toFixed(1) + '× current load',
       detail: fo.name + ' saturates near ' + fmt(s.rps * headroom) + ' req/s',
-      rec: 'scale ' + fo.name + ' before the next traffic step' });
+      rec: 'scale ' + fo.name + ' before the next traffic step',
+      evidence: [{ metric: 'util', scope: fo.name + ' · instant', value: Math.round(util(fo.id) * 100) + '%' }, { metric: 'headroom', scope: 'system · instant', value: headroom.toFixed(1) + '×' }] });
   }
   F.sort((a, b) => ORD[a.sev] - ORD[b.sev]);
   return { list: F.slice(0, 9), cost, headroom };

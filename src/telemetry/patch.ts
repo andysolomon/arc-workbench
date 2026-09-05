@@ -2,7 +2,8 @@
 // zero React involvement, cached element refs, identical strings never touch the DOM.
 import type { GraphEdge, GraphNode, ParadigmId } from '../model/document';
 import type { Metrics, Health, RunState } from '../sim/types';
-import { BT, DT, HG, HW, fL, pktRank, pktStyleFor, rateText, sparkPts, unitFor, weightOf, dropOf, p99Tone, dropTone } from '../sim/hud';
+import { BT, DT, HG, HW, fL, pktRank, pktStyleFor, rateText, sparkPts, unitFor, weightOf, p99Tone, dropTone } from '../sim/hud';
+import { hudD, isWarm, nodeP99Text, p99Text, windowNote } from '../sim/metrics';
 import { fmt, polyline } from '../sim/format';
 import type { HistPoint } from '../sim/format';
 import type { EdgeGeo, RouteMap } from '../router/types';
@@ -25,7 +26,7 @@ export function patchNodes(c: PatchCtx): void {
     const st = m.nodes[n.id], r = c.refs.node(n.id); if (!st || !r) continue;
     const rate = fmt(st.arr) + c.rateUnit; if (r.vRate !== rate) { r.vRate = rate; txt(r.rate, rate); }
     const unit = unitFor(p, n, st); if (r.vUnit !== unit) { r.vUnit = unit; txt(r.unit, unit); }
-    const p99 = fL(p, st.lat * 2.2); if (r.vP99 !== p99) { r.vP99 = p99; txt(r.p99, p99); }
+    const p99 = nodeP99Text(p, st); if (r.vP99 !== p99) { r.vP99 = p99; txt(r.p99, p99); }
     const q = fmt(st.q); if (r.vQ !== q) { r.vQ = q; txt(r.q_, q); }
     const sp = sparkPts(c.nhist[n.id]); if (r.spark && r.vSpark !== sp) { r.vSpark = sp; r.spark.setAttribute('points', sp); }
     if (r.util) { const u = String(Math.min(1, st.util)); if (r.vUtil !== u) { r.vUtil = u; r.util.style.setProperty('--v', u); } const tone = BT[st.health]; if (r.vTone !== tone) { r.vTone = tone; r.util.dataset['tone'] = tone; } }
@@ -74,10 +75,10 @@ export function patchRun(c: PatchCtx): void {
   }
 }
 export function patchHud(c: PatchCtx): void {
-  const sys = c.metrics.sys, drop = dropOf(sys), R = c.refs;
+  const m = c.metrics, sys = m.sys, drop = hudD(c.paradigm, m), R = c.refs;
   if (R.hud) {
     const q = (s: string): HTMLElement | null => R.hud!.querySelector(s);
-    const a = q('[data-t="p99"]'); txt(a, fL(c.paradigm, sys.p99)); setA(a, 'data-hud-tone', p99Tone(c.paradigm, sys.p99) || '');
+    const a = q('[data-t="p99"]'); txt(a, p99Text(c.paradigm, m)); setA(a, 'data-hud-tone', (isWarm(m) && p99Tone(c.paradigm, sys.p99)) || ''); if (a) a.title = 'system p99 · ' + windowNote(m);
     txt(q('[data-t="good"]'), fmt(sys.goodput));
     const b = q('[data-t="err"]'); txt(b, (sys.err * 100).toFixed(1) + '%'); setA(b, 'data-hud-tone', sys.err > 0.05 ? 'crit' : sys.err > 0.005 ? 'warn' : '');
     const d = q('[data-t="drop"]'); txt(d, fmt(drop)); setA(d, 'data-hud-tone', dropTone(c.paradigm, drop, sys) || '');
@@ -89,7 +90,7 @@ export function patchHud(c: PatchCtx): void {
     setp('c-p50', polyline(hist, 'p50', 300, 64, latMax)); setp('c-p95', polyline(hist, 'p95', 300, 64, latMax)); setp('c-p99', polyline(hist, 'p99', 300, 64, latMax));
     setp('c-rps', polyline(hist, 'rps', 300, 64, thrMax)); setp('c-good', polyline(hist, 'goodput', 300, 64, thrMax));
     setp('c-err', polyline(hist, 'err', 300, 64, 1)); setp('c-q', polyline(hist, 'qtot', 300, 64));
-    txt(R.drawer.querySelector('[data-t="latmax"]'), 'max ' + fL(c.paradigm, latMax)); txt(R.drawer.querySelector('[data-t="thrmax"]'), 'max ' + fmt(thrMax));
+    txt(R.drawer.querySelector('[data-t="latmax"]'), 'max ' + fL(c.paradigm, latMax) + ' · ' + hist.length + ' ticks'); txt(R.drawer.querySelector('[data-t="thrmax"]'), 'max ' + fmt(thrMax) + ' · ' + hist.length + ' ticks');
     txt(R.drawer.querySelector('[data-t="errNow"]'), (sys.err * 100).toFixed(1) + '%'); txt(R.drawer.querySelector('[data-t="qNow"]'), fmt(sys.qtot));
   }
   const sel = c.sel;

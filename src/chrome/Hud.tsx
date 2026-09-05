@@ -1,6 +1,6 @@
 // load HUD (simulate · analyze) and the drafting HUD (design) — WB 181–246
 import type { WorkbenchController } from '../app/controller';
-import { dropOf, dropTone, fL, fmt, p99Tone } from '../sim';
+import { dropTone, fmt, hudD, p99Text, p99Tone, windowNote } from '../sim';
 
 const tickLbl = (v: number): string => v >= 1000 ? (v / 1000) + 'k' : String(v);
 const STAT = { fontSize: '13px', fontWeight: 500, lineHeight: 1.35 } as const;
@@ -8,7 +8,7 @@ const STAT = { fontSize: '13px', fontWeight: 500, lineHeight: 1.35 } as const;
 export function Hud({ ctl }: { ctl: WorkbenchController }) {
   const s = ctl.state, T = ctl.T, H = T.HUD, m = ctl.metrics, p = s.paradigm;
   const sys = m ? m.sys : { rps: 0, goodput: 0, p50: 0, p95: 0, p99: 0, err: 0, qtot: 0, sat: 0 };
-  const dropped = dropOf(sys), lg = Math.log(H.max / H.min);
+  const dropped = m ? hudD(p, m) : 0, lg = Math.log(H.max / H.min);
   const rpsSlider = Math.round(1000 * Math.log(Math.max(H.min, s.rps) / H.min) / lg);
   const onRps = (v: string): void => ctl.setRps(Math.round(H.min * Math.pow(H.max / H.min, +v / 1000)));
   return (
@@ -26,10 +26,10 @@ export function Hud({ ctl }: { ctl: WorkbenchController }) {
       </div>
       <div className="wb-hud-spacer" style={{ flex: 1 }} />
       <div className="wb-hud-stats" style={{ display: 'flex', alignItems: 'flex-end', gap: '14px', flex: 'none' }}>
-        <div><div className="tg-label">{H.a}</div><div data-t="p99" data-hud-tone={p99Tone(p, sys.p99)} style={{ fontSize: '15px', fontWeight: 500, lineHeight: 1.2, minWidth: '46px' }}>{m ? fL(p, sys.p99) : '—'}</div></div>
+        <div><div className="tg-label">{H.a}</div><div data-t="p99" data-hud-tone={m && p99Text(p, m) !== '—' ? p99Tone(p, sys.p99) : ''} title={'system p99 · ' + windowNote(m)} style={{ fontSize: '15px', fontWeight: 500, lineHeight: 1.2, minWidth: '46px' }}>{p99Text(p, m)}</div></div>
         <div><div className="tg-label">{H.b}</div><div style={{ ...STAT, minWidth: '54px' }}><span data-t="good">{m ? fmt(sys.goodput) : '—'}</span><span style={{ color: 'var(--text-faint)' }}>{H.rate}</span></div></div>
         <div><div className="tg-label">{H.c}</div><div data-t="err" data-hud-tone={sys.err > 0.05 ? 'crit' : sys.err > 0.005 ? 'warn' : ''} style={{ ...STAT, minWidth: '40px' }}>{(sys.err * 100).toFixed(1) + '%'}</div></div>
-        <div><div className="tg-label">{H.d}</div><div style={{ ...STAT, minWidth: '46px' }}><span data-t="drop" data-hud-tone={dropTone(p, dropped, sys)}>{m ? fmt(dropped) : '—'}</span><span style={{ color: 'var(--text-faint)' }}>{p === 'workflow' || p === 'state' ? '' : H.rate}</span></div></div>
+        <div><div className="tg-label">{H.d}</div><div style={{ ...STAT, minWidth: '46px' }}><span data-t="drop" data-hud-tone={dropTone(p, dropped, sys)} title={p === 'dataflow' ? 'Σ node lag · instant' : 'offered − goodput · instant'}>{m ? fmt(dropped) : '—'}</span><span style={{ color: 'var(--text-faint)' }}>{p === 'workflow' || p === 'state' ? '' : H.rate}</span></div></div>
       </div>
       <div style={{ display: 'flex', gap: '4px', flex: 'none', paddingLeft: '10px', borderLeft: '1px solid var(--border-subtle)' }}>
         <button className={'tg-btn wb-ico ' + (s.running ? 'tg-btn--active' : '')} onClick={() => ctl.toggleRunning()} title="run / pause" aria-label="run or pause">{s.running ? '❙❙' : '▶'}</button>

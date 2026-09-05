@@ -66,6 +66,30 @@ diagram · `r` run / pause · `d` theme · arrows step the selection in reading 
 `↑↓` step messages in time order) · `Delete` / `Backspace` delete · `Escape` unwinds drag → palette
 → dialogs → card → selection.
 
+## Metrics
+
+One definition per measure lives in `src/sim/metrics.ts`; the HUD, the telemetry patcher, the
+inspector, the drawer and the findings all derive their numbers from it, so one value cannot read
+two ways. Every snapshot carries provenance (`metrics.prov`: timestamp · tick · sample window ·
+warm-up), and the findings header says whether analysis is **live** (re-derived each second while
+the simulation runs) or **frozen** at the stamped tick, and over which window.
+
+| measure | scope | unit | window | definition |
+| --- | --- | --- | --- | --- |
+| end-to-end · cycle · lifetime · roundtrip p99 | system | ms · min | queueing: instant · token: last ≤300 completions | queueing: visit-weighted mean latency × (2.3 + 2.2·saturation), data flow counting async hops · token: p99 of completed run durations |
+| node p99 | node | ms · min | instant | 2.2 × the node's mean latency (an estimate) |
+| lag | node | events/s | instant | arrivals × (1 − 1/util) while util > 1 |
+| lagging | system | events/s | instant | Σ node lag (the data-flow HUD) |
+| dropped · timeouts | system | /s | instant | offered load − goodput |
+| errors · failed · bad exits | system | share | as p99 | queueing: visit-weighted node error share · token: bad completions ÷ completions **in the same window** |
+| drawer `max` | system | as charted | last ≤140 ticks | the maximum of the charted series — never the current value |
+
+Percentiles and outcome shares report `—` ("warming up · n of 20 completions") until the window has
+enough samples. Metric-backed findings carry `evidence` (metric · scope · value) and point at the
+nodes and edges they judge; outcome claims cite observed object counts, never terminal-type ratios.
+`tests/unit/metrics.test.ts` fails when any surface drifts from the definitions, and pins the
+analyzer's output on seeded fixtures (`tests/unit/__snapshots__/analyze-*.json`).
+
 ## Layout
 
 ```

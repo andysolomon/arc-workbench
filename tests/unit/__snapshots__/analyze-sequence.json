@@ -1,0 +1,53 @@
+{
+ "list": [
+  {
+   "cat": "latency",
+   "sev": "warn",
+   "mark": "dominant",
+   "nodeId": "pg",
+   "title": "Postgres is 49% of the round trip",
+   "detail": "query profile + metrics · 38 ms of 78 ms",
+   "rec": "cache the result or move it off the request path",
+   "edges": [
+    "api>pg#7"
+   ],
+   "evidence": [
+    {
+     "metric": "latency",
+     "scope": "query profile + metrics · document",
+     "value": "38 ms"
+    },
+    {
+     "metric": "critical path",
+     "scope": "system · document",
+     "value": "78 ms"
+    }
+   ],
+   "key": "latency·pg·Postgres is 49% of the round trip",
+   "nodes": []
+  },
+  {
+   "cat": "cache",
+   "sev": "info",
+   "mark": "miss path",
+   "nodeId": "redis",
+   "title": "cache miss falls through to the database",
+   "detail": "38 ms extra on a miss",
+   "rec": "warm the cache or raise the TTL for this key",
+   "edges": [
+    "redis>api#6",
+    "api>pg#7"
+   ],
+   "key": "cache·redis·cache miss falls through to the database",
+   "nodes": []
+  }
+ ],
+ "a": {
+  "label": "critical path",
+  "value": "78 ms"
+ },
+ "b": {
+  "label": "round trips",
+  "value": "5"
+ }
+}

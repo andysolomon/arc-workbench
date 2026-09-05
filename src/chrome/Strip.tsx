@@ -34,7 +34,7 @@ export function Strip({ ctl }: { ctl: WorkbenchController }) {
       {s.drawerOpen ? (
         <div ref={el => { ctl.refs.drawer = el; }} style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(190px,1fr))', gap: '12px', padding: '12px 20px 14px', borderTop: '1px solid var(--border-subtle)', maxHeight: 'min(40vh,240px)', overflowY: 'auto' }}>
           <div style={CARD}>
-            <div style={HEAD}><span className="tg-label">latency</span><span style={{ color: 'var(--text-faint)' }} data-t="latmax">{'max ' + fL(s.paradigm, latMax)}</span></div>
+            <div style={HEAD}><span className="tg-label">latency</span><span style={{ color: 'var(--text-faint)' }} data-t="latmax" title="the maximum of the charted series over the history window — not the current value">{'max ' + fL(s.paradigm, latMax) + ' · ' + hist.length + ' ticks'}</span></div>
             <svg viewBox="0 0 300 64" preserveAspectRatio="none" style={SVG}>
               <polyline data-t="c-p50" points={polyline(hist, 'p50', 300, 64, latMax)} style={line('var(--accent)', 1.4)} />
               <polyline data-t="c-p95" points={polyline(hist, 'p95', 300, 64, latMax)} style={line('var(--health-warn)', 1.2)} />
@@ -43,7 +43,7 @@ export function Strip({ ctl }: { ctl: WorkbenchController }) {
             <div style={{ display: 'flex', gap: '12px', fontSize: '10px', marginTop: '5px' }}><span style={{ color: 'var(--accent)' }}>p50</span><span style={{ color: 'var(--health-warn)' }}>p95</span><span style={{ color: 'var(--health-critical)' }}>p99</span></div>
           </div>
           <div style={CARD}>
-            <div style={HEAD}><span className="tg-label">throughput</span><span style={{ color: 'var(--text-faint)' }} data-t="thrmax">{'max ' + fmt(thrMax)}</span></div>
+            <div style={HEAD}><span className="tg-label">throughput</span><span style={{ color: 'var(--text-faint)' }} data-t="thrmax">{'max ' + fmt(thrMax) + ' · ' + hist.length + ' ticks'}</span></div>
             <svg viewBox="0 0 300 64" preserveAspectRatio="none" style={SVG}>
               <polyline data-t="c-rps" points={polyline(hist, 'rps', 300, 64, thrMax)} style={line('var(--text-faint)', 1.2)} />
               <polyline data-t="c-good" points={polyline(hist, 'goodput', 300, 64, thrMax)} style={line('var(--health-ok)', 1.4)} />

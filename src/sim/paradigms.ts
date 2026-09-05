@@ -6,6 +6,7 @@ import type { GraphEdge, GraphNode, ParadigmId } from '../model/document';
 import { PARADIGMS } from '../paradigms/registry';
 import type { EdgeKindDef, NodeTypeDef } from '../paradigms/types';
 import type { Health, Metrics, NodeStat, ParadigmSim, Run, RunState, SysStat, Timeline } from './types';
+import { WARM, type Provenance } from './metrics';
 
 const SPEED = { workflow: 20, state: 30 }; // simulated minutes per real second
 const health = (util: number, err: number): Health => err > 0.2 || util > 1 ? 'crit' : util > 0.72 || err > 0.05 ? 'warn' : 'ok';
@@ -16,7 +17,7 @@ const EMPTY_T: NodeTypeDef = { label: '', cat: '', family: 'stone', icon: '' };
 const EMPTY_E: EdgeKindDef = { label: '', rel: 'flow', desc: '' };
 
 export function makeParadigmSim(pid: ParadigmId): ParadigmSim {
-  return { pid, t: 0, acc: 0, runs: [], done: [], edgeN: {}, nodeN: {}, dwell: {}, doneN: 0, badN: 0, rate: {}, hist: [], cursor: 0, track: null, noise: Math.random() * 10 };
+  return { pid, t: 0, acc: 0, runs: [], done: [], doneBad: [], edgeN: {}, nodeN: {}, dwell: {}, doneN: 0, badN: 0, rate: {}, hist: [], cursor: 0, track: null, noise: Math.random() * 10 };
 }
 
 interface G { byId: Record<string, GraphNode>; outs: Record<string, GraphEdge[]>; ins: Record<string, GraphEdge[]> }
@@ -26,7 +27,14 @@ function graph(nodes: GraphNode[], edges: GraphEdge[]): G {
   edges.forEach(e => { if (byId[e.from] && byId[e.to]) { outs[e.from]!.push(e); ins[e.to]!.push(e); } });
   return { byId, outs, ins };
 }
-const pushHist = (sim: ParadigmSim, sys: SysStat): void => { sim.hist.push({ t: Date.now(), ...sys }); if (sim.hist.length > 140) sim.hist.shift(); };
+const pushHist = (sim: ParadigmSim, sys: SysStat): number => { const at = Date.now(); sim.hist.push({ t: at, ...sys }); if (sim.hist.length > 140) sim.hist.shift(); return at; };
+/** completions window: p99 and the bad share are read from the same ≤300 finished runs */
+const finishRuns = (sim: ParadigmSim, finished: Run[]): void => {
+  finished.forEach(r => { sim.done.push(r.t); sim.doneBad.push(r.bad ? 1 : 0); if (r.bad) sim.badN++; sim.doneN++; });
+  if (sim.done.length > 300) { sim.done.splice(0, sim.done.length - 300); sim.doneBad.splice(0, sim.doneBad.length - 300); }
+};
+const windowErr = (sim: ParadigmSim): number => sim.done.length ? sim.doneBad.reduce((a, b) => a + b, 0) / sim.done.length : 0;
+const tokenProv = (sim: ParadigmSim, at: number): Provenance => ({ at, tick: sim.hist.length, window: 'last ' + sim.done.length + ' completions', samples: sim.done.length, warm: sim.done.length >= WARM.completions, bad: sim.doneBad.reduce((a, b) => a + b, 0) });
 
 // ---------------- workflow: token execution ----------------
 export function tickWorkflow(sim: ParadigmSim, nodes: GraphNode[], edges: GraphEdge[], ratePerHour: number, dt: number): Metrics {
@@ -73,8 +81,7 @@ export function tickWorkflow(sim: ParadigmSim, nodes: GraphNode[], edges: GraphE
   };
   sim.runs.forEach(r => { r.left -= min; r.t += min; if (r.left <= 0) stepRun(r); });
   const finished = sim.runs.filter(r => r.dead);
-  finished.forEach(r => { sim.done.push(r.t); if (r.bad) sim.badN++; sim.doneN++; });
-  if (sim.done.length > 300) sim.done.splice(0, sim.done.length - 300);
+  finishRuns(sim, finished);
   sim.runs = sim.runs.filter(r => !r.dead).concat(spawned);
   // per-node stats
   const stats: Record<string, NodeStat> = {}, occ: Record<string, number> = {};
@@ -94,11 +101,11 @@ export function tickWorkflow(sim: ParadigmSim, nodes: GraphNode[], edges: GraphE
   edges.forEach(e => { sim.edgeN[e.id] = ema(sim.edgeN[e.id], (edgeHits[e.id] || 0) / Math.max(hrs, 1e-6), a); er[e.id] = sim.edgeN[e.id] || 0; });
   const doneRate = ema(sim.doneRate, finished.length / Math.max(hrs, 1e-6), a); sim.doneRate = doneRate;
   const p50 = pct(sim.done, 0.5), p95 = pct(sim.done, 0.95), p99 = pct(sim.done, 0.99);
-  const err = sim.doneN ? sim.badN / sim.doneN : 0;
+  const err = windowErr(sim);
   const sys: SysStat = { rps: ratePerHour, goodput: doneRate * (1 - err), p50, p95, p99, err, qtot: sim.runs.length, drop: sim.runs.length, sat: Math.max(0, ...nodes.map(n => stats[n.id]!.util)) };
-  pushHist(sim, sys);
+  const at = pushHist(sim, sys);
   const run = trackRun(sim);
-  return { nodes: stats, edges: er, sys, run };
+  return { nodes: stats, edges: er, sys, run, prov: tokenProv(sim, at) };
 }
 
 // the traced execution: one run followed until it finishes, then the next
@@ -145,8 +152,7 @@ export function tickState(sim: ParadigmSim, nodes: GraphNode[], edges: GraphEdge
     }
   });
   const finished = sim.runs.filter(r => r.dead);
-  finished.forEach(r => { sim.done.push(r.t); if (r.bad) sim.badN++; sim.doneN++; });
-  if (sim.done.length > 300) sim.done.splice(0, sim.done.length - 300);
+  finishRuns(sim, finished);
   sim.runs = sim.runs.filter(r => !r.dead);
   const occ: Record<string, number> = {}; sim.runs.forEach(r => occ[r.at] = (occ[r.at] || 0) + 1);
   const a = Math.min(1, dt * 0.35), stats: Record<string, NodeStat> = {};
@@ -161,10 +167,10 @@ export function tickState(sim: ParadigmSim, nodes: GraphNode[], edges: GraphEdge
   });
   const er: Record<string, number> = {}; edges.forEach(e => { sim.edgeN[e.id] = ema(sim.edgeN[e.id], (edgeHits[e.id] || 0) / Math.max(hrs, 1e-6), a); er[e.id] = sim.edgeN[e.id] || 0; });
   sim.doneRate = ema(sim.doneRate, finished.length / Math.max(hrs, 1e-6), a);
-  const err = sim.doneN ? sim.badN / sim.doneN : 0;
+  const err = windowErr(sim);
   const sys: SysStat = { rps: ratePerHour, goodput: sim.doneRate * (1 - err), p50: pct(sim.done, 0.5), p95: pct(sim.done, 0.95), p99: pct(sim.done, 0.99), err, qtot: sim.runs.length, drop: sim.runs.length, sat: Math.max(0, ...nodes.map(n => stats[n.id]!.util)) };
-  pushHist(sim, sys);
-  return { nodes: stats, edges: er, sys, run: trackRun(sim) };
+  const at = pushHist(sim, sys);
+  return { nodes: stats, edges: er, sys, run: trackRun(sim), prov: tokenProv(sim, at) };
 }
 
 // ---------------- sequence: deterministic timeline + playback cursor ----------------
@@ -204,11 +210,11 @@ export function tickSequence(sim: ParadigmSim, nodes: GraphNode[], edges: GraphE
   const err = Math.min(0.5, nBad / nReq * 0.15), timeouts = tl.msgs.filter(m => m.e.kind === 'timeout').length;
   const p50 = tl.total * queueing;
   const sys: SysStat = { rps, goodput: rps * (1 - err), p50, p95: p50 * 1.35, p99: p50 * 1.7, err, qtot: tl.msgs.length, drop: rps * err * (timeouts ? 1 : 0.2), sat };
-  pushHist(sim, sys);
+  const at = pushHist(sim, sys);
   // playback cursor: one request replayed in slow motion (≈ 60 ms of request time per real second… scaled to the total)
   const span = Math.max(tl.total, 40) * 1.35;
   sim.cursor = (sim.cursor + dt * span / 6) % span;
   let active: string | null = null; const done: Record<string, 1> = {};
   tl.msgs.forEach(m => { if (m.end <= sim.cursor) done[m.id] = 1; else if (m.start <= sim.cursor && !active) active = m.id; });
-  return { nodes: stats, edges: er, sys, run: { edge: active, done, cursor: sim.cursor, total: tl.total }, tl };
+  return { nodes: stats, edges: er, sys, run: { edge: active, done, cursor: sim.cursor, total: tl.total }, tl, prov: { at, tick: sim.hist.length, window: 'deterministic timeline · ' + tl.msgs.length + ' messages', samples: tl.msgs.length, warm: true } };
 }

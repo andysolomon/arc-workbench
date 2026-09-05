@@ -5,6 +5,8 @@ import { PARADIGMS } from '../paradigms/registry';
 import type { EdgeKindDef, NodeTypeDef } from '../paradigms/types';
 import { timeline } from '../sim/paradigms';
 import type { Metrics, NodeStat } from '../sim/types';
+import { isWarm, nodeLag, p99Text, samplesOf } from '../sim/metrics';
+import { fmt } from '../sim/format';
 import { laneOf } from '../layout/lanes';
 import { finish, mkAdd, type Analysis, type Finding } from './types';
 
@@ -67,8 +69,8 @@ export function analyzeWorkflow(nodes: GraphNode[], edges: GraphEdge[], m: Metri
   const totalDur = nodes.reduce((s, n) => s + (n.dur != null ? n.dur : ty(n).dur || 0), 0) || 1;
   nodes.filter(n => ty(n).human || n.type === 'wait').forEach(n => {
     const d = n.dur != null ? n.dur : ty(n).dur || 0, s = st(n.id);
-    if (d / totalDur > 0.35) add({ cat: 'wait', sev: d / totalDur > 0.55 ? 'crit' : 'warn', mark: 'long wait', nodeId: n.id, title: n.name + ' holds ' + Math.round(d / totalDur * 100) + '% of cycle time', detail: fmtMin(d) + ' expected wait' + (s ? ' · ' + s.q + ' waiting now' : ''), rec: 'set an SLA, add approvers, or auto-approve low-risk changes' });
-    if (s && s.util > 0.85) add({ cat: 'wait', sev: s.util > 1 ? 'crit' : 'warn', mark: 'approval bottleneck', nodeId: n.id, title: n.name + ' is the approval bottleneck', detail: s.q + ' items waiting for ' + (n.cap != null ? n.cap : 6) + ' approvers', rec: 'add approvers or parallelise the review' });
+    if (d / totalDur > 0.35) add({ cat: 'wait', sev: d / totalDur > 0.55 ? 'crit' : 'warn', mark: 'long wait', nodeId: n.id, title: n.name + ' holds ' + Math.round(d / totalDur * 100) + '% of cycle time', detail: fmtMin(d) + ' expected wait' + (s ? ' · ' + s.q + ' waiting now' : ''), rec: 'set an SLA, add approvers, or auto-approve low-risk changes', evidence: [{ metric: 'expected wait', scope: n.name + ' · document', value: fmtMin(d) }, ...(s ? [{ metric: 'waiting', scope: n.name + ' · instant', value: String(s.q) }] : [])] });
+    if (s && s.util > 0.85) add({ cat: 'wait', sev: s.util > 1 ? 'crit' : 'warn', mark: 'approval bottleneck', nodeId: n.id, title: n.name + ' is the approval bottleneck', detail: s.q + ' items waiting for ' + (n.cap != null ? n.cap : 6) + ' approvers', rec: 'add approvers or parallelise the review', evidence: [{ metric: 'waiting', scope: n.name + ' · instant', value: String(s.q) }, { metric: 'occupancy', scope: n.name + ' · instant', value: Math.round(s.util * 100) + '%' }] });
   });
   // gates without failure handling; high failure rate
   nodes.forEach(n => {
@@ -76,7 +78,7 @@ export function analyzeWorkflow(nodes: GraphNode[], edges: GraphEdge[], m: Metri
     const alt = outs[n.id]!.filter(e => ek(e).alt);
     if (!alt.length) add({ cat: 'fail', sev: 'crit', mark: 'unhandled', nodeId: n.id, title: n.name + ' has no failure path', detail: Math.round((1 - p) * 100) + '% of runs fail here and fall through as success', rec: 'add a fail / deny / retry transition' });
     const s = st(n.id);
-    if (s && s.err > 0.25) add({ cat: 'fail', sev: 'warn', mark: 'high retry', nodeId: n.id, title: n.name + ' fails ' + Math.round(s.err * 100) + '% of the time', detail: 'rework loops back upstream · every retry re-pays the earlier steps', rec: 'move the check earlier or make it cheaper', edges: alt.map(e => e.id) });
+    if (s && s.err > 0.25) add({ cat: 'fail', sev: 'warn', mark: 'high retry', nodeId: n.id, title: n.name + ' fails ' + Math.round(s.err * 100) + '% of the time', detail: 'rework loops back upstream · every retry re-pays the earlier steps', rec: 'move the check earlier or make it cheaper', edges: alt.map(e => e.id), evidence: [{ metric: 'fail share', scope: n.name + ' · smoothed', value: Math.round(s.err * 100) + '%' }] });
   });
   // retry cycles
   const cyc: GraphEdge[] = [];
@@ -89,8 +91,8 @@ export function analyzeWorkflow(nodes: GraphNode[], edges: GraphEdge[], m: Metri
   // terminal outcomes
   const terms = nodes.filter(n => ty(n).terminal);
   if (!terms.length && nodes.length > 2) add({ cat: 'dead', sev: 'warn', mark: '', nodeId: null, title: 'no terminal outcome', detail: 'runs have nowhere to end', rec: 'add a Terminal or Failed outcome' });
-  const p99 = m ? m.sys.p99 : 0, inflight = m ? m.sys.qtot : 0;
-  return finish(F, { label: 'cycle p99', value: m ? fmtMin(p99) : '—' }, { label: 'in flight', value: m ? String(inflight) : '—' });
+  const inflight = m ? m.sys.qtot : 0;
+  return finish(F, { label: 'cycle p99', value: p99Text('workflow', m) }, { label: 'in flight', value: m ? String(inflight) : '—' });
 }
 
 export function analyzeSequence(nodes: GraphNode[], edges: GraphEdge[], _m: Metrics | null): Analysis {
@@ -108,7 +110,7 @@ export function analyzeSequence(nodes: GraphNode[], edges: GraphEdge[], _m: Metr
   }
   // slow dependency
   const slow = tl.msgs.filter(x => !ek(x.e).nowait).sort((p, q) => q.lat - p.lat)[0];
-  if (slow && slow.lat / total > 0.4) add({ cat: 'latency', sev: slow.lat / total > 0.6 ? 'crit' : 'warn', mark: 'dominant', nodeId: slow.e.to, title: nm(slow.e.to) + ' is ' + Math.round(slow.lat / total * 100) + '% of the round trip', detail: (slow.e.label || 'call') + ' · ' + slow.lat + ' ms of ' + Math.round(total) + ' ms', rec: 'cache the result or move it off the request path', edges: [slow.id] });
+  if (slow && slow.lat / total > 0.4) add({ cat: 'latency', sev: slow.lat / total > 0.6 ? 'crit' : 'warn', mark: 'dominant', nodeId: slow.e.to, title: nm(slow.e.to) + ' is ' + Math.round(slow.lat / total * 100) + '% of the round trip', detail: (slow.e.label || 'call') + ' · ' + slow.lat + ' ms of ' + Math.round(total) + ' ms', rec: 'cache the result or move it off the request path', edges: [slow.id], evidence: [{ metric: 'latency', scope: (slow.e.label || nm(slow.e.to)) + ' · document', value: slow.lat + ' ms' }, { metric: 'critical path', scope: 'system · document', value: Math.round(total) + ' ms' }] });
   // cache inefficiency
   const miss = tl.msgs.find(x => /miss/i.test(x.e.label || '')), cacheNodes = nodes.filter(n => n.type === 'cache');
   if (miss && cacheNodes.length) { const after = tl.msgs.filter(x => x.start >= miss.end && x.e.kind === 'request' && byId[x.e.to] && byId[x.e.to]!.type === 'db'); if (after.length) add({ cat: 'cache', sev: 'info', mark: 'miss path', nodeId: miss.e.from, title: 'cache miss falls through to the database', detail: after.map(x => x.lat + ' ms').join(' + ') + ' extra on a miss', rec: 'warm the cache or raise the TTL for this key', edges: [miss.id].concat(after.map(x => x.id)) }); }
@@ -141,7 +143,7 @@ export function analyzeDataflow(nodes: GraphNode[], edges: GraphEdge[], m: Metri
   // fan-out risk
   nodes.forEach(n => { if (outs[n.id]!.length >= 4) add({ cat: 'fanout', sev: 'info', mark: 'fan-out', nodeId: n.id, title: n.name + ' fans out to ' + outs[n.id]!.length + ' consumers', detail: 'schema changes here break every downstream', rec: 'publish a versioned contract', edges: outs[n.id]!.map(e => e.id) }); });
   // consumer lag / backpressure from the queueing metrics
-  nodes.forEach(n => { const s = st(n.id); if (!s) return; if (s.util > 0.9 && ty(n).role !== 'buffer') add({ cat: 'lag', sev: s.util > 1 ? 'crit' : 'warn', mark: 'lagging', nodeId: n.id, title: n.name + ' cannot keep up', detail: Math.round(s.util * 100) + '% busy · lag grows at ' + Math.round(Math.max(0, s.arr * (1 - 1 / Math.max(s.util, 1)))) + ' events/s', rec: 'add ' + Math.ceil((n.inst || 1) * s.util / 0.6 - (n.inst || 1)) + ' instances or more partitions upstream' }); });
+  nodes.forEach(n => { const s = st(n.id); if (!s) return; if (s.util > 0.9 && ty(n).role !== 'buffer') add({ cat: 'lag', sev: s.util > 1 ? 'crit' : 'warn', mark: 'lagging', nodeId: n.id, title: n.name + ' cannot keep up', detail: Math.round(s.util * 100) + '% busy · lag grows at ' + Math.round(nodeLag(s)) + ' events/s', rec: 'add ' + Math.ceil((n.inst || 1) * s.util / 0.6 - (n.inst || 1)) + ' instances or more partitions upstream', evidence: [{ metric: 'util', scope: n.name + ' · instant', value: Math.round(s.util * 100) + '%' }, { metric: 'lag', scope: n.name + ' · instant', value: fmt(nodeLag(s)) + '/s' }] }); });
   // streams without dead letter
   nodes.filter(n => ty(n).role === 'buffer' && n.type !== 'dlq').forEach(q => { if (!outs[q.id]!.some(e => byId[e.to]!.type === 'dlq')) add({ cat: 'dlq', sev: 'info', mark: 'no dlq', nodeId: q.id, title: q.name + ' has no dead-letter path', detail: 'a poison event blocks its partition', rec: 'attach a dead-letter topic' }); });
   // duplicate pipelines: two transforms with the same input and output kind
@@ -150,7 +152,7 @@ export function analyzeDataflow(nodes: GraphNode[], edges: GraphEdge[], m: Metri
   // lineage gaps: consumers with no store upstream
   nodes.filter(n => ty(n).cat === 'con').forEach(n => { if (!ins[n.id]!.length) add({ cat: 'lineage', sev: 'warn', mark: 'no lineage', nodeId: n.id, title: n.name + ' has no lineage', detail: 'nothing feeds it', rec: 'connect its source dataset' }); });
   const gov = nodes.filter(n => ty(n).gov).length, pii = nodes.filter(n => n.pii).length;
-  return finish(F, { label: 'pii datasets', value: pii + ' · ' + gov + ' governed' }, { label: 'end-to-end p99', value: m ? (m.sys.p99 >= 1000 ? (m.sys.p99 / 1000).toFixed(1) + 's' : Math.round(m.sys.p99) + 'ms') : '—' });
+  return finish(F, { label: 'pii datasets', value: pii + ' · ' + gov + ' governed' }, { label: 'end-to-end p99', value: p99Text('dataflow', m) });
 }
 
 export function analyzeState(nodes: GraphNode[], edges: GraphEdge[], m: Metrics | null): Analysis {
@@ -169,11 +171,17 @@ export function analyzeState(nodes: GraphNode[], edges: GraphEdge[], m: Metrics 
   const cyc = edges.filter(e => e.kind === 'retry' || ek(e).alt).filter(e => reach([e.to], outs)[e.from]);
   if (cyc.length) add({ cat: 'loop', sev: 'info', mark: 'retry cycle', nodeId: cyc[0]!.from, title: cyc.length + ' retry cycle' + (cyc.length > 1 ? 's' : ''), detail: cyc.map(e => nm(e.from) + ' ↺ ' + nm(e.to)).slice(0, 3).join(' · '), rec: 'bound the retry count with a counter guard', edges: cyc.map(e => e.id) });
   // occupancy from the walk
-  nodes.forEach(n => { const s = st(n.id); if (s && s.util > 0.85 && !ty(n).terminal) add({ cat: 'occ', sev: s.util > 1 ? 'crit' : 'warn', mark: 'crowded', nodeId: n.id, title: s.q + ' objects sit in ' + n.name, detail: Math.round(s.util * 100) + '% of capacity ' + (n.cap != null ? n.cap : ty(n).cap), rec: ty(n).human ? 'add approvers or auto-approve low risk' : 'raise capacity or shorten the dwell' }); });
-  // bad-exit share
-  const bad = nodes.filter(n => ty(n).bad).length, terms = nodes.filter(n => ty(n).terminal).length;
-  if (m && m.sys.err > 0.25) add({ cat: 'exit', sev: 'warn', mark: '', nodeId: null, title: Math.round(m.sys.err * 100) + '% of objects end in a bad state', detail: bad + ' of ' + terms + ' terminal states are failure / cancel / expiry', rec: 'trace the dominant failure transition' });
-  return finish(F, { label: 'lifetime p99', value: m ? fmtMin(m.sys.p99) : '—' }, { label: 'terminal', value: terms + ' · ' + bad + ' bad' });
+  nodes.forEach(n => { const s = st(n.id); if (s && s.util > 0.85 && !ty(n).terminal) add({ cat: 'occ', sev: s.util > 1 ? 'crit' : 'warn', mark: 'crowded', nodeId: n.id, title: s.q + ' objects sit in ' + n.name, detail: Math.round(s.util * 100) + '% of capacity ' + (n.cap != null ? n.cap : ty(n).cap), rec: ty(n).human ? 'add approvers or auto-approve low risk' : 'raise capacity or shorten the dwell', evidence: [{ metric: 'objects', scope: n.name + ' · instant', value: String(s.q) }, { metric: 'occupancy', scope: n.name + ' · instant', value: Math.round(s.util * 100) + '%' }] }); });
+  // bad-exit share — an OBSERVED share of completed objects in the sample window, never a ratio of terminal types
+  const badTypes = nodes.filter(n => ty(n).bad), terms = nodes.filter(n => ty(n).terminal).length, bad = badTypes.length;
+  if (m && isWarm(m) && m.sys.err > 0.25) {
+    const done = samplesOf(m), badN = m.prov?.bad ?? Math.round(m.sys.err * done);
+    add({ cat: 'exit', sev: 'warn', mark: '', nodeId: null, title: Math.round(m.sys.err * 100) + '% of objects end in a bad state',
+      detail: (m.prov ? badN + ' of ' + done + ' objects completed in the sample window' : 'the observed share of completed objects') + ' ended in ' + (badTypes.map(n => n.name).join(' / ') || 'a bad terminal state'),
+      rec: 'trace the dominant failure transition', nodes: badTypes.map(n => n.id),
+      evidence: [{ metric: 'bad exits', scope: 'system · ' + (m.prov?.window ?? 'run'), value: (m.prov ? badN + ' / ' + done + ' · ' : '') + Math.round(m.sys.err * 100) + '%' }] });
+  }
+  return finish(F, { label: 'lifetime p99', value: p99Text('state', m) }, { label: 'terminal', value: terms + ' · ' + bad + ' bad' });
 }
 
 export function analyzeParadigm(pid: ParadigmId, nodes: GraphNode[], edges: GraphEdge[], m: Metrics | null, regions: GraphRegion[] | undefined): Analysis {

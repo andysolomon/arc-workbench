@@ -18,7 +18,8 @@ for (const [label, pid, nodes] of FIVE) {
     await setMode(page, 'simulate');
     await expect(page.locator('.tg-gnode-tel').first()).toBeVisible({ timeout: 3000 });
     await expect.poll(() => page.locator('[data-t="rate"]').first().textContent(), { timeout: 3000 }).not.toBe('');
-    await expect(page.locator('.wb-hud [data-t="p99"]')).not.toHaveText('—');
+    // a value once the window is warm; until then the HUD says so instead of printing a number
+    await expect.poll(async () => { const el = page.locator('.wb-hud [data-t="p99"]'); return (await el.textContent()) !== '—' || /warming up/.test((await el.getAttribute('title')) || ''); }).toBe(true);
     await page.keyboard.press('t');
     await expect(page.locator('.tg-gcanvas')).toHaveAttribute('data-layer-trace', 'on');
     if (pid === 'workflow' || pid === 'state' || pid === 'sequence') await expect(page.locator('[data-run="active"]').first()).toBeAttached({ timeout: 4000 });
@@ -72,4 +73,18 @@ test('switching paradigm while simulating pauses the run and confirms it', async
   expect(await state<number>(page, 'ctl.uptimeS')).toBe(up);
   await page.keyboard.press('r');
   await expect(page.getByRole('button', { name: 'run or pause' })).toHaveText('❙❙');
+});
+
+test('analyze says whether findings are live or frozen, and over which window', async ({ page }) => {
+  await setMode(page, 'simulate'); await page.waitForTimeout(1300);
+  await setMode(page, 'analyze');
+  const prov = page.locator('.wb-prov');
+  await expect(prov).toHaveAttribute('data-live', '1');
+  await expect(prov).toContainText('live');
+  await expect(prov).toContainText(/instant|completions|timeline|warming/);
+  await page.keyboard.press('r');
+  await expect(prov).toHaveAttribute('data-live', '0');
+  await expect(prov).toContainText('frozen');
+  // evidence chips point at the numbers a finding rests on
+  await expect(page.locator('.wb-ev').first()).toBeVisible();
 });

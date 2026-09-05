@@ -136,3 +136,9 @@ input[type=checkbox]{accent-color:var(--accent)}
 .wb-help-row{display:grid;grid-template-columns:150px minmax(0,1fr);gap:12px;align-items:baseline}
 .wb-help-row dt,.wb-help-row dd{margin:0}
 .wb-help-row dd{color:var(--text-secondary);font-size:11px}
+/* findings provenance + evidence (ARC-169) */
+.wb-prov{margin-left:auto;font-size:10px;color:var(--text-faint);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.wb-prov[data-live="1"]{color:var(--health-ok)}
+.wb-evs{display:flex;flex-wrap:wrap;gap:4px;padding-left:15px;margin-top:2px}
+.wb-ev{display:inline-block;background:var(--surface-inset);border:1px solid var(--border-subtle);border-radius:3px;padding:0 5px;font-size:10px;line-height:16px;color:var(--text-muted);white-space:nowrap}
+.wb-ev b{font-weight:500;color:var(--text-body)}

@@ -4,7 +4,7 @@ import type { CSSProperties } from 'react';
 import type { InspectorField, WorkbenchController } from '../app/controller';
 import type { GraphEdge, GraphNode, GraphRegion, OwnerKind } from '../model/document';
 import { familyOf } from '../paradigms';
-import { fL, fmt } from '../sim';
+import { fL, fmt , nodeP99Text } from '../sim';
 
 const ICO: CSSProperties = { background: 'transparent', borderColor: 'transparent', color: 'var(--text-muted)' };
 const SEC_HD: CSSProperties = { padding: '14px 16px', borderBottom: '1px solid var(--border-subtle)', display: 'flex', flexDirection: 'column', gap: '8px' };
@@ -72,7 +72,7 @@ function NodeInspector({ ctl, n }: { ctl: WorkbenchController; n: GraphNode }) {
         <div data-mgrid="" style={{ display: 'grid', gridTemplateColumns: 'repeat(2,minmax(0,1fr))', gap: '7px 14px' }}>
           <div style={KV}>{ML.arr} <span style={{ color: 'var(--text-body)' }} data-t="mArr">{fmt(st.arr) + T.HUD.rate}</span></div>
           <div style={KV}>{ML.lat} <span style={{ color: 'var(--text-body)' }} data-t="mLat">{fL(p, st.lat)}</span></div>
-          <div style={KV}>{ML.p99} <span style={{ color: 'var(--text-body)' }} data-t="mP99">{fL(p, st.lat * 2.2)}</span></div>
+          <div style={KV} title="node p99 · 2.2 × mean latency · instant">{ML.p99} <span style={{ color: 'var(--text-body)' }} data-t="mP99">{nodeP99Text(p, st)}</span></div>
           <div style={KV}>{ML.util} <span style={{ color: 'var(--text-body)' }} data-t="mUtil">{Math.round(st.util * 100) + '%'}</span></div>
           <div style={KV}>{ML.q} <span style={{ color: 'var(--text-body)' }} data-t="mQ">{fmt(st.q)}</span></div>
           <div style={KV}>{ML.err} <span style={{ color: 'var(--text-body)' }} data-t="mErr">{(st.err * 100).toFixed(1) + '%'}</span></div>

@@ -1,10 +1,12 @@
 // analyze: findings drawer over the same canvas, never a second screen (WB 413–445)
 import type { WorkbenchController } from '../app/controller';
 import type { Analysis } from '../analyze';
-import { fmt } from '../sim';
+import { fmt, stampOf, windowNote } from '../sim';
 
 export function Findings({ ctl, an }: { ctl: WorkbenchController; an: Analysis }) {
-  const s = ctl.state, T = ctl.T;
+  const s = ctl.state, T = ctl.T, m = ctl.metrics;
+  // live while the simulation runs (re-analysed each second); frozen at the stamped tick otherwise
+  const live = s.running && !!m, stamp = stampOf(m);
   const fc = s.focus && an.list.some(f => f.key === s.focus!.key) ? s.focus : null;
   const noneNote = s.paradigm === 'architecture' ? 'topology is inside capacity at ' + fmt(s.rps) + ' req/s' : s.paradigm === 'sequence' ? 'the call path is short and direct' : 'the ' + T.label + ' has no structural gaps';
   return (
@@ -12,6 +14,7 @@ export function Findings({ ctl, an }: { ctl: WorkbenchController; an: Analysis }
       <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '11px 13px', borderBottom: '1px solid var(--border-subtle)' }}>
         <span className="tg-label">findings</span>
         <span style={{ color: 'var(--text-faint)' }}>{an.list.length}</span>
+        <span className="wb-prov" data-live={live ? '1' : '0'} title={m ? 'sample window · ' + windowNote(m) : 'design-time analysis: structure only, no run metrics'}>{m ? (live ? 'live' : 'frozen') + (stamp ? ' · ' + stamp : '') + ' · ' + windowNote(m) : 'structure only · no run yet'}</span>
         {fc ? <button className="tg-btn" onClick={() => ctl.setState({ focus: null })} style={{ marginLeft: 'auto' }}>clear focus</button> : null}
       </div>
       <div style={{ flex: 1, overflowY: 'auto', padding: '6px' }}>
@@ -24,6 +27,7 @@ export function Findings({ ctl, an }: { ctl: WorkbenchController; an: Analysis }
             </span>
             <span style={{ color: 'var(--text-muted)', paddingLeft: '15px' }}>{f.detail}</span>
             {f.rec ? <span style={{ color: 'var(--accent-deep)', paddingLeft: '15px' }}>→ {f.rec}</span> : null}
+            {f.evidence?.length ? <span className="wb-evs">{f.evidence.map((ev, i) => <span key={i} className="wb-ev" title={ev.scope}>{ev.metric} <b>{ev.value}</b></span>)}</span> : null}
           </button>
         ))}
         {!an.list.length ? <div style={{ padding: '9px', color: 'var(--text-faint)', lineHeight: 1.6 }}>nothing to flag · {noneNote}</div> : null}

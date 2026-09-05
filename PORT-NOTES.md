@@ -130,6 +130,18 @@ Prototype method → port location (WB lines):
    decimal minutes). Both are ported as separate functions to keep finding text identical.
 7. `edgeRate` for an edge whose `from`/`to` is missing is never written; the HUD shows `0`.
    Unchanged.
+8. Palette command `change diagram type · …` runs `switchParadigm`, which never clears
+   `palette` (WB 2072 · 762). The palette stays open after the switch; Escape closes it. Kept
+   as the prototype has it — flag if it should close like every other palette command.
+9. Imperative `data-state` writes (dragging · compatible · invalid-target) desynchronise React's
+   view of the attribute: React will not rewrite a value it believes is unchanged. The port
+   restores the React-known value (`selected` or empty) when a drag ends instead of writing
+   `''` as WB 1397 did, otherwise a clicked node lost its selection ring until the next render.
+   Same visible result as the prototype under its harness, which re-applied attributes per render.
+10. React propagates synthetic pointer events on its own tree, so a node's native
+    `stopPropagation` (WB 1310) no longer stops the canvas `onPointerDown`. The handler wrappers
+    stop the synthetic event as well; without it every node press also started a pan that
+    cleared the selection on release.
 
 ## 5 · Verification
 

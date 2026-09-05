@@ -1,6 +1,6 @@
 // Keyboard map (WB 2006–2043): / or ⌘K palette · ⌘Z / ⇧⌘Z undo · f fit · l layout · t trace ·
 // n new · r run/pause · d theme · arrows step selection · Delete/Backspace deletes ·
-// Escape unwinds drag → palette → create → switcher → settings → card → selection.
+// Escape unwinds drag → confirm → palette → create → switcher → settings → card → selection.
 import type { WorkbenchController } from './controller';
 
 export function onKey(c: WorkbenchController, e: KeyboardEvent): void {
@@ -9,7 +9,8 @@ export function onKey(c: WorkbenchController, e: KeyboardEvent): void {
   const s = c.state;
   if (e.key === 'Escape') {
     if (c.gestures.cancelDrag()) return;
-    if (s.palette) c.setState({ palette: false });
+    if (s.confirm) c.setState({ confirm: null });
+    else if (s.palette) c.setState({ palette: false });
     else if (s.createOpen) c.setState({ createOpen: false });
     else if (s.paraOpen) c.setState({ paraOpen: false });
     else if (s.settingsOpen) c.setState({ settingsOpen: false });

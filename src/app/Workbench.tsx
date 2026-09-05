@@ -1,7 +1,7 @@
 // Workbench root: subscribes to the store, builds the canvas view model, floats the chrome over
 // the canvas, and runs the prototype's lifecycle (mount · didUpdate · unmount).
 import { useEffect, useLayoutEffect, useMemo } from 'react';
-import { CommandPalette, CreateDialog, EdgeCard, Findings, Header, Hints, Inspector, Library, Strip, Toast, ZoomControl } from '../chrome';
+import { CommandPalette, ConfirmDialog, CreateDialog, EdgeCard, Findings, Header, Hints, Inspector, Library, Strip, Toast, ZoomControl } from '../chrome';
 import { GraphCanvas } from '../render';
 import { useStore } from '../store';
 import { WorkbenchController } from './controller';
@@ -56,6 +56,7 @@ export function Workbench({ controller, ...props }: WorkbenchProps & { controlle
       </div>
       {s.createOpen ? <CreateDialog ctl={ctl} /> : null}
       {s.palette ? <CommandPalette ctl={ctl} /> : null}
+      {s.confirm ? <ConfirmDialog ctl={ctl} c={s.confirm} /> : null}
     </div>
   );
 }

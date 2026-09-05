@@ -10,6 +10,7 @@ export { Inspector } from './Inspector';
 export { Strip } from './Strip';
 export { Toast } from './Toast';
 export { CreateDialog } from './CreateDialog';
+export { ConfirmDialog } from './ConfirmDialog';
 export { CommandPalette } from './CommandPalette';
 export { ZoomControl } from './ds/ZoomControl';
 export { LogoMark } from './ds/LogoMark';

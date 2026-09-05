@@ -47,3 +47,24 @@ test('display settings never covers an open inspector, in either inspector densi
   await page.getByRole('button', { name: 'display settings' }).click();
   await expect(page.locator('.wb-settings')).toHaveAttribute('data-insp', 'off');
 });
+
+test('replacing an edited document with a preset asks first, and one undo brings the edit back', async ({ page }) => {
+  await openApp(page);
+  const select = page.getByRole('combobox', { name: 'example preset' });
+  const count = () => state<number>(page, 'ctl.state.nodes.length');
+  const n = await count();
+  await page.keyboard.press('ArrowRight'); await page.keyboard.press('Delete');
+  expect(await count()).toBe(n - 1);
+  await select.selectOption('blank');
+  const dialog = page.getByRole('alertdialog'); await expect(dialog).toBeVisible();
+  await expect(dialog).toContainText('Replace Product Analytics with Blank?');
+  await dialog.getByRole('button', { name: 'cancel' }).click();
+  await expect(dialog).toHaveCount(0); expect(await count()).toBe(n - 1); await expect(select).toHaveValue('analytics');
+  await select.selectOption('blank');
+  await page.getByRole('alertdialog').getByRole('button', { name: 'replace' }).click();
+  await expect(select).toHaveValue('blank'); expect(await count()).toBe(0);
+  await page.keyboard.press('Control+z');
+  await expect(select).toHaveValue('analytics'); expect(await count()).toBe(n - 1);
+  await page.keyboard.press('Shift+Control+z');
+  await expect(select).toHaveValue('blank'); expect(await count()).toBe(0);
+});

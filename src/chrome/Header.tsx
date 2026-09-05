@@ -33,7 +33,7 @@ export function Header({ ctl, tierCount, unlinked }: { ctl: WorkbenchController;
       <div className="wb-vsep-hud" style={SEP} />
       {simOn ? <Hud ctl={ctl} /> : <DraftingHud ctl={ctl} tierCount={tierCount} unlinked={unlinked} />}
       <div style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: '6px', flex: 'none', marginLeft: 'auto' }}>
-        <select className="tg-select wb-preset" value={s.presetId} onChange={e => ctl.loadPreset(e.target.value)} aria-label="example preset" style={{ cursor: 'pointer' }}>
+        <select className="tg-select wb-preset" value={s.presetId} onChange={e => ctl.loadPreset(e.target.value)} aria-label="example preset" title={(presets.find(p => p.id === s.presetId)?.name ?? '') + ' · example preset'} style={{ cursor: 'pointer' }}>
           {presets.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
         </select>
         <button className={'tg-btn ' + (s.settingsOpen ? 'tg-btn--active' : '')} onClick={() => ctl.setState({ settingsOpen: !s.settingsOpen })} title="display settings" aria-label="display settings">settings</button>

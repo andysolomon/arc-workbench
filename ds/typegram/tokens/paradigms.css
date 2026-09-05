@@ -1,0 +1,16 @@
+/* ===== graph paradigms (v8, Sep 2026): tokens shared by the five diagram paradigms ===== */
+:root{
+/* GraphRegion: boundary | lane | stage | phase | zone. Weaker than nodes: hairline + faint tint + mono label */
+--region-border-w:1px;--region-tint:4%;--region-tint-alt:2%;--region-label-size:9.5px;--region-label-track:0.1em;
+--lane-min-h:144px;--stage-min-w:272px;--phase-min-h:160px;
+/* sequence primitives: lifelines are one shared SVG layer, activations are narrow constructed bars */
+--lifeline-stroke:var(--stone-300);--lifeline-w:1px;--lifeline-dash:4 6; /* @kind other */--activation-w:8px;--seq-row:44px;--seq-head:48px;--seq-msg-inset:10px;
+/* failure triad: bad terminal outcomes (failed / cancelled / expired / dead-letter). Danger palette, node construction unchanged */
+--kind-failure-bg:var(--danger-tint);--kind-failure-border:var(--danger);--kind-failure-text:var(--danger-text);--kind-failure-chip:var(--danger-border);
+--family-danger-bg:var(--kind-failure-bg);--family-danger-border:var(--kind-failure-border);--family-danger-text:var(--kind-failure-text);--family-danger-chip:var(--kind-failure-chip);
+/* state primitives */
+--terminal-inset:3px;--terminal-w:1px;
+/* run / trace: playback of ONE selected execution. Opt-in per surface (data-layer-trace="on"), never a default */
+--run-active:var(--selection);--run-done:var(--edge-hover);--run-pending-opacity:0.35; /* @kind other */ --run-dash:6 6; /* @kind other */ --run-dur:0.8s; /* @kind other */
+}
+[data-theme="dark"]{--lifeline-stroke:var(--stone-600)}

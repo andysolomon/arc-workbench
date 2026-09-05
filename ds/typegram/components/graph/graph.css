@@ -1,0 +1,225 @@
+/* graph primitives: square constructed objects on the blueprint canvas */
+.tg-gcanvas{position:relative;overflow:hidden;background-color:var(--graph-canvas);background-image:var(--grid-canvas);background-size:var(--grid-canvas-size)}
+.tg-gcanvas-edges{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none}
+.tg-marquee{position:absolute;border:1px dashed var(--selection);background:var(--selection-marquee-bg);pointer-events:none}
+/* kind wiring (legacy alias): graph kinds alias the existing kind triads — see data-family below */
+.tg-gnode,.tg-group,.tg-ginspector{--nf:var(--kind-external-bg);--nb:var(--kind-external-border);--nt:var(--kind-external-text)}
+.tg-gnode[data-kind="service"],.tg-group[data-kind="service"],.tg-gnode[data-kind="class"],.tg-ginspector[data-kind="service"],.tg-ginspector[data-kind="class"]{--nf:var(--kind-class-bg);--nb:var(--kind-class-border);--nt:var(--kind-class-text)}
+.tg-gnode[data-kind="database"],.tg-group[data-kind="database"],.tg-gnode[data-kind="type"],.tg-ginspector[data-kind="database"],.tg-ginspector[data-kind="type"]{--nf:var(--kind-type-bg);--nb:var(--kind-type-border);--nt:var(--kind-type-text)}
+.tg-gnode[data-kind="queue"],.tg-group[data-kind="queue"],.tg-gnode[data-kind="interface"],.tg-ginspector[data-kind="queue"],.tg-ginspector[data-kind="interface"]{--nf:var(--kind-interface-bg);--nb:var(--kind-interface-border);--nt:var(--kind-interface-text)}
+.tg-gnode[data-kind="agent"],.tg-group[data-kind="agent"],.tg-gnode[data-kind="union"],.tg-ginspector[data-kind="agent"],.tg-ginspector[data-kind="union"]{--nf:var(--kind-union-bg);--nb:var(--kind-union-border);--nt:var(--kind-union-text)}
+.tg-gnode[data-kind="tool"],.tg-group[data-kind="tool"],.tg-gnode[data-kind="function"],.tg-ginspector[data-kind="tool"],.tg-ginspector[data-kind="function"]{--nf:var(--kind-function-bg);--nb:var(--kind-function-border);--nt:var(--kind-function-text)}
+.tg-gnode[data-kind="input"],.tg-gnode[data-kind="output"],.tg-gnode[data-kind="instance"],.tg-ginspector[data-kind="input"],.tg-ginspector[data-kind="output"],.tg-ginspector[data-kind="instance"]{--nf:var(--kind-instance-bg);--nb:var(--kind-instance-border);--nt:var(--kind-instance-text)}
+.tg-gnode[data-kind="component"],.tg-ginspector[data-kind="component"]{--nf:var(--kind-component-bg);--nb:var(--kind-component-border);--nt:var(--kind-component-text)}
+/* visual family: the colour channel. data-family is the public input; data-kind stays semantic (approval, stream, waiting…).
+   The graph-kind triads above (data-kind="service|queue|…") are a one-version compatibility alias, deprecated v3.1. */
+.tg-gnode[data-family="indigo"],.tg-group[data-family="indigo"],.tg-ginspector[data-family="indigo"]{--nf:var(--family-indigo-bg);--nb:var(--family-indigo-border);--nt:var(--family-indigo-text)}
+.tg-gnode[data-family="emerald"],.tg-group[data-family="emerald"],.tg-ginspector[data-family="emerald"]{--nf:var(--family-emerald-bg);--nb:var(--family-emerald-border);--nt:var(--family-emerald-text)}
+.tg-gnode[data-family="amber"],.tg-group[data-family="amber"],.tg-ginspector[data-family="amber"]{--nf:var(--family-amber-bg);--nb:var(--family-amber-border);--nt:var(--family-amber-text)}
+.tg-gnode[data-family="purple"],.tg-group[data-family="purple"],.tg-ginspector[data-family="purple"]{--nf:var(--family-purple-bg);--nb:var(--family-purple-border);--nt:var(--family-purple-text)}
+.tg-gnode[data-family="cyan"],.tg-group[data-family="cyan"],.tg-ginspector[data-family="cyan"]{--nf:var(--family-cyan-bg);--nb:var(--family-cyan-border);--nt:var(--family-cyan-text)}
+.tg-gnode[data-family="orange"],.tg-group[data-family="orange"],.tg-ginspector[data-family="orange"]{--nf:var(--family-orange-bg);--nb:var(--family-orange-border);--nt:var(--family-orange-text)}
+.tg-gnode[data-family="stone"],.tg-group[data-family="stone"],.tg-ginspector[data-family="stone"]{--nf:var(--family-stone-bg);--nb:var(--family-stone-border);--nt:var(--family-stone-text)}
+.tg-gnode[data-family="danger"],.tg-group[data-family="danger"],.tg-ginspector[data-family="danger"]{--nf:var(--family-danger-bg);--nb:var(--family-danger-border);--nt:var(--family-danger-text)}
+/* node */
+.tg-gnode{position:relative;display:inline-flex;flex-direction:column;min-width:128px;box-sizing:border-box;border:var(--node-border-w) solid var(--nb);border-radius:var(--node-radius);background-color:var(--nf);background-image:linear-gradient(color-mix(in srgb,var(--nb) 16%,transparent) 1px,transparent 1px),linear-gradient(90deg,color-mix(in srgb,var(--nb) 16%,transparent) 1px,transparent 1px);background-size:var(--node-pixel) var(--node-pixel);box-shadow:var(--node-shadow);font-family:var(--font-mono);font-size:var(--text-diagram);color:var(--text-body)}
+.tg-gnode-hd{display:flex;align-items:center;gap:8px;padding:6px 10px}
+.tg-gnode-swatch{width:7px;height:7px;background:var(--nb);flex:none}
+.tg-gnode-kind{font-size:9.5px;letter-spacing:0.08em;text-transform:uppercase;color:var(--nt);line-height:1.2}
+.tg-gnode-title{font-size:12.5px;font-weight:500;line-height:1.3;white-space:nowrap}
+.tg-gnode-body{border-top:1px solid var(--nb);padding:4px 0}
+.tg-gnode-row{display:flex;justify-content:space-between;gap:14px;padding:2px 10px;font-size:11px;white-space:nowrap}
+.tg-gnode-k{color:var(--text-muted)}
+.tg-gnode-v{color:var(--text-body)}
+.tg-gnode-status{border-top:1px solid var(--nb);display:flex;align-items:center;gap:6px;padding:3px 10px;font-size:10px;color:var(--text-secondary)}
+.tg-gnode-dot{font-size:8px;line-height:1;color:var(--stone-400)}
+.tg-gnode-dot[data-tone="ok"]{color:var(--health-ok)}
+.tg-gnode-dot[data-tone="warn"]{color:var(--health-warn)}
+.tg-gnode-dot[data-tone="critical"],.tg-gnode-dot[data-tone="error"]{color:var(--health-critical)} /* "error" = deprecated alias */
+.tg-gnode[data-density="compact"]{min-width:104px}
+.tg-gnode[data-density="compact"] .tg-gnode-hd{padding:5px 10px}
+/* node interaction states (semantic color never changes) */
+.tg-gnode:hover .tg-port,.tg-gnode[data-state="hover"] .tg-port,.tg-gnode[data-state="selected"] .tg-port,.tg-gnode[data-state="connecting"] .tg-port{opacity:1}
+.tg-gnode[data-state="selected"]{border-width:2.5px;border-style:dashed;outline:1px solid var(--selection-ring);outline-offset:3px}
+.tg-gnode[data-state="highlighted"]{outline:1px solid var(--selection-ring);outline-offset:3px}
+.tg-gnode[data-state="compatible"]{outline:1.5px solid var(--selection);outline-offset:3px}
+.tg-gnode[data-state="dragging"]{cursor:grabbing;box-shadow:var(--node-shadow-drag)}
+.tg-gnode[data-state="muted"],.tg-gnode[data-state="invalid-target"]{opacity:0.35}
+.tg-gnode[data-state="error"]{border-color:var(--danger)}
+.tg-gnode[data-state="disabled"]{opacity:0.5;box-shadow:none}
+/* ports: constructed marks on the border; hidden until relevant */
+.tg-port{position:absolute;width:var(--port-size);height:var(--port-size);box-sizing:border-box;background:var(--port-fill);border:var(--port-border-w) solid var(--nb);opacity:0;transition:opacity var(--motion-fast);z-index:2}
+.tg-port::after{content:"";position:absolute;inset:calc(-1 * var(--port-hit))}
+.tg-port[data-side="left"]{left:-4px;transform:translateY(-50%)}
+.tg-port[data-side="right"]{right:-4px;transform:translateY(-50%)}
+.tg-port[data-side="top"]{top:-4px;transform:translateX(-50%)}
+.tg-port[data-side="bottom"]{bottom:-4px;transform:translateX(-50%)}
+.tg-port[data-state="visible"],.tg-port[data-state="connected"],.tg-port[data-state="origin"],.tg-port[data-state="compatible"],.tg-port[data-state="invalid"]{opacity:1}
+.tg-port[data-state="connected"]{background:var(--nb)}
+.tg-port[data-state="origin"]{background:var(--selection);border-color:var(--indigo-600)}
+.tg-port[data-state="compatible"]{background:var(--selection);border-color:var(--indigo-600);outline:3px solid rgba(99,102,241,0.2)}
+.tg-port[data-state="invalid"]{background:var(--danger-tint);border-color:var(--danger)}
+/* edges: one relationship grammar, stroke + endpoint, never many colors */
+.tg-edge{fill:none;stroke:var(--edge-stroke);stroke-width:var(--edge-w);pointer-events:stroke}
+.tg-edge-hit{fill:none;stroke:transparent;stroke-width:12;pointer-events:stroke}
+.tg-edge-g:hover .tg-edge{stroke:var(--edge-hover);stroke-width:var(--edge-w-active)}
+.tg-edge[data-rel="dependency"],.tg-edge[data-rel="implementation"]{stroke-dasharray:7 5}
+.tg-edge[data-rel="async"]{stroke-dasharray:2 4}
+.tg-edge[data-rel="proposed"]{stroke-dasharray:2 6;stroke:var(--stone-300)}
+.tg-edge[data-state="selected"],.tg-edge-g:hover .tg-edge[data-state="selected"]{stroke:var(--edge-selected);stroke-width:var(--edge-w-active)}
+.tg-edge[data-state="muted"]{stroke:var(--edge-muted)}
+.tg-edge[data-state="invalid"]{stroke:var(--edge-invalid)}
+.tg-edge[data-state="preview"]{stroke:var(--selection);stroke-dasharray:4 4}
+.tg-edge-label{font-family:var(--font-mono);font-size:10px;fill:var(--edge-label);paint-order:stroke;stroke:var(--graph-canvas);stroke-width:6px;stroke-linejoin:round}
+/* groups: visually weaker than nodes. Region grammar: the label reads CONTEXT · NAME
+   (TIER 1 · NETWORKING, ZONE · EDGE, VPC · PRIVATE, DOMAIN · PAYMENTS) — one grammar across products */
+.tg-group{position:absolute;box-sizing:border-box;border:1px solid color-mix(in srgb,var(--nb) 45%,var(--border-strong));background:color-mix(in srgb,var(--nb) 4%,transparent)}
+.tg-group-label{position:absolute;top:6px;left:8px;font-family:var(--font-mono);font-size:9.5px;letter-spacing:0.1em;text-transform:uppercase;color:color-mix(in srgb,var(--nb) 60%,var(--text-muted))}
+/* semantic zoom: change density, never scale text. levels on .tg-gcanvas[data-zoom] */
+.tg-gcanvas[data-zoom="overview"]{background-image:var(--grid-canvas-major);background-size:var(--grid-canvas-major-size)}
+.tg-gcanvas[data-zoom="overview"] .tg-gnode-body,.tg-gcanvas[data-zoom="overview"] .tg-gnode-tel,.tg-gcanvas[data-zoom="overview"] .tg-port,.tg-gcanvas[data-zoom="overview"] .tg-edge-label,.tg-gcanvas[data-zoom="overview"] .tg-gnode-status:not(:has([data-tone="critical"],[data-tone="error"])){display:none}
+.tg-gcanvas[data-zoom="compact"] .tg-gnode-row:nth-child(n+2),.tg-gcanvas[data-zoom="compact"] .tg-port,.tg-gcanvas[data-zoom="compact"] .tg-gnode-status:not(:has([data-tone="critical"],[data-tone="error"])){display:none}
+.tg-gcanvas[data-zoom="compact"] .tg-gnode-tel > :not([data-primary]){display:none}
+/* telemetry: layered on topology; bars scale transform, never width */
+.tg-gnode-tel{border-top:1px solid var(--nb);display:flex;flex-direction:column;gap:3px;padding:4px 10px 5px}
+.tg-tel-row{display:flex;justify-content:space-between;gap:12px;font-size:10px;line-height:1.4;color:var(--text-muted);white-space:nowrap}
+.tg-tel-v{color:var(--text-body)}
+.tg-telbar{height:var(--telemetry-bar-h);background:var(--telemetry-bar-track);margin:1px 0}
+.tg-telbar-fill{display:block;height:100%;background:var(--telemetry-bar-fill);transform-origin:left;transform:scaleX(var(--v,0));transition:transform var(--motion-medium)}
+.tg-telbar-fill[data-tone="ok"]{background:var(--health-ok)}
+.tg-telbar-fill[data-tone="warn"]{background:var(--health-warn)}
+.tg-telbar-fill[data-tone="critical"]{background:var(--health-critical)}
+/* edge telemetry: weight before motion; trace animates only on explicit request */
+.tg-edge[data-weight="2"]{stroke-width:1.75px}
+.tg-edge[data-weight="3"]{stroke-width:2.25px}
+.tg-edge[data-state="trace"]{stroke:var(--trace);stroke-width:var(--edge-w-active);stroke-dasharray:6 6;animation:tg-trace 0.8s linear infinite}
+@keyframes tg-trace{to{stroke-dashoffset:-12}}
+/* graph chrome: rounded, floats over the square graph world */
+.tg-gtoolbar{position:absolute;display:flex;align-items:center;gap:6px;padding:6px;background:var(--surface-card);border:1px solid var(--border-subtle);border-radius:var(--radius-panel);box-shadow:var(--shadow-float)}
+.tg-gtoolbar-sep{width:1px;align-self:stretch;background:var(--border-subtle)}
+.tg-ginspector{position:absolute;width:236px;box-sizing:border-box;background:var(--surface-card);border:1px solid var(--border-subtle);border-radius:var(--radius-panel);box-shadow:var(--shadow-panel);font-family:var(--font-mono);font-size:11px;color:var(--text-body)}
+.tg-ginspector-hd{display:flex;align-items:center;gap:8px;padding:9px 12px;border-bottom:1px solid var(--border-subtle)}
+.tg-ginspector-swatch{width:9px;height:9px;flex:none;border:1.5px solid var(--nb);background:var(--nf)}
+.tg-ginspector-kind{font-size:9.5px;letter-spacing:0.08em;text-transform:uppercase;color:var(--nt)}
+.tg-ginspector-title{font-size:12px;font-weight:500;line-height:1.3}
+.tg-ginspector-x{margin-left:auto;border:none;background:none;padding:2px 4px;font-family:var(--font-mono);font-size:11px;color:var(--text-muted);cursor:pointer;border-radius:var(--radius-sm)}
+.tg-ginspector-x:hover{background:var(--surface-inset);color:var(--text-body)}
+.tg-ginspector-body{padding:6px 0}
+.tg-ginspector-row{display:flex;justify-content:space-between;gap:12px;padding:3px 12px;white-space:nowrap}
+.tg-ginspector-k{color:var(--text-muted)}
+.tg-ginspector-ft{display:flex;gap:6px;padding:8px 12px;border-top:1px solid var(--border-subtle)}
+.tg-gminimap{position:absolute;box-sizing:border-box;background:var(--surface-card);border:1px solid var(--border-strong);border-radius:var(--radius-control);overflow:hidden}
+.tg-gminimap-node{position:absolute;opacity:0.65}
+.tg-gminimap-view{position:absolute;border:1px solid var(--selection);background:var(--selection-marquee-bg)}
+/* reduced motion: everything stays understandable static */
+@media (prefers-reduced-motion:reduce){.tg-port,.tg-telbar-fill{transition:none}.tg-edge[data-state="trace"]{animation:none;stroke-dasharray:none}}
+
+/* ===================== graph layer v2 ===================== */
+/* direction. Every directed relationship carries an arrow. WebKit implements neither
+   context-stroke nor context-fill, so the head cannot inherit its stroke: EdgeMarkerDefs
+   ships one painted arrow per state and these selectors swap marker-end centrally, in the
+   same precedence order as the stroke itself. */
+.tg-edge[data-rel="flow"],.tg-edge[data-rel="dependency"],.tg-edge[data-rel="async"],.tg-edge[data-rel="proposed"]{marker-end:url(#tgm-arrow)}
+.tg-edge-g:hover .tg-edge[data-rel]{marker-end:url(#tgm-arrow-hover)}
+.tg-edge[data-state="selected"][data-rel],.tg-edge-g:hover .tg-edge[data-state="selected"][data-rel]{marker-end:url(#tgm-arrow-selected)}
+/* edge health: condition of the DOWNSTREAM node, not of the edge. Precedence is
+   interaction > health > weight > rel — hence the :not() guards. */
+.tg-edge-g:not(:hover) .tg-edge[data-health="warn"]:not([data-state="selected"]){stroke:var(--edge-warn);marker-end:url(#tgm-arrow-warn)}
+.tg-edge-g:not(:hover) .tg-edge[data-health="critical"]:not([data-state="selected"]){stroke:var(--edge-critical);stroke-width:var(--edge-w-critical);marker-end:url(#tgm-arrow-critical)}
+/* flow layer: a second path over the edge, dash-animated to read rate. OPT-IN per surface
+   via data-layer-flow="on" on the canvas. Consumers set --flow-o / --flow-dur from the
+   measured rate and must cap the animated set at --edge-flow-cap busiest edges. */
+.tg-edge-flow{fill:none;stroke:var(--edge-flow-color);stroke-width:var(--edge-flow-w);stroke-dasharray:var(--edge-flow-dash);stroke-linecap:round;pointer-events:none;opacity:0}
+.tg-gcanvas[data-layer-flow="on"] .tg-edge-flow{opacity:var(--flow-o,0.5);animation:tg-flow var(--flow-dur,var(--edge-flow-dur)) linear infinite}
+.tg-edge-flow[data-health="warn"]{stroke:var(--edge-warn)}
+.tg-edge-flow[data-health="critical"]{stroke:var(--edge-critical)}
+@keyframes tg-flow{to{stroke-dashoffset:-26}}
+/* edge metric label: second line, 12px below the relationship label */
+.tg-edge-label[data-role="metric"]{fill:var(--text-faint)}
+/* endpoint handles: the rewire affordance. Screen-constant — divide r and hit radius by the
+   viewport scale k. Lives on an overlay ABOVE the nodes so it always beats ports to the pointer. */
+.tg-edge-ends{position:absolute;left:0;top:0;overflow:visible;pointer-events:none}
+.tg-edge-end{fill:var(--surface-card);stroke:var(--selection);stroke-width:var(--edge-endpoint-w);pointer-events:none}
+.tg-edge-end[data-state="active"]{fill:var(--selection);stroke-width:var(--edge-endpoint-w-active)}
+.tg-edge-end-hit{fill:transparent;pointer-events:all;cursor:grab}
+/* node health: ONE attribute on the node; the header mark, telemetry values and status text
+   all inherit from it. Warn and critical are permitted to take the border — kind identity
+   still reads from the swatch and the uppercase label. Selection keeps its dashed geometry
+   and indigo ring on top, so "selected AND critical" stays legible. */
+.tg-gnode-health{margin-left:auto;flex:none;font-size:var(--node-health-dot);line-height:1;color:var(--text-faint)}
+.tg-gnode[data-health="warn"]{border-color:var(--health-warn)}
+.tg-gnode[data-health="warn"] .tg-gnode-health,.tg-gnode[data-health="warn"] .tg-tel-v,.tg-gnode[data-health="warn"] .tg-gnode-status{color:var(--health-warn)}
+.tg-gnode[data-health="critical"]{border-color:var(--health-critical)}
+.tg-gnode[data-health="critical"] .tg-gnode-health,.tg-gnode[data-health="critical"] .tg-tel-v,.tg-gnode[data-health="critical"] .tg-gnode-status{color:var(--health-critical)}
+/* telemetry sparkline: numbers first, then the bar, then this */
+.tg-tel-spark{width:var(--telemetry-spark-w);height:var(--telemetry-spark-h);flex:none}
+.tg-tel-spark polyline{fill:none;stroke:var(--nt);stroke-width:1;opacity:var(--telemetry-spark-opacity);vector-effect:non-scaling-stroke}
+/* edge card: third chrome surface after toolbar and inspector. Placed once on hover intent
+   then PINNED — it never chases the pointer. 80ms open, 700ms close, 56px keep-alive halo. */
+.tg-ecard{position:absolute;display:flex;align-items:center;gap:6px;padding:6px 8px;background:var(--surface-card);border:1px solid var(--border-subtle);border-radius:var(--radius-panel);box-shadow:var(--shadow-float);font-family:var(--font-mono);font-size:11px;white-space:nowrap;pointer-events:none}
+.tg-ecard > *{pointer-events:auto}
+.tg-ecard-sep{width:1px;height:16px;background:var(--border-subtle)}
+/* canvas layer toggles: one documented attribute family, so consumers stop inventing theirs */
+.tg-gcanvas[data-layer-grid="off"]{background-image:none}
+.tg-gcanvas[data-layer-labels="off"] .tg-edge-label:not([data-role="metric"]),
+.tg-gcanvas[data-layer-metrics="off"] .tg-edge-label[data-role="metric"],
+.tg-gcanvas[data-layer-flow="off"] .tg-edge-flow,
+.tg-gcanvas[data-layer-spark="off"] .tg-tel-spark{display:none}
+/* cursors */
+.tg-port{cursor:crosshair}
+.tg-gnode{cursor:grab}
+.tg-gnode[data-state="dragging"]{cursor:grabbing}
+/* overview counter-scale: the ONE text-size exception. The viewport transform shrinks the
+   node, so the title steps up to hold constant optical size — density still does the work. */
+.tg-gcanvas[data-zoom="overview"] .tg-gnode-kind{font-size:11px}
+.tg-gcanvas[data-zoom="overview"] .tg-gnode-title{font-size:20px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+@media (prefers-reduced-motion:reduce){.tg-gcanvas[data-layer-flow="on"] .tg-edge-flow{animation:none;opacity:0}}
+
+/* ===================== graph layer v2.1 — design mode (Aug 2026) ===================== */
+/* mode is an information layer on ONE spatially-stable canvas: data-mode="design|simulate|analyze"
+   on .tg-gcanvas. Design answers "what IS this architecture" — identity, topology, configuration;
+   runtime condition belongs to simulate, findings to analyze. Layout never changes across modes. */
+/* design is still: telemetry, health marks, sparklines, flow and metric labels do not show.
+   Consumers should OMIT them from the DOM in design (cheaper); these rules are the guarantee. */
+.tg-gcanvas[data-mode="design"] .tg-gnode-tel,
+.tg-gcanvas[data-mode="design"] .tg-gnode-status,
+.tg-gcanvas[data-mode="design"] .tg-gnode-health,
+.tg-gcanvas[data-mode="design"] .tg-tel-spark,
+.tg-gcanvas[data-mode="design"] .tg-edge-flow,
+.tg-gcanvas[data-mode="design"] .tg-edge-label[data-role="metric"]{display:none}
+/* runtime state cannot recolor design: entity color = type; danger is reserved for invalid
+   architecture (data-state="error"). Consumers patching data-health/data-weight outside their
+   framework must ALSO clear those attributes on mode exit — patches survive re-renders. */
+.tg-gcanvas[data-mode="design"] .tg-gnode[data-health="warn"],
+.tg-gcanvas[data-mode="design"] .tg-gnode[data-health="critical"]{border-color:var(--nb)}
+.tg-gcanvas[data-mode="design"] .tg-edge-g .tg-edge[data-health="warn"]:not([data-state="selected"]),
+.tg-gcanvas[data-mode="design"] .tg-edge-g .tg-edge[data-health="critical"]:not([data-state="selected"]){stroke:var(--edge-stroke);stroke-width:var(--edge-w);marker-end:url(#tgm-arrow)}
+.tg-gcanvas[data-mode="design"] .tg-edge[data-weight="2"],
+.tg-gcanvas[data-mode="design"] .tg-edge[data-weight="3"]{stroke-width:var(--edge-w)}
+/* configuration vs identity: node body rows marked data-cfg are detail-density content.
+   Design working zoom shows identity + the one essential property (e.g. "4 instances");
+   detail reveals full configuration. Measured values never share a block with configuration —
+   they live in .tg-gnode-tel only. */
+.tg-gcanvas[data-mode="design"][data-zoom="working"] .tg-gnode-row[data-cfg]{display:none}
+/* ports rest hidden in design — including connected ports. The 7px mark disappears; the ±8px
+   (±22px touch) hit area stays live, so the affordance costs nothing to reach. */
+.tg-gcanvas[data-mode="design"] .tg-gnode:not(:hover):not([data-state="selected"]):not([data-state="connecting"]):not([data-state="compatible"]) .tg-port[data-state="connected"]{opacity:0}
+/* connect gesture: a compatible target reveals its ports alongside its indigo ring */
+.tg-gnode[data-state="compatible"] .tg-port{opacity:1}
+
+/* ===================== touch input ===================== */
+/* The canvas owns every gesture, so the browser never scales the page instead of the graph.
+   touch-action alone is NOT enough on iPadOS: consumers must also preventDefault multi-touch
+   touchstart/touchmove and Safari's gesturestart/gesturechange, and read the pinch from TOUCH
+   events (pointer events are unreliable there). Two fingers = zoom about the gesture centre +
+   pan together; commit the view on lift, same as a mouse pan. */
+.tg-gcanvas{touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+/* chrome floating over the canvas stays tappable without the 300ms delay */
+.tg-gtoolbar,.tg-ginspector,.tg-ecard,.tg-gminimap{touch-action:manipulation}
+@media (pointer:coarse){
+  /* no hover on touch, so hover-revealed affordances need another trigger and a finger-sized
+     hit area. The 7px visual mark never changes — only what the pointer can reach. */
+  .tg-gcanvas{--port-hit:var(--port-hit-touch)}
+  .tg-gnode[data-state="selected"] .tg-port,.tg-gnode[data-state="connecting"] .tg-port{opacity:1}
+  .tg-port{cursor:default}
+}

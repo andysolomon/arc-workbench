@@ -1,0 +1,1239 @@
+{
+ "architecture/prod": {
+  "nodes": [
+   {
+    "id": "cust",
+    "type": "client",
+    "name": "Customers",
+    "x": 48,
+    "y": 192,
+    "inst": 1,
+    "cap": 1000000000,
+    "ms": 0
+   },
+   {
+    "id": "edge",
+    "type": "cdn",
+    "name": "Global Edge",
+    "x": 304,
+    "y": 176,
+    "inst": 1,
+    "cap": 800,
+    "ms": 4
+   },
+   {
+    "id": "gw",
+    "type": "gateway",
+    "name": "API Gateway",
+    "x": 560,
+    "y": 176,
+    "inst": 2,
+    "cap": 300,
+    "ms": 3
+   },
+   {
+    "id": "apia",
+    "type": "service",
+    "name": "API Pods · AZ-a",
+    "x": 816,
+    "y": 128,
+    "inst": 3,
+    "cap": 64,
+    "ms": 22
+   },
+   {
+    "id": "apib",
+    "type": "service",
+    "name": "API Pods · AZ-b",
+    "x": 816,
+    "y": 240,
+    "inst": 3,
+    "cap": 64,
+    "ms": 22
+   },
+   {
+    "id": "redis",
+    "type": "cache",
+    "name": "Redis · multi-AZ",
+    "x": 1072,
+    "y": 48,
+    "inst": 2,
+    "cap": 400,
+    "ms": 1
+   },
+   {
+    "id": "pg",
+    "type": "sql",
+    "name": "PostgreSQL",
+    "x": 1072,
+    "y": 320,
+    "inst": 1,
+    "cap": 60,
+    "ms": 8
+   },
+   {
+    "id": "bus",
+    "type": "broker",
+    "name": "Event Bus",
+    "x": 1072,
+    "y": 192,
+    "inst": 3,
+    "cap": 1000000000,
+    "ms": 0
+   },
+   {
+    "id": "wrk",
+    "type": "worker",
+    "name": "Workers",
+    "x": 1328,
+    "y": 96,
+    "inst": 4,
+    "cap": 16,
+    "ms": 140
+   },
+   {
+    "id": "obs",
+    "type": "service",
+    "name": "Observability",
+    "x": 1584,
+    "y": 128,
+    "inst": 2,
+    "cap": 64,
+    "ms": 4
+   },
+   {
+    "id": "audit",
+    "type": "storage",
+    "name": "Audit Archive",
+    "x": 1584,
+    "y": 240,
+    "inst": 1,
+    "cap": 500,
+    "ms": 18
+   },
+   {
+    "id": "dr",
+    "type": "replica",
+    "name": "DR Replica",
+    "x": 1328,
+    "y": 240,
+    "inst": 1,
+    "cap": 40,
+    "ms": 8
+   }
+  ],
+  "regions": [
+   {
+    "id": "r1",
+    "variant": "boundary",
+    "label": "region · us-east-1 · production",
+    "x": 528,
+    "y": 16,
+    "w": 1296,
+    "h": 432,
+    "family": "stone"
+   },
+   {
+    "id": "r2",
+    "variant": "boundary",
+    "label": "vpc · private application network",
+    "x": 784,
+    "y": 16,
+    "w": 528,
+    "h": 432,
+    "family": "indigo"
+   },
+   {
+    "id": "r3",
+    "variant": "boundary",
+    "label": "region · us-west-2 · disaster recovery",
+    "x": 1296,
+    "y": 208,
+    "w": 272,
+    "h": 192,
+    "dashed": 1,
+    "family": "stone"
+   }
+  ]
+ },
+ "architecture/video": {
+  "nodes": [
+   {
+    "id": "cl",
+    "type": "client",
+    "name": "Viewers",
+    "x": 48,
+    "y": 256,
+    "inst": 1,
+    "cap": 1000000000,
+    "ms": 0
+   },
+   {
+    "id": "cdn",
+    "type": "cdn",
+    "name": "Edge CDN",
+    "x": 304,
+    "y": 176,
+    "inst": 1,
+    "cap": 800,
+    "ms": 4
+   },
+   {
+    "id": "gw",
+    "type": "gateway",
+    "name": "API Gateway",
+    "x": 304,
+    "y": 304,
+    "inst": 2,
+    "cap": 300,
+    "ms": 3
+   },
+   {
+    "id": "play",
+    "type": "service",
+    "name": "Playback API",
+    "x": 560,
+    "y": 192,
+    "inst": 4,
+    "cap": 64,
+    "ms": 18
+   },
+   {
+    "id": "up",
+    "type": "service",
+    "name": "Upload Service",
+    "x": 560,
+    "y": 304,
+    "inst": 2,
+    "cap": 64,
+    "ms": 45
+   },
+   {
+    "id": "redis",
+    "type": "cache",
+    "name": "Redis · manifests",
+    "x": 816,
+    "y": 112,
+    "inst": 1,
+    "cap": 400,
+    "ms": 1
+   },
+   {
+    "id": "meta",
+    "type": "sql",
+    "name": "Metadata DB",
+    "x": 816,
+    "y": 256,
+    "inst": 1,
+    "cap": 60,
+    "ms": 8
+   },
+   {
+    "id": "s3",
+    "type": "storage",
+    "name": "Object Storage",
+    "x": 1328,
+    "y": 432,
+    "inst": 1,
+    "cap": 500,
+    "ms": 18
+   },
+   {
+    "id": "tq",
+    "type": "queue",
+    "name": "Transcode Queue",
+    "x": 816,
+    "y": 368,
+    "inst": 1,
+    "cap": 1000000000,
+    "ms": 0
+   },
+   {
+    "id": "tw",
+    "type": "worker",
+    "name": "Transcode Workers",
+    "x": 1072,
+    "y": 320,
+    "inst": 6,
+    "cap": 4,
+    "ms": 900
+   },
+   {
+    "id": "kafka",
+    "type": "broker",
+    "name": "video.events",
+    "x": 1072,
+    "y": 192,
+    "inst": 3,
+    "cap": 1000000000,
+    "ms": 0
+   },
+   {
+    "id": "an",
+    "type": "worker",
+    "name": "Analytics Pipeline",
+    "x": 1328,
+    "y": 48,
+    "inst": 2,
+    "cap": 16,
+    "ms": 60
+   },
+   {
+    "id": "si",
+    "type": "search",
+    "name": "Search Indexer",
+    "x": 1328,
+    "y": 192,
+    "inst": 2,
+    "cap": 60,
+    "ms": 12
+   },
+   {
+    "id": "notif",
+    "type": "service",
+    "name": "Notification Svc",
+    "x": 1328,
+    "y": 304,
+    "inst": 2,
+    "cap": 64,
+    "ms": 15
+   }
+  ],
+  "regions": []
+ },
+ "architecture/single": {
+  "nodes": [
+   {
+    "id": "cl",
+    "type": "client",
+    "name": "Client",
+    "x": 48,
+    "y": 64,
+    "inst": 1,
+    "cap": 1000000000,
+    "ms": 0
+   },
+   {
+    "id": "api",
+    "type": "service",
+    "name": "API Server",
+    "x": 304,
+    "y": 64,
+    "inst": 1,
+    "cap": 64,
+    "ms": 24
+   },
+   {
+    "id": "db",
+    "type": "sql",
+    "name": "Postgres",
+    "x": 560,
+    "y": 48,
+    "inst": 1,
+    "cap": 40,
+    "ms": 8
+   }
+  ],
+  "regions": []
+ },
+ "architecture/lb": {
+  "nodes": [
+   {
+    "id": "cl",
+    "type": "client",
+    "name": "Client",
+    "x": 48,
+    "y": 192,
+    "inst": 1,
+    "cap": 1000000000,
+    "ms": 0
+   },
+   {
+    "id": "lb",
+    "type": "lb",
+    "name": "Load Balancer",
+    "x": 304,
+    "y": 176,
+    "inst": 1,
+    "cap": 600,
+    "ms": 1
+   },
+   {
+    "id": "s1",
+    "type": "service",
+    "name": "API · a",
+    "x": 560,
+    "y": 48,
+    "inst": 1,
+    "cap": 64,
+    "ms": 24
+   },
+   {
+    "id": "s2",
+    "type": "service",
+    "name": "API · b",
+    "x": 560,
+    "y": 192,
+    "inst": 1,
+    "cap": 64,
+    "ms": 24
+   },
+   {
+    "id": "s3",
+    "type": "service",
+    "name": "API · c",
+    "x": 560,
+    "y": 304,
+    "inst": 1,
+    "cap": 64,
+    "ms": 24
+   },
+   {
+    "id": "db",
+    "type": "sql",
+    "name": "Postgres",
+    "x": 816,
+    "y": 176,
+    "inst": 1,
+    "cap": 40,
+    "ms": 8
+   }
+  ],
+  "regions": []
+ },
+ "architecture/cache": {
+  "nodes": [
+   {
+    "id": "cl",
+    "type": "client",
+    "name": "Client",
+    "x": 48,
+    "y": 128,
+    "inst": 1,
+    "cap": 1000000000,
+    "ms": 0
+   },
+   {
+    "id": "api",
+    "type": "service",
+    "name": "API Server",
+    "x": 304,
+    "y": 112,
+    "inst": 2,
+    "cap": 64,
+    "ms": 24
+   },
+   {
+    "id": "c",
+    "type": "cache",
+    "name": "Redis",
+    "x": 560,
+    "y": 48,
+    "inst": 1,
+    "cap": 400,
+    "ms": 1
+   },
+   {
+    "id": "db",
+    "type": "sql",
+    "name": "Postgres",
+    "x": 560,
+    "y": 192,
+    "inst": 1,
+    "cap": 40,
+    "ms": 8
+   }
+  ],
+  "regions": []
+ },
+ "architecture/workers": {
+  "nodes": [
+   {
+    "id": "cl",
+    "type": "client",
+    "name": "Client",
+    "x": 48,
+    "y": 64,
+    "inst": 1,
+    "cap": 1000000000,
+    "ms": 0
+   },
+   {
+    "id": "api",
+    "type": "service",
+    "name": "Ingest API",
+    "x": 304,
+    "y": 64,
+    "inst": 2,
+    "cap": 64,
+    "ms": 24
+   },
+   {
+    "id": "q",
+    "type": "queue",
+    "name": "Job Queue",
+    "x": 560,
+    "y": 48,
+    "inst": 1,
+    "cap": 1000000000,
+    "ms": 0
+   },
+   {
+    "id": "w",
+    "type": "worker",
+    "name": "Workers",
+    "x": 816,
+    "y": 64,
+    "inst": 3,
+    "cap": 16,
+    "ms": 120
+   },
+   {
+    "id": "db",
+    "type": "sql",
+    "name": "Postgres",
+    "x": 1072,
+    "y": 64,
+    "inst": 1,
+    "cap": 40,
+    "ms": 8
+   }
+  ],
+  "regions": []
+ },
+ "architecture/replicas": {
+  "nodes": [
+   {
+    "id": "cl",
+    "type": "client",
+    "name": "Client",
+    "x": 48,
+    "y": 112,
+    "inst": 1,
+    "cap": 1000000000,
+    "ms": 0
+   },
+   {
+    "id": "api",
+    "type": "service",
+    "name": "API Server",
+    "x": 304,
+    "y": 112,
+    "inst": 3,
+    "cap": 64,
+    "ms": 24
+   },
+   {
+    "id": "pri",
+    "type": "sql",
+    "name": "Primary",
+    "x": 560,
+    "y": 96,
+    "inst": 1,
+    "cap": 40,
+    "ms": 8
+   },
+   {
+    "id": "r1",
+    "type": "replica",
+    "name": "Replica · 1",
+    "x": 816,
+    "y": 48,
+    "inst": 1,
+    "cap": 40,
+    "ms": 8
+   },
+   {
+    "id": "r2",
+    "type": "replica",
+    "name": "Replica · 2",
+    "x": 816,
+    "y": 160,
+    "inst": 1,
+    "cap": 40,
+    "ms": 8
+   }
+  ],
+  "regions": []
+ },
+ "architecture/ratelimit": {
+  "nodes": [
+   {
+    "id": "cl",
+    "type": "client",
+    "name": "Client",
+    "x": 48,
+    "y": 64,
+    "inst": 1,
+    "cap": 1000000000,
+    "ms": 0
+   },
+   {
+    "id": "rl",
+    "type": "limiter",
+    "name": "Rate Limiter",
+    "x": 304,
+    "y": 64,
+    "inst": 1,
+    "cap": 900,
+    "ms": 1
+   },
+   {
+    "id": "api",
+    "type": "service",
+    "name": "API Server",
+    "x": 560,
+    "y": 48,
+    "inst": 2,
+    "cap": 64,
+    "ms": 24
+   },
+   {
+    "id": "db",
+    "type": "sql",
+    "name": "Postgres",
+    "x": 816,
+    "y": 64,
+    "inst": 1,
+    "cap": 40,
+    "ms": 8
+   }
+  ],
+  "regions": []
+ },
+ "workflow/release": {
+  "nodes": [
+   {
+    "id": "commit",
+    "type": "action",
+    "name": "Commit",
+    "x": 48,
+    "y": 112,
+    "dur": 2,
+    "pass": 1,
+    "owner": "developer",
+    "output": "signed change"
+   },
+   {
+    "id": "pr",
+    "type": "task",
+    "name": "Pull Request",
+    "x": 304,
+    "y": 112,
+    "dur": 90,
+    "pass": 1,
+    "owner": "reviewers",
+    "output": "reviewed diff"
+   },
+   {
+    "id": "build",
+    "type": "action",
+    "name": "Build",
+    "x": 560,
+    "y": 320,
+    "dur": 9,
+    "pass": 1,
+    "owner": "ci",
+    "output": "immutable image"
+   },
+   {
+    "id": "qg",
+    "type": "gate",
+    "name": "Quality Gates",
+    "x": 816,
+    "y": 320,
+    "dur": 14,
+    "pass": 0.82,
+    "owner": "ci",
+    "input": "test + scan"
+   },
+   {
+    "id": "approve",
+    "type": "approval",
+    "name": "Approve",
+    "x": 1072,
+    "y": 544,
+    "dur": 180,
+    "pass": 0.9,
+    "owner": "release owner"
+   },
+   {
+    "id": "canary",
+    "type": "gate",
+    "name": "Canary",
+    "x": 1328,
+    "y": 544,
+    "dur": 30,
+    "pass": 0.92,
+    "owner": "sre",
+    "input": "slo window"
+   },
+   {
+    "id": "notes",
+    "type": "evidence",
+    "name": "Release notes",
+    "x": 1840,
+    "y": 544,
+    "dur": 1,
+    "pass": 1,
+    "owner": "release owner"
+   },
+   {
+    "id": "rollback",
+    "type": "recovery",
+    "name": "Rollback",
+    "x": 1584,
+    "y": 768,
+    "dur": 6,
+    "pass": 0.9,
+    "owner": "sre"
+   },
+   {
+    "id": "rolled",
+    "type": "failed",
+    "name": "Rolled back",
+    "x": 1840,
+    "y": 768,
+    "dur": 0,
+    "pass": 1,
+    "owner": "sre"
+   },
+   {
+    "id": "release",
+    "type": "action",
+    "name": "Release",
+    "x": 1584,
+    "y": 880,
+    "dur": 12,
+    "pass": 1,
+    "owner": "sre"
+   },
+   {
+    "id": "done",
+    "type": "end",
+    "name": "Released",
+    "x": 1840,
+    "y": 896,
+    "dur": 0,
+    "pass": 1
+   }
+  ],
+  "regions": [
+   {
+    "id": "l1",
+    "variant": "lane",
+    "label": "01 / developer",
+    "x": 16,
+    "y": 48,
+    "w": 2112,
+    "h": 208,
+    "owner": "developer",
+    "ownerKind": "team",
+    "family": "indigo"
+   },
+   {
+    "id": "l2",
+    "variant": "lane",
+    "label": "02 / continuous integration",
+    "x": 16,
+    "y": 256,
+    "w": 2112,
+    "h": 224,
+    "owner": "ci",
+    "ownerKind": "system",
+    "family": "cyan"
+   },
+   {
+    "id": "l3",
+    "variant": "lane",
+    "label": "03 / release governance",
+    "x": 16,
+    "y": 480,
+    "w": 2112,
+    "h": 224,
+    "owner": "release owner",
+    "ownerKind": "boundary",
+    "family": "amber"
+   },
+   {
+    "id": "l4",
+    "variant": "lane",
+    "label": "04 / production",
+    "x": 16,
+    "y": 704,
+    "w": 2112,
+    "h": 336,
+    "owner": "sre",
+    "ownerKind": "team",
+    "family": "purple"
+   }
+  ]
+ },
+ "sequence/cachemiss": {
+  "nodes": [
+   {
+    "id": "user",
+    "type": "client",
+    "name": "User",
+    "x": 48,
+    "y": 48,
+    "conc": 1000000000,
+    "role": "browser session"
+   },
+   {
+    "id": "web",
+    "type": "service",
+    "name": "Web App",
+    "x": 288,
+    "y": 48,
+    "conc": 200,
+    "role": "react ui"
+   },
+   {
+    "id": "api",
+    "type": "api",
+    "name": "API",
+    "x": 528,
+    "y": 48,
+    "conc": 96,
+    "role": "request handler"
+   },
+   {
+    "id": "auth",
+    "type": "auth",
+    "name": "Auth",
+    "x": 768,
+    "y": 48,
+    "conc": 300,
+    "role": "jwt verify"
+   },
+   {
+    "id": "redis",
+    "type": "cache",
+    "name": "Redis",
+    "x": 1008,
+    "y": 48,
+    "conc": 2000,
+    "role": "cache"
+   },
+   {
+    "id": "pg",
+    "type": "db",
+    "name": "Postgres",
+    "x": 1248,
+    "y": 48,
+    "conc": 40,
+    "role": "source of truth"
+   },
+   {
+    "id": "trace",
+    "type": "external",
+    "name": "Trace",
+    "x": 1488,
+    "y": 48,
+    "conc": 1000000000,
+    "role": "async event"
+   }
+  ],
+  "regions": [
+   {
+    "id": "p1",
+    "variant": "phase",
+    "label": "request",
+    "x": 0,
+    "y": 0,
+    "w": 0,
+    "h": 0,
+    "from": 1,
+    "to": 4,
+    "family": "indigo"
+   },
+   {
+    "id": "p2",
+    "variant": "phase",
+    "label": "fallback",
+    "x": 0,
+    "y": 0,
+    "w": 0,
+    "h": 0,
+    "from": 5,
+    "to": 9,
+    "family": "emerald"
+   },
+   {
+    "id": "p3",
+    "variant": "phase",
+    "label": "response",
+    "x": 0,
+    "y": 0,
+    "w": 0,
+    "h": 0,
+    "from": 10,
+    "to": 12,
+    "family": "stone"
+   }
+  ]
+ },
+ "dataflow/analytics": {
+  "nodes": [
+   {
+    "id": "web",
+    "type": "source",
+    "name": "Web App",
+    "x": 48,
+    "y": 96,
+    "inst": 1,
+    "cap": 1000000000,
+    "ms": 0,
+    "role": "source",
+    "schema": "clickstream.v3",
+    "pii": 1,
+    "owner": "web"
+   },
+   {
+    "id": "mobile",
+    "type": "source",
+    "name": "Mobile",
+    "x": 48,
+    "y": 256,
+    "inst": 1,
+    "cap": 1000000000,
+    "ms": 0,
+    "role": "source",
+    "schema": "app_events.v2",
+    "pii": 1,
+    "owner": "mobile"
+   },
+   {
+    "id": "edge",
+    "type": "producer",
+    "name": "Edge API",
+    "x": 336,
+    "y": 96,
+    "inst": 3,
+    "cap": 300,
+    "ms": 3,
+    "role": "work",
+    "schema": "raw events",
+    "owner": "data platform"
+   },
+   {
+    "id": "gate",
+    "type": "gate",
+    "name": "Consent Gate",
+    "x": 624,
+    "y": 96,
+    "inst": 2,
+    "cap": 300,
+    "ms": 2,
+    "role": "work",
+    "schema": "identity + consent",
+    "pii": 1,
+    "owner": "privacy"
+   },
+   {
+    "id": "stream",
+    "type": "stream",
+    "name": "Event Stream",
+    "x": 624,
+    "y": 256,
+    "inst": 3,
+    "cap": 1000000000,
+    "ms": 0,
+    "parts": 24,
+    "retention": 7,
+    "role": "buffer",
+    "schema": "events.v1 · avro",
+    "owner": "data platform"
+   },
+   {
+    "id": "dlq",
+    "type": "dlq",
+    "name": "events.dlq",
+    "x": 624,
+    "y": 416,
+    "inst": 1,
+    "cap": 1000000000,
+    "ms": 0,
+    "role": "buffer",
+    "retention": 14,
+    "owner": "data platform"
+   },
+   {
+    "id": "vault",
+    "type": "vault",
+    "name": "PII Vault",
+    "x": 912,
+    "y": 96,
+    "inst": 1,
+    "cap": 100,
+    "ms": 8,
+    "retention": 365,
+    "role": "work",
+    "schema": "identity map",
+    "pii": 1,
+    "owner": "privacy"
+   },
+   {
+    "id": "wh",
+    "type": "warehouse",
+    "name": "Warehouse",
+    "x": 912,
+    "y": 256,
+    "inst": 1,
+    "cap": 400,
+    "ms": 6,
+    "retention": 730,
+    "role": "work",
+    "schema": "analytical tables",
+    "owner": "analytics eng"
+   },
+   {
+    "id": "feat",
+    "type": "feature",
+    "name": "Feature Store",
+    "x": 912,
+    "y": 416,
+    "inst": 2,
+    "cap": 200,
+    "ms": 4,
+    "retention": 90,
+    "role": "work",
+    "schema": "features.v4",
+    "owner": "ml platform"
+   },
+   {
+    "id": "dash",
+    "type": "dashboard",
+    "name": "Dashboards",
+    "x": 1200,
+    "y": 96,
+    "inst": 1,
+    "cap": 40,
+    "ms": 30,
+    "role": "work",
+    "schema": "product metrics",
+    "owner": "product"
+   },
+   {
+    "id": "ml",
+    "type": "model",
+    "name": "ML Model",
+    "x": 1200,
+    "y": 256,
+    "inst": 2,
+    "cap": 16,
+    "ms": 80,
+    "role": "work",
+    "schema": "feature vectors",
+    "owner": "ml platform"
+   }
+  ],
+  "regions": [
+   {
+    "id": "s1",
+    "variant": "stage",
+    "label": "01 / sources",
+    "x": 16,
+    "y": 16,
+    "w": 272,
+    "h": 608,
+    "family": "orange"
+   },
+   {
+    "id": "s2",
+    "variant": "stage",
+    "label": "02 / ingest",
+    "x": 304,
+    "y": 16,
+    "w": 272,
+    "h": 608,
+    "family": "orange"
+   },
+   {
+    "id": "s3",
+    "variant": "stage",
+    "label": "03 / process",
+    "x": 592,
+    "y": 16,
+    "w": 272,
+    "h": 608,
+    "family": "cyan"
+   },
+   {
+    "id": "s4",
+    "variant": "stage",
+    "label": "04 / store",
+    "x": 880,
+    "y": 16,
+    "w": 272,
+    "h": 608,
+    "family": "emerald"
+   },
+   {
+    "id": "s5",
+    "variant": "stage",
+    "label": "05 / consume",
+    "x": 1168,
+    "y": 16,
+    "w": 272,
+    "h": 608,
+    "family": "indigo"
+   },
+   {
+    "id": "z1",
+    "variant": "zone",
+    "label": "pii · governed",
+    "x": 592,
+    "y": 64,
+    "w": 560,
+    "h": 160,
+    "dashed": 1,
+    "family": "danger"
+   }
+  ]
+ },
+ "state/agentrun": {
+  "nodes": [
+   {
+    "id": "queued",
+    "type": "initial",
+    "name": "Queued",
+    "x": 48,
+    "y": 112,
+    "cap": 1000000000,
+    "dwell": 1,
+    "entry": "accept request"
+   },
+   {
+    "id": "planning",
+    "type": "active",
+    "name": "Planning",
+    "x": 304,
+    "y": 112,
+    "cap": 50,
+    "dwell": 6,
+    "entry": "build task graph"
+   },
+   {
+    "id": "executing",
+    "type": "active",
+    "name": "Executing",
+    "x": 560,
+    "y": 112,
+    "cap": 40,
+    "dwell": 18,
+    "entry": "tool calls"
+   },
+   {
+    "id": "reviewing",
+    "type": "review",
+    "name": "Reviewing",
+    "x": 816,
+    "y": 112,
+    "cap": 20,
+    "dwell": 12,
+    "entry": "quality gate"
+   },
+   {
+    "id": "completed",
+    "type": "completed",
+    "name": "Completed",
+    "x": 1072,
+    "y": 112,
+    "cap": 1000000000,
+    "dwell": 0,
+    "exit": "final response"
+   },
+   {
+    "id": "approval",
+    "type": "approval",
+    "name": "Needs Approval",
+    "x": 816,
+    "y": 336,
+    "cap": 40,
+    "dwell": 240,
+    "entry": "human gate"
+   },
+   {
+    "id": "blocked",
+    "type": "blocked",
+    "name": "Blocked",
+    "x": 816,
+    "y": 448,
+    "cap": 100,
+    "dwell": 90,
+    "entry": "missing input"
+   },
+   {
+    "id": "retrying",
+    "type": "retrying",
+    "name": "Retrying",
+    "x": 816,
+    "y": 592,
+    "cap": 100,
+    "dwell": 4,
+    "entry": "recoverable error"
+   },
+   {
+    "id": "failed",
+    "type": "failed",
+    "name": "Failed",
+    "x": 1072,
+    "y": 1088,
+    "cap": 1000000000,
+    "dwell": 0
+   },
+   {
+    "id": "cancelled",
+    "type": "cancelled",
+    "name": "Cancelled",
+    "x": 1072,
+    "y": 800,
+    "cap": 1000000000,
+    "dwell": 0
+   },
+   {
+    "id": "expired",
+    "type": "expired",
+    "name": "Expired",
+    "x": 1072,
+    "y": 928,
+    "cap": 1000000000,
+    "dwell": 0
+   }
+  ],
+  "regions": [
+   {
+    "id": "f1",
+    "variant": "phase",
+    "label": "01 / lifecycle phases",
+    "x": 16,
+    "y": 48,
+    "w": 1344,
+    "h": 224,
+    "family": "indigo"
+   },
+   {
+    "id": "f2",
+    "variant": "phase",
+    "label": "02 / interruptions + recovery",
+    "x": 16,
+    "y": 272,
+    "w": 1344,
+    "h": 464,
+    "family": "amber"
+   },
+   {
+    "id": "f3",
+    "variant": "phase",
+    "label": "03 / terminal exits",
+    "x": 16,
+    "y": 736,
+    "w": 1344,
+    "h": 512,
+    "family": "danger"
+   }
+  ]
+ }
+}

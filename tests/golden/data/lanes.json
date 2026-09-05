@@ -1,0 +1,561 @@
+{
+ "laneOf": {
+  "commit": "l1",
+  "pr": "l1",
+  "build": "l2",
+  "qg": "l2",
+  "approve": "l3",
+  "canary": "l3",
+  "notes": "l3",
+  "rollback": "l4",
+  "rolled": "l4",
+  "release": "l4",
+  "done": "l4"
+ },
+ "members": {
+  "l1": [
+   "commit",
+   "pr"
+  ],
+  "l2": [
+   "build",
+   "qg"
+  ],
+  "l3": [
+   "approve",
+   "canary",
+   "notes"
+  ],
+  "l4": [
+   "rollback",
+   "rolled",
+   "release",
+   "done"
+  ]
+ },
+ "moved": {
+  "regions": [
+   {
+    "id": "l1",
+    "variant": "lane",
+    "label": "01 / developer",
+    "x": 16,
+    "y": 48,
+    "w": 2064,
+    "h": 176,
+    "owner": "developer",
+    "ownerKind": "team",
+    "baseH": 176,
+    "family": "indigo"
+   },
+   {
+    "id": "l2",
+    "variant": "lane",
+    "label": "02 / continuous integration",
+    "x": 16,
+    "y": 224,
+    "w": 2064,
+    "h": 176,
+    "owner": "ci",
+    "ownerKind": "system",
+    "baseH": 176,
+    "family": "cyan"
+   },
+   {
+    "id": "l3",
+    "variant": "lane",
+    "label": "03 / release governance",
+    "x": 16,
+    "y": 400,
+    "w": 2064,
+    "h": 272,
+    "owner": "release owner",
+    "ownerKind": "boundary",
+    "baseH": 176,
+    "family": "amber"
+   },
+   {
+    "id": "l4",
+    "variant": "lane",
+    "label": "04 / production",
+    "x": 16,
+    "y": 672,
+    "w": 2064,
+    "h": 176,
+    "owner": "sre",
+    "ownerKind": "team",
+    "baseH": 176,
+    "family": "purple"
+   }
+  ],
+  "nodes": [
+   {
+    "id": "commit",
+    "type": "action",
+    "name": "Commit",
+    "x": 48,
+    "y": 104,
+    "dur": 2,
+    "pass": 1,
+    "owner": "developer",
+    "output": "signed change"
+   },
+   {
+    "id": "pr",
+    "type": "task",
+    "name": "Pull Request",
+    "x": 304,
+    "y": 104,
+    "dur": 90,
+    "pass": 1,
+    "owner": "reviewers",
+    "output": "reviewed diff"
+   },
+   {
+    "id": "build",
+    "type": "action",
+    "name": "Build",
+    "x": 560,
+    "y": 520,
+    "dur": 9,
+    "pass": 1,
+    "owner": "ci",
+    "output": "immutable image"
+   },
+   {
+    "id": "qg",
+    "type": "gate",
+    "name": "Quality Gates",
+    "x": 816,
+    "y": 280,
+    "dur": 14,
+    "pass": 0.82,
+    "owner": "ci",
+    "input": "test + scan"
+   },
+   {
+    "id": "approve",
+    "type": "approval",
+    "name": "Approve",
+    "x": 1072,
+    "y": 456,
+    "dur": 180,
+    "pass": 0.9,
+    "owner": "release owner"
+   },
+   {
+    "id": "canary",
+    "type": "gate",
+    "name": "Canary",
+    "x": 1328,
+    "y": 456,
+    "dur": 30,
+    "pass": 0.92,
+    "owner": "sre",
+    "input": "slo window"
+   },
+   {
+    "id": "notes",
+    "type": "evidence",
+    "name": "Release notes",
+    "x": 1584,
+    "y": 456,
+    "dur": 1,
+    "pass": 1,
+    "owner": "release owner"
+   },
+   {
+    "id": "rollback",
+    "type": "recovery",
+    "name": "Rollback",
+    "x": 1328,
+    "y": 728,
+    "dur": 6,
+    "pass": 0.9,
+    "owner": "sre"
+   },
+   {
+    "id": "rolled",
+    "type": "failed",
+    "name": "Rolled back",
+    "x": 1072,
+    "y": 728,
+    "dur": 0,
+    "pass": 1,
+    "owner": "sre"
+   },
+   {
+    "id": "release",
+    "type": "action",
+    "name": "Release",
+    "x": 1584,
+    "y": 728,
+    "dur": 12,
+    "pass": 1,
+    "owner": "sre"
+   },
+   {
+    "id": "done",
+    "type": "end",
+    "name": "Released",
+    "x": 1840,
+    "y": 728,
+    "dur": 0,
+    "pass": 1
+   }
+  ]
+ },
+ "far": {
+  "regions": [
+   {
+    "id": "l1",
+    "variant": "lane",
+    "label": "01 / developer",
+    "x": 16,
+    "y": 48,
+    "w": 2064,
+    "h": 192,
+    "owner": "developer",
+    "ownerKind": "team",
+    "baseH": 176,
+    "family": "indigo"
+   },
+   {
+    "id": "l2",
+    "variant": "lane",
+    "label": "02 / continuous integration",
+    "x": 16,
+    "y": 240,
+    "w": 2064,
+    "h": 208,
+    "owner": "ci",
+    "ownerKind": "system",
+    "baseH": 176,
+    "family": "cyan"
+   },
+   {
+    "id": "l3",
+    "variant": "lane",
+    "label": "03 / release governance",
+    "x": 16,
+    "y": 448,
+    "w": 2064,
+    "h": 176,
+    "owner": "release owner",
+    "ownerKind": "boundary",
+    "baseH": 176,
+    "family": "amber"
+   },
+   {
+    "id": "l4",
+    "variant": "lane",
+    "label": "04 / production",
+    "x": 16,
+    "y": 624,
+    "w": 2064,
+    "h": 176,
+    "owner": "sre",
+    "ownerKind": "team",
+    "baseH": 176,
+    "family": "purple"
+   }
+  ],
+  "nodes": [
+   {
+    "id": "commit",
+    "type": "action",
+    "name": "Commit",
+    "x": 48,
+    "y": 104,
+    "dur": 2,
+    "pass": 1,
+    "owner": "developer",
+    "output": "signed change"
+   },
+   {
+    "id": "pr",
+    "type": "task",
+    "name": "Pull Request",
+    "x": 304,
+    "y": 104,
+    "dur": 90,
+    "pass": 1,
+    "owner": "reviewers",
+    "output": "reviewed diff"
+   },
+   {
+    "id": "build",
+    "type": "action",
+    "name": "Build",
+    "x": 560,
+    "y": 296,
+    "dur": 9,
+    "pass": 1,
+    "owner": "ci",
+    "output": "immutable image"
+   },
+   {
+    "id": "qg",
+    "type": "gate",
+    "name": "Quality Gates",
+    "x": 816,
+    "y": 120,
+    "dur": 14,
+    "pass": 0.82,
+    "owner": "ci",
+    "input": "test + scan"
+   },
+   {
+    "id": "approve",
+    "type": "approval",
+    "name": "Approve",
+    "x": 1072,
+    "y": 504,
+    "dur": 180,
+    "pass": 0.9,
+    "owner": "release owner"
+   },
+   {
+    "id": "canary",
+    "type": "gate",
+    "name": "Canary",
+    "x": 1328,
+    "y": 504,
+    "dur": 30,
+    "pass": 0.92,
+    "owner": "sre",
+    "input": "slo window"
+   },
+   {
+    "id": "notes",
+    "type": "evidence",
+    "name": "Release notes",
+    "x": 1584,
+    "y": 504,
+    "dur": 1,
+    "pass": 1,
+    "owner": "release owner"
+   },
+   {
+    "id": "rollback",
+    "type": "recovery",
+    "name": "Rollback",
+    "x": 1328,
+    "y": 680,
+    "dur": 6,
+    "pass": 0.9,
+    "owner": "sre"
+   },
+   {
+    "id": "rolled",
+    "type": "failed",
+    "name": "Rolled back",
+    "x": 1072,
+    "y": 680,
+    "dur": 0,
+    "pass": 1,
+    "owner": "sre"
+   },
+   {
+    "id": "release",
+    "type": "action",
+    "name": "Release",
+    "x": 1584,
+    "y": 680,
+    "dur": 12,
+    "pass": 1,
+    "owner": "sre"
+   },
+   {
+    "id": "done",
+    "type": "end",
+    "name": "Released",
+    "x": 1840,
+    "y": 680,
+    "dur": 0,
+    "pass": 1
+   }
+  ]
+ },
+ "all": {
+  "regions": [
+   {
+    "id": "l1",
+    "variant": "lane",
+    "label": "01 / developer",
+    "x": 16,
+    "y": 48,
+    "w": 2064,
+    "h": 192,
+    "owner": "developer",
+    "ownerKind": "team",
+    "baseH": 176,
+    "family": "indigo"
+   },
+   {
+    "id": "l3",
+    "variant": "lane",
+    "label": "03 / release governance",
+    "x": 16,
+    "y": 240,
+    "w": 2064,
+    "h": 208,
+    "owner": "release owner",
+    "ownerKind": "boundary",
+    "baseH": 176,
+    "family": "amber"
+   },
+   {
+    "id": "l4",
+    "variant": "lane",
+    "label": "04 / production",
+    "x": 16,
+    "y": 448,
+    "w": 2064,
+    "h": 208,
+    "owner": "sre",
+    "ownerKind": "team",
+    "baseH": 176,
+    "family": "purple"
+   }
+  ],
+  "nodes": [
+   {
+    "id": "commit",
+    "type": "action",
+    "name": "Commit",
+    "x": 48,
+    "y": 104,
+    "dur": 2,
+    "pass": 1,
+    "owner": "developer",
+    "output": "signed change"
+   },
+   {
+    "id": "pr",
+    "type": "task",
+    "name": "Pull Request",
+    "x": 304,
+    "y": 104,
+    "dur": 90,
+    "pass": 1,
+    "owner": "reviewers",
+    "output": "reviewed diff"
+   },
+   {
+    "id": "build",
+    "type": "action",
+    "name": "Build",
+    "x": 560,
+    "y": 280,
+    "dur": 9,
+    "pass": 1,
+    "owner": "ci",
+    "output": "immutable image"
+   },
+   {
+    "id": "qg",
+    "type": "gate",
+    "name": "Quality Gates",
+    "x": 816,
+    "y": 280,
+    "dur": 14,
+    "pass": 0.82,
+    "owner": "ci",
+    "input": "test + scan"
+   },
+   {
+    "id": "approve",
+    "type": "approval",
+    "name": "Approve",
+    "x": 1072,
+    "y": 296,
+    "dur": 180,
+    "pass": 0.9,
+    "owner": "release owner"
+   },
+   {
+    "id": "canary",
+    "type": "gate",
+    "name": "Canary",
+    "x": 1328,
+    "y": 296,
+    "dur": 30,
+    "pass": 0.92,
+    "owner": "sre",
+    "input": "slo window"
+   },
+   {
+    "id": "notes",
+    "type": "evidence",
+    "name": "Release notes",
+    "x": 1584,
+    "y": 296,
+    "dur": 1,
+    "pass": 1,
+    "owner": "release owner"
+   },
+   {
+    "id": "rollback",
+    "type": "recovery",
+    "name": "Rollback",
+    "x": 1328,
+    "y": 504,
+    "dur": 6,
+    "pass": 0.9,
+    "owner": "sre"
+   },
+   {
+    "id": "rolled",
+    "type": "failed",
+    "name": "Rolled back",
+    "x": 1072,
+    "y": 504,
+    "dur": 0,
+    "pass": 1,
+    "owner": "sre"
+   },
+   {
+    "id": "release",
+    "type": "action",
+    "name": "Release",
+    "x": 1584,
+    "y": 504,
+    "dur": 12,
+    "pass": 1,
+    "owner": "sre"
+   },
+   {
+    "id": "done",
+    "type": "end",
+    "name": "Released",
+    "x": 1840,
+    "y": 504,
+    "dur": 0,
+    "pass": 1
+   }
+  ]
+ },
+ "ownerKinds": [
+  [
+   "team",
+   "team",
+   "people who own the outcome of these steps"
+  ],
+  [
+   "system",
+   "system",
+   "automation that runs the steps"
+  ],
+  [
+   "actor",
+   "actor",
+   "an external party · customer, vendor, regulator"
+  ],
+  [
+   "boundary",
+   "boundary",
+   "an ownership boundary work must be admitted into · governance, compliance, production"
+  ]
+ ]
+}

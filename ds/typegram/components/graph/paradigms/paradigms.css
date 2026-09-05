@@ -1,0 +1,116 @@
+/* ===================== graph layer v3 — paradigms (Sep 2026) ===================== */
+/* One graph world, five grammars. The canvas declares its grammar with data-paradigm=
+   "architecture|workflow|sequence|dataflow|state"; nodes, edges and regions keep ONE construction
+   and differ only through semantic attributes read here. Nothing in this file scales text. */
+
+/* ---- kind alias: failure triad ---- */
+.tg-gnode[data-kind="failure"],.tg-group[data-kind="failure"],.tg-region[data-kind="failure"],.tg-activation[data-kind="failure"],.tg-ginspector[data-kind="failure"]{--nf:var(--kind-failure-bg);--nb:var(--kind-failure-border);--nt:var(--kind-failure-text)}
+
+/* ---- GraphRegion: the generic container. variant = boundary | lane | stage | phase | zone ----
+   Hierarchy is border > label > tint, so regions never compete with nodes. Kind colours the
+   hairline and label only (45% / 60% mixes), never fills. */
+.tg-region{position:absolute;box-sizing:border-box;pointer-events:none;--nf:var(--kind-external-bg);--nb:var(--kind-external-border);--nt:var(--kind-external-text);border:var(--region-border-w) solid color-mix(in srgb,var(--nb) 45%,var(--border-strong));background:color-mix(in srgb,var(--nb) var(--region-tint),transparent)}
+.tg-region[data-kind="service"],.tg-activation[data-kind="service"]{--nf:var(--kind-class-bg);--nb:var(--kind-class-border);--nt:var(--kind-class-text)}
+.tg-region[data-kind="database"],.tg-activation[data-kind="database"]{--nf:var(--kind-type-bg);--nb:var(--kind-type-border);--nt:var(--kind-type-text)}
+.tg-region[data-kind="queue"],.tg-activation[data-kind="queue"]{--nf:var(--kind-interface-bg);--nb:var(--kind-interface-border);--nt:var(--kind-interface-text)}
+.tg-region[data-kind="agent"],.tg-activation[data-kind="agent"]{--nf:var(--kind-union-bg);--nb:var(--kind-union-border);--nt:var(--kind-union-text)}
+.tg-region[data-kind="tool"],.tg-activation[data-kind="tool"]{--nf:var(--kind-function-bg);--nb:var(--kind-function-border);--nt:var(--kind-function-text)}
+.tg-region[data-kind="input"],.tg-region[data-kind="output"],.tg-activation[data-kind="input"],.tg-activation[data-kind="output"]{--nf:var(--kind-instance-bg);--nb:var(--kind-instance-border);--nt:var(--kind-instance-text)}
+.tg-region[data-kind="external"],.tg-activation[data-kind="external"]{--nf:var(--kind-external-bg);--nb:var(--kind-external-border);--nt:var(--kind-external-text)}
+/* visual family (public colour channel); data-kind rows above are the deprecated alias */
+.tg-region[data-family="indigo"],.tg-activation[data-family="indigo"]{--nf:var(--family-indigo-bg);--nb:var(--family-indigo-border);--nt:var(--family-indigo-text)}
+.tg-region[data-family="emerald"],.tg-activation[data-family="emerald"]{--nf:var(--family-emerald-bg);--nb:var(--family-emerald-border);--nt:var(--family-emerald-text)}
+.tg-region[data-family="amber"],.tg-activation[data-family="amber"]{--nf:var(--family-amber-bg);--nb:var(--family-amber-border);--nt:var(--family-amber-text)}
+.tg-region[data-family="purple"],.tg-activation[data-family="purple"]{--nf:var(--family-purple-bg);--nb:var(--family-purple-border);--nt:var(--family-purple-text)}
+.tg-region[data-family="cyan"],.tg-activation[data-family="cyan"]{--nf:var(--family-cyan-bg);--nb:var(--family-cyan-border);--nt:var(--family-cyan-text)}
+.tg-region[data-family="orange"],.tg-activation[data-family="orange"]{--nf:var(--family-orange-bg);--nb:var(--family-orange-border);--nt:var(--family-orange-text)}
+.tg-region[data-family="stone"],.tg-activation[data-family="stone"]{--nf:var(--family-stone-bg);--nb:var(--family-stone-border);--nt:var(--family-stone-text)}
+.tg-region[data-family="danger"],.tg-activation[data-family="danger"]{--nf:var(--family-danger-bg);--nb:var(--family-danger-border);--nt:var(--family-danger-text)}
+.tg-region-label{position:absolute;top:6px;left:8px;font-family:var(--font-mono);font-size:var(--region-label-size);letter-spacing:var(--region-label-track);text-transform:uppercase;white-space:nowrap;color:color-mix(in srgb,var(--nb) 60%,var(--text-muted))}
+.tg-region-owner{position:absolute;top:6px;right:10px;font-family:var(--font-mono);font-size:var(--region-label-size);letter-spacing:0.06em;color:var(--text-faint);white-space:nowrap}
+/* boundary (architecture: region / vpc / tier): dashed enclosure, label sits ON the border */
+.tg-region[data-variant="boundary"]{border-style:dashed}
+.tg-region[data-variant="boundary"] .tg-region-label{top:-7px;left:10px;padding:0 5px;background:var(--graph-canvas)}
+/* lane (workflow): full-width horizontal band; only the horizontal hairlines draw, alternating tint */
+.tg-region[data-variant="lane"]{border-left:none;border-right:none;border-top-style:dashed;border-bottom:none;background:transparent}
+.tg-region[data-variant="lane"][data-alt="1"]{background:color-mix(in srgb,var(--nb) var(--region-tint-alt),transparent)}
+/* stage (data flow): vertical column; only the vertical hairlines draw */
+.tg-region[data-variant="stage"]{border-top:none;border-bottom:none;border-left-style:dashed;border-right:none;background:transparent}
+.tg-region[data-variant="stage"][data-alt="1"]{background:color-mix(in srgb,var(--nb) var(--region-tint-alt),transparent)}
+/* phase (sequence / state): horizontal band with a top hairline only */
+.tg-region[data-variant="phase"]{border-left:none;border-right:none;border-top-style:dashed;border-bottom:none;background:transparent}
+.tg-region[data-variant="phase"][data-alt="1"]{background:color-mix(in srgb,var(--nb) var(--region-tint-alt),transparent)}
+/* zone (governance): dashed, faint, restrained — never a strong coloured panel */
+.tg-region[data-variant="zone"]{border-style:dashed;background:color-mix(in srgb,var(--nb) 3%,transparent)}
+.tg-region[data-variant="zone"] .tg-region-label{top:-7px;left:10px;padding:0 5px;background:var(--graph-canvas)}
+.tg-region[data-dashed="1"]{border-style:dashed}
+.tg-region[data-state="selected"]{border-color:var(--selection)}
+
+/* ---- sequence primitives: shared SVG layer, never per-message components ---- */
+.tg-lifeline{fill:none;stroke:var(--lifeline-stroke);stroke-width:var(--lifeline-w);stroke-dasharray:var(--lifeline-dash);pointer-events:none}
+.tg-activation{--nf:var(--kind-external-bg);--nb:var(--kind-external-border);fill:var(--nf);stroke:var(--nb);stroke-width:1.25px;pointer-events:none}
+.tg-seq-tick{font-family:var(--font-mono);font-size:9px;fill:var(--text-faint);letter-spacing:0.06em}
+.tg-seq-rule{stroke:var(--graph-grid-major-color);stroke-width:1px}
+/* message direction/return read from the edge grammar: request solid, response 7-5 dash, async 2-4 dash.
+   Self-messages loop out to the right; the arrow head is the shared marker set. */
+.tg-edge[data-msg="self"]{stroke-linejoin:round}
+
+/* ---- state primitives ---- */
+.tg-gnode[data-terminal="1"]::after{content:"";position:absolute;inset:var(--terminal-inset);border:var(--terminal-w) solid var(--nb);opacity:0.7;pointer-events:none}
+.tg-gnode[data-terminal="1"] .tg-gnode-kind::after{content:" ■";letter-spacing:0}
+.tg-gnode[data-initial="1"] .tg-gnode-kind::before{content:"▶ ";letter-spacing:0}
+/* workflow side nodes (evidence / observability) sit visually behind the process */
+.tg-gnode[data-side="1"]{box-shadow:none;border-style:dashed}
+
+/* ---- run / trace layer: one execution replayed. Opt-in with data-layer-trace="on" on the canvas ----
+   Position (active node) and the last transition are the only animated things; pending work fades. */
+/* Design describes what the system IS: trace is a simulate/analyze lens, so the layer is inert under
+   data-mode="design" even if data-run attributes survive a mode switch. The guard lives on the canvas
+   root (one ancestor test), not as counter-rules per edge. */
+.tg-gcanvas[data-layer-trace="on"]:not([data-mode="design"]) .tg-gnode[data-run="active"]{outline:1.5px solid var(--run-active);outline-offset:3px}
+.tg-gcanvas[data-layer-trace="on"]:not([data-mode="design"]) .tg-gnode[data-run="active"] .tg-gnode-swatch{background:var(--run-active)}
+.tg-gcanvas[data-layer-trace="on"]:not([data-mode="design"]) .tg-edge[data-run="active"]{stroke:var(--run-active);stroke-width:var(--edge-w-active);marker-end:url(#tgm-arrow-selected);stroke-dasharray:var(--run-dash);animation:tg-run var(--run-dur) linear infinite}
+.tg-gcanvas[data-layer-trace="on"]:not([data-mode="design"]) .tg-edge[data-run="done"]{stroke:var(--run-done);marker-end:url(#tgm-arrow-hover)}
+.tg-gcanvas[data-layer-trace="on"]:not([data-mode="design"]) .tg-edge[data-run="pending"]{opacity:var(--run-pending-opacity)}
+.tg-gcanvas[data-layer-trace="on"]:not([data-mode="design"]) .tg-seq-cursor{stroke:var(--run-active);stroke-width:1px;stroke-dasharray:2 3}
+.tg-gcanvas[data-mode="design"] .tg-seq-cursor{display:none}
+@keyframes tg-run{to{stroke-dashoffset:-12}}
+@media (prefers-reduced-motion:reduce){.tg-gcanvas[data-layer-trace="on"]:not([data-mode="design"]) .tg-edge[data-run="active"]{animation:none;stroke-dasharray:none}}
+
+/* ---- semantic zoom per paradigm: remove, never shrink. Shared levels, paradigm-specific content ---- */
+.tg-gcanvas[data-zoom="overview"] .tg-region-label{font-size:15px;letter-spacing:0.08em}
+.tg-gcanvas[data-zoom="overview"] .tg-region-owner{display:none}
+/* workflow / data flow overview: evidence + lineage (proposed) edges drop, side nodes fade.
+   GraphEdge mirrors data-rel onto the <g>, so this is a direct attribute match — no relational :has() per edge. */
+.tg-gcanvas[data-paradigm="workflow"][data-zoom="overview"] .tg-edge-g[data-rel="proposed"],
+.tg-gcanvas[data-paradigm="dataflow"][data-zoom="overview"] .tg-edge-g[data-rel="proposed"]{display:none}
+.tg-gcanvas[data-paradigm="workflow"][data-zoom="overview"] .tg-gnode[data-side="1"]{opacity:0.45}
+/* sequence: labels leave at compact, activations leave at overview, participants + phases remain */
+.tg-gcanvas[data-paradigm="sequence"][data-zoom="compact"] .tg-edge-label:not([data-role="metric"]){display:none}
+.tg-gcanvas[data-paradigm="sequence"][data-zoom="overview"] .tg-edge-label,.tg-gcanvas[data-paradigm="sequence"][data-zoom="overview"] .tg-activation,.tg-gcanvas[data-paradigm="sequence"][data-zoom="overview"] .tg-seq-tick{display:none}
+.tg-gcanvas[data-paradigm="sequence"][data-zoom="overview"] .tg-edge{stroke-width:2px}
+/* state: at overview only terminal states keep their kind word; the topology reads from shape */
+.tg-gcanvas[data-paradigm="state"][data-zoom="overview"] .tg-gnode:not([data-terminal="1"]) .tg-gnode-kind{display:none}
+.tg-gcanvas[data-paradigm="state"][data-zoom="overview"] .tg-edge-label{display:none}
+/* architecture / data flow overview: metric labels first to go (already in v2), then contract labels */
+.tg-gcanvas[data-paradigm="architecture"][data-zoom="compact"] .tg-edge-label[data-role="metric"],
+.tg-gcanvas[data-paradigm="dataflow"][data-zoom="compact"] .tg-edge-label[data-role="metric"]{display:none}
+
+/* ---- inspector: one adaptive shell. Field grid, half-width numbers ---- */
+.tg-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.tg-field{display:flex;flex-direction:column;gap:5px;min-width:0;color:var(--text-secondary);grid-column:span 2}
+.tg-field[data-half="1"]{grid-column:span 1}
+.tg-field-check{display:flex;align-items:center;gap:8px;grid-column:span 2;color:var(--text-secondary);cursor:pointer}
+
+/* ---- paradigm switcher: a compact popover, never five permanent tabs ---- */
+.tg-pswitch{display:flex;align-items:center;gap:7px;height:25px;padding:0 9px 0 10px;border:1px solid var(--border-strong);border-radius:var(--radius-control,6px);background:var(--surface-card);font-family:var(--font-mono);font-size:11px;color:var(--text-body);cursor:pointer;white-space:nowrap}
+.tg-pswitch:hover{background:var(--surface-inset)}
+.tg-pswitch[data-open="1"]{border-color:var(--accent)}
+.tg-pmenu{position:absolute;left:0;top:calc(100% + 8px);z-index:45;width:328px;background:var(--surface-card);border:1px solid var(--border-subtle);border-radius:10px;box-shadow:var(--shadow-panel);padding:6px;display:flex;flex-direction:column;gap:2px}
+.tg-pitem{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:start;gap:4px 10px;width:100%;text-align:left;border:none;background:transparent;border-radius:6px;padding:8px 10px;cursor:pointer;color:var(--text-secondary);font-family:var(--font-mono);font-size:11px;line-height:1.5}
+.tg-pitem:hover{background:var(--surface-inset)}
+.tg-pitem[data-on="1"]{background:var(--accent-tint)}
+.tg-pitem[data-on="1"] .tg-pitem-t{color:var(--accent-deep)}
+.tg-pitem-t{color:var(--text-body)}
+.tg-pitem-d{grid-column:2;color:var(--text-muted);font-size:10.5px;text-wrap:pretty}
+.tg-pitem-n{grid-column:3;grid-row:1;color:var(--text-faint);font-size:10px;white-space:nowrap}

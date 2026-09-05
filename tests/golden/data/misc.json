@@ -1,0 +1,2336 @@
+{
+ "fmt": {
+  "0": "0",
+  "1": "1",
+  "999": "999",
+  "1000": "1.00k",
+  "9999": "10.00k",
+  "10000": "10.0k",
+  "123456": "123.5k",
+  "1000000": "1.0M",
+  "2500000": "2.5M",
+  "0.4": "0",
+  "9.6": "10",
+  "1499.5": "1.50k"
+ },
+ "fmtMs": {
+  "0": "0ms",
+  "1": "1ms",
+  "999": "999ms",
+  "1000": "1.00s",
+  "9999": "10.00s",
+  "10000": "10.0s",
+  "123456": "123.5s",
+  "1000000": "1000.0s",
+  "2500000": "2500.0s",
+  "0.4": "0ms",
+  "9.6": "10ms",
+  "1499.5": "1.50s"
+ },
+ "fmtMin": {
+  "0": "0.0m",
+  "1": "1.0m",
+  "999": "16.6h",
+  "1000": "16.7h",
+  "9999": "6.9d",
+  "10000": "6.9d",
+  "123456": "85.7d",
+  "1000000": "694.4d",
+  "2500000": "1736.1d",
+  "0.4": "0.4m",
+  "9.6": "9.6m",
+  "1499.5": "1.0d"
+ },
+ "rows": {
+  "architecture": {
+   "cust": [
+    {
+     "k": "instances",
+     "v": "1",
+     "cfg": null,
+     "dk": "1",
+     "hasShort": true,
+     "short": "1 instance"
+    },
+    {
+     "k": "service",
+     "v": "pass-through",
+     "cfg": "1",
+     "dk": null,
+     "hasShort": false,
+     "short": ""
+    },
+    {
+     "k": "capacity",
+     "v": "unbounded",
+     "cfg": "1",
+     "dk": null,
+     "hasShort": false,
+     "short": ""
+    }
+   ],
+   "edge": [
+    {
+     "k": "instances",
+     "v": "1",
+     "cfg": null,
+     "dk": "1",
+     "hasShort": true,
+     "short": "1 instance"
+    },
+    {
+     "k": "service",
+     "v": "4 ms",
+     "cfg": "1",
+     "dk": null,
+     "hasShort": false,
+     "short": ""
+    },
+    {
+     "k": "capacity",
+     "v": "200.0k/s",
+     "cfg": "1",
+     "dk": null,
+     "hasShort": false,
+     "short": ""
+    }
+   ],
+   "gw": [
+    {
+     "k": "instances",
+     "v": "2",
+     "cfg": null,
+     "dk": "1",
+     "hasShort": true,
+     "short": "2 instances"
+    },
+    {
+     "k": "service",
+     "v": "3 ms",
+     "cfg": "1",
+     "dk": null,
+     "hasShort": false,
+     "short": ""
+    },
+    {
+     "k": "capacity",
+     "v": "200.0k/s",
+     "cfg": "1",
+     "dk": null,
+     "hasShort": false,
+     "short": ""
+    }
+   ],
+   "apia": [
+    {
+     "k": "instances",
+     "v": "3",
+     "cfg": null,
+     "dk": "1",
+     "hasShort": true,
+     "short": "3 instances"
+    },
+    {
+     "k": "service",
+     "v": "22 ms",
+     "cfg": "1",
+     "dk": null,
+     "hasShort": false,
+     "short": ""
+    },
+    {
+     "k": "capacity",
+     "v": "8.73k/s",
+     "cfg": "1",
+     "dk": null,
+     "hasShort": false,
+     "short": ""
+    }
+   ],
+   "apib": [
+    {
+     "k": "instances",
+     "v": "3",
+     "cfg": null,
+     "dk": "1",
+     "hasShort": true,
+     "short": "3 instances"
+    },
+    {
+     "k": "service",
+     "v": "22 ms",
+     "cfg": "1",
+     "dk": null,
+     "hasShort": false,
+     "short": ""
+    },
+    {
+     "k": "capacity",
+     "v": "8.73k/s",
+     "cfg": "1",
+     "dk": null,
+     "hasShort": false,
+     "short": ""
+    }
+   ],
+   "redis": [
+    {
+     "k": "instances",
+     "v": "2",
+     "cfg": null,
+     "dk": "1",
+     "hasShort": true,
+     "short": "2 instances"
+    },
+    {
+     "k": "service",
+     "v": "1 ms",
+     "cfg": "1",
+     "dk": null,
+     "hasShort": false,
+     "short": ""
+    },
+    {
+     "k": "capacity",
+     "v": "800.0k/s",
+     "cfg": "1",
+     "dk": null,
+     "hasShort": false,
+     "short": ""
+    }
+   ],
+   "pg": [
+    {
+     "k": "instances",
+     "v": "1",
+     "cfg": null,
+     "dk": "1",
+     "hasShort": true,
+     "short": "1 instance"
+    },
+    {
+     "k": "service",
+     "v": "8 ms",
+     "cfg": "1",
+     "dk": null,
+     "hasShort": false,
+     "short": ""
+    },
+    {
+     "k": "capacity",
+     "v": "7.50k/s",
+     "cfg": "1",
+     "dk": null,
+     "hasShort": false,
+     "short": ""
+    }
+   ],
+   "bus": [
+    {
+     "k": "instances",
+     "v": "3",
+     "cfg": null,
+     "dk": "1",
+     "hasShort": true,
+     "short": "3 instances"
+    },
+    {
+     "k": "service",
+     "v": "pass-through",
+     "cfg": "1",
+     "dk": null,
+     "hasShort": false,
+     "short": ""
+    },
+    {
+     "k": "capacity",
+     "v": "unbounded",
+     "cfg": "1",
+     "dk": null,
+     "hasShort": false,
+     "short": ""
+    }
+   ],
+   "wrk": [
+    {
+     "k": "instances",
+     "v": "4",
+     "cfg": null,
+     "dk": "1",
+     "hasShort": true,
+     "short": "4 instances"
+    },
+    {
+     "k": "service",
+     "v": "140 ms",
+     "cfg": "1",
+     "dk": null,
+     "hasShort": false,
+     "short": ""
+    },
+    {
+     "k": "capacity",
+     "v": "457/s",
+     "cfg": "1",
+     "dk": null,
+     "hasShort": false,
+     "short": ""
+    }
+   ],
+   "obs": [
+    {
+     "k": "instances",
+     "v": "2",
+     "cfg": null,
+     "dk": "1",
+     "hasShort": true,
+     "short": "2 instances"
+    },
+    {
+     "k": "service",
+     "v": "4 ms",
+     "cfg": "1",
+     "dk": null,
+     "hasShort": false,
+     "short": ""
+    },
+    {
+     "k": "capacity",
+     "v": "32.0k/s",
+     "cfg": "1",
+     "dk": null,
+     "hasShort": false,
+     "short": ""
+    }
+   ],
+   "audit": [
+    {
+     "k": "instances",
+     "v": "1",
+     "cfg": null,
+     "dk": "1",
+     "hasShort": true,
+     "short": "1 instance"
+    },
+    {
+     "k": "service",
+     "v": "18 ms",
+     "cfg": "1",
+     "dk": null,
+     "hasShort": false,
+     "short": ""
+    },
+    {
+     "k": "capacity",
+     "v": "27.8k/s",
+     "cfg": "1",
+     "dk": null,
+     "hasShort": false,
+     "short": ""
+    }
+   ],
+   "dr": [
+    {
+     "k": "instances",
+     "v": "1",
+     "cfg": null,
+     "dk": "1",
+     "hasShort": true,
+     "short": "1 instance"
+    },
+    {
+     "k": "service",
+     "v": "8 ms",
+     "cfg": "1",
+     "dk": null,
+     "hasShort": false,
+     "short": ""
+    },
+    {
+     "k": "capacity",
+     "v": "5.00k/s",
+     "cfg": "1",
+     "dk": null,
+     "hasShort": false,
+     "short": ""
+    }
+   ]
+  },
+  "workflow": {
+   "commit": [
+    {
+     "k": "owner",
+     "v": "developer",
+     "cfg": null,
+     "dk": "1",
+     "hasShort": true,
+     "short": "developer"
+    },
+    {
+     "k": "duration",
+     "v": "2.0m",
+     "cfg": "1",
+     "dk": null,
+     "hasShort": false,
+     "short": ""
+    },
+    {
+     "k": "pass rate",
+     "v": "100%",
+     "cfg": "1",
+     "dk": null,
+     "hasShort": false,
+     "short": ""
+    }
+   ],
+   "pr": [
+    {
+     "k": "owner",
+     "v": "reviewers",
+     "cfg": null,
+     "dk": "1",
+     "hasShort": true,
+     "short": "reviewers"
+    },
+    {
+     "k": "duration",
+     "v": "1.5h",
+     "cfg": "1",
+     "dk": null,
+     "hasShort": false,
+     "short": ""
+    },
+    {
+     "k": "pass rate",
+     "v": "100%",
+     "cfg": "1",
+     "dk": null,
+     "hasShort": false,
+     "short": ""
+    }
+   ],
+   "build": [
+    {
+     "k": "owner",
+     "v": "ci",
+     "cfg": null,
+     "dk": "1",
+     "hasShort": true,
+     "short": "ci"
+    },
+    {
+     "k": "duration",
+     "v": "9.0m",
+     "cfg": "1",
+     "dk": null,
+     "hasShort": false,
+     "short": ""
+    },
+    {
+     "k": "pass rate",
+     "v": "100%",
+     "cfg": "1",
+     "dk": null,
+     "hasShort": false,
+     "short": ""
+    }
+   ],
+   "qg": [
+    {
+     "k": "owner",
+     "v": "ci",
+     "cfg": null,
+     "dk": "1",
+     "hasShort": true,
+     "short": "ci"
+    },
+    {
+     "k": "duration",
+     "v": "14m",
+     "cfg": "1",
+     "dk": null,
+     "hasShort": false,
+     "short": ""
+    },
+    {
+     "k": "pass rate",
+     "v": "82%",
+     "cfg": "1",
+     "dk": null,
+     "hasShort": false,
+     "short": ""
+    }
+   ],
+   "approve": [
+    {
+     "k": "owner",
+     "v": "release owner",
+     "cfg": null,
+     "dk": "1",
+     "hasShort": true,
+     "short": "release owner"
+    },
+    {
+     "k": "duration",
+     "v": "3.0h",
+     "cfg": "1",
+     "dk": null,
+     "hasShort": false,
+     "short": ""
+    },
+    {
+     "k": "pass rate",
+     "v": "90%",
+     "cfg": "1",
+     "dk": null,
+     "hasShort": false,
+     "short": ""
+    }
+   ],
+   "canary": [
+    {
+     "k": "owner",
+     "v": "sre",
+     "cfg": null,
+     "dk": "1",
+     "hasShort": true,
+     "short": "sre"
+    },
+    {
+     "k": "duration",
+     "v": "30m",
+     "cfg": "1",
+     "dk": null,
+     "hasShort": false,
+     "short": ""
+    },
+    {
+     "k": "pass rate",
+     "v": "92%",
+     "cfg": "1",
+     "dk": null,
+     "hasShort": false,
+     "short": ""
+    }
+   ],
+   "notes": [
+    {
+     "k": "owner",
+     "v": "release owner",
+     "cfg": null,
+     "dk": "1",
+     "hasShort": true,
+     "short": "release owner"
+    },
+    {
+     "k": "duration",
+     "v": "1.0m",
+     "cfg": "1",
+     "dk": null,
+     "hasShort": false,
+     "short": ""
+    },
+    {
+     "k": "pass rate",
+     "v": "100%",
+     "cfg": "1",
+     "dk": null,
+     "hasShort": false,
+     "short": ""
+    }
+   ],
+   "rollback": [
+    {
+     "k": "owner",
+     "v": "sre",
+     "cfg": null,
+     "dk": "1",
+     "hasShort": true,
+     "short": "sre"
+    },
+    {
+     "k": "duration",
+     "v": "6.0m",
+     "cfg": "1",
+     "dk": null,
+     "hasShort": false,
+     "short": ""
+    },
+    {
+     "k": "pass rate",
+     "v": "90%",
+     "cfg": "1",
+     "dk": null,
+     "hasShort": false,
+     "short": ""
+    }
+   ],
+   "rolled": [
+    {
+     "k": "owner",
+     "v": "sre",
+     "cfg": null,
+     "dk": "1",
+     "hasShort": true,
+     "short": "sre"
+    },
+    {
+     "k": "duration",
+     "v": "0.0m",
+     "cfg": "1",
+     "dk": null,
+     "hasShort": false,
+     "short": ""
+    },
+    {
+     "k": "pass rate",
+     "v": "100%",
+     "cfg": "1",
+     "dk": null,
+     "hasShort": false,
+     "short": ""
+    }
+   ],
+   "release": [
+    {
+     "k": "owner",
+     "v": "sre",
+     "cfg": null,
+     "dk": "1",
+     "hasShort": true,
+     "short": "sre"
+    },
+    {
+     "k": "duration",
+     "v": "12m",
+     "cfg": "1",
+     "dk": null,
+     "hasShort": false,
+     "short": ""
+    },
+    {
+     "k": "pass rate",
+     "v": "100%",
+     "cfg": "1",
+     "dk": null,
+     "hasShort": false,
+     "short": ""
+    }
+   ],
+   "done": [
+    {
+     "k": "owner",
+     "v": "—",
+     "cfg": null,
+     "dk": "1",
+     "hasShort": true,
+     "short": "—"
+    },
+    {
+     "k": "duration",
+     "v": "0.0m",
+     "cfg": "1",
+     "dk": null,
+     "hasShort": false,
+     "short": ""
+    },
+    {
+     "k": "pass rate",
+     "v": "100%",
+     "cfg": "1",
+     "dk": null,
+     "hasShort": false,
+     "short": ""
+    }
+   ]
+  },
+  "sequence": {
+   "user": [
+    {
+     "k": "role",
+     "v": "browser session",
+     "cfg": null,
+     "dk": "1",
+     "hasShort": true,
+     "short": "browser session"
+    },
+    {
+     "k": "concurrency",
+     "v": "unbounded",
+     "cfg": "1",
+     "dk": null,
+     "hasShort": false,
+     "short": ""
+    }
+   ],
+   "web": [
+    {
+     "k": "role",
+     "v": "react ui",
+     "cfg": null,
+     "dk": "1",
+     "hasShort": true,
+     "short": "react ui"
+    },
+    {
+     "k": "concurrency",
+     "v": "200",
+     "cfg": "1",
+     "dk": null,
+     "hasShort": false,
+     "short": ""
+    }
+   ],
+   "api": [
+    {
+     "k": "role",
+     "v": "request handler",
+     "cfg": null,
+     "dk": "1",
+     "hasShort": true,
+     "short": "request handler"
+    },
+    {
+     "k": "concurrency",
+     "v": "96",
+     "cfg": "1",
+     "dk": null,
+     "hasShort": false,
+     "short": ""
+    }
+   ],
+   "auth": [
+    {
+     "k": "role",
+     "v": "jwt verify",
+     "cfg": null,
+     "dk": "1",
+     "hasShort": true,
+     "short": "jwt verify"
+    },
+    {
+     "k": "concurrency",
+     "v": "300",
+     "cfg": "1",
+     "dk": null,
+     "hasShort": false,
+     "short": ""
+    }
+   ],
+   "redis": [
+    {
+     "k": "role",
+     "v": "cache",
+     "cfg": null,
+     "dk": "1",
+     "hasShort": true,
+     "short": "cache"
+    },
+    {
+     "k": "concurrency",
+     "v": "2000",
+     "cfg": "1",
+     "dk": null,
+     "hasShort": false,
+     "short": ""
+    }
+   ],
+   "pg": [
+    {
+     "k": "role",
+     "v": "source of truth",
+     "cfg": null,
+     "dk": "1",
+     "hasShort": true,
+     "short": "source of truth"
+    },
+    {
+     "k": "concurrency",
+     "v": "40",
+     "cfg": "1",
+     "dk": null,
+     "hasShort": false,
+     "short": ""
+    }
+   ],
+   "trace": [
+    {
+     "k": "role",
+     "v": "async event",
+     "cfg": null,
+     "dk": "1",
+     "hasShort": true,
+     "short": "async event"
+    },
+    {
+     "k": "concurrency",
+     "v": "unbounded",
+     "cfg": "1",
+     "dk": null,
+     "hasShort": false,
+     "short": ""
+    }
+   ]
+  },
+  "dataflow": {
+   "web": [
+    {
+     "k": "schema",
+     "v": "clickstream.v3",
+     "cfg": null,
+     "dk": "1",
+     "hasShort": true,
+     "short": "clickstream.v3"
+    },
+    {
+     "k": "retention",
+     "v": "—",
+     "cfg": "1",
+     "dk": null,
+     "hasShort": false,
+     "short": ""
+    },
+    {
+     "k": "partitions",
+     "v": "—",
+     "cfg": "1",
+     "dk": null,
+     "hasShort": false,
+     "short": ""
+    },
+    {
+     "k": "pii",
+     "v": "yes",
+     "cfg": "1",
+     "dk": null,
+     "hasShort": false,
+     "short": ""
+    }
+   ],
+   "mobile": [
+    {
+     "k": "schema",
+     "v": "app_events.v2",
+     "cfg": null,
+     "dk": "1",
+     "hasShort": true,
+     "short": "app_events.v2"
+    },
+    {
+     "k": "retention",
+     "v": "—",
+     "cfg": "1",
+     "dk": null,
+     "hasShort": false,
+     "short": ""
+    },
+    {
+     "k": "partitions",
+     "v": "—",
+     "cfg": "1",
+     "dk": null,
+     "hasShort": false,
+     "short": ""
+    },
+    {
+     "k": "pii",
+     "v": "yes",
+     "cfg": "1",
+     "dk": null,
+     "hasShort": false,
+     "short": ""
+    }
+   ],
+   "edge": [
+    {
+     "k": "instances",
+     "v": "3",
+     "cfg": null,
+     "dk": "1",
+     "hasShort": true,
+     "short": "3 instances"
+    },
+    {
+     "k": "per event",
+     "v": "3 ms",
+     "cfg": "1",
+     "dk": null,
+     "hasShort": false,
+     "short": ""
+    },
+    {
+     "k": "capacity",
+     "v": "300.0k/s",
+     "cfg": "1",
+     "dk": null,
+     "hasShort": false,
+     "short": ""
+    },
+    {
+     "k": "pii",
+     "v": "no",
+     "cfg": "1",
+     "dk": null,
+     "hasShort": false,
+     "short": ""
+    }
+   ],
+   "gate": [
+    {
+     "k": "instances",
+     "v": "2",
+     "cfg": null,
+     "dk": "1",
+     "hasShort": true,
+     "short": "2 instances"
+    },
+    {
+     "k": "per event",
+     "v": "2 ms",
+     "cfg": "1",
+     "dk": null,
+     "hasShort": false,
+     "short": ""
+    },
+    {
+     "k": "capacity",
+     "v": "300.0k/s",
+     "cfg": "1",
+     "dk": null,
+     "hasShort": false,
+     "short": ""
+    },
+    {
+     "k": "pii",
+     "v": "yes",
+     "cfg": "1",
+     "dk": null,
+     "hasShort": false,
+     "short": ""
+    }
+   ],
+   "stream": [
+    {
+     "k": "schema",
+     "v": "events.v1 · avro",
+     "cfg": null,
+     "dk": "1",
+     "hasShort": true,
+     "short": "events.v1 · avro"
+    },
+    {
+     "k": "retention",
+     "v": "7 d",
+     "cfg": "1",
+     "dk": null,
+     "hasShort": false,
+     "short": ""
+    },
+    {
+     "k": "partitions",
+     "v": "24",
+     "cfg": "1",
+     "dk": null,
+     "hasShort": false,
+     "short": ""
+    },
+    {
+     "k": "pii",
+     "v": "no",
+     "cfg": "1",
+     "dk": null,
+     "hasShort": false,
+     "short": ""
+    }
+   ],
+   "dlq": [
+    {
+     "k": "schema",
+     "v": "—",
+     "cfg": null,
+     "dk": "1",
+     "hasShort": true,
+     "short": "—"
+    },
+    {
+     "k": "retention",
+     "v": "14 d",
+     "cfg": "1",
+     "dk": null,
+     "hasShort": false,
+     "short": ""
+    },
+    {
+     "k": "partitions",
+     "v": "—",
+     "cfg": "1",
+     "dk": null,
+     "hasShort": false,
+     "short": ""
+    },
+    {
+     "k": "pii",
+     "v": "no",
+     "cfg": "1",
+     "dk": null,
+     "hasShort": false,
+     "short": ""
+    }
+   ],
+   "vault": [
+    {
+     "k": "schema",
+     "v": "identity map",
+     "cfg": null,
+     "dk": "1",
+     "hasShort": true,
+     "short": "identity map"
+    },
+    {
+     "k": "retention",
+     "v": "365 d",
+     "cfg": "1",
+     "dk": null,
+     "hasShort": false,
+     "short": ""
+    },
+    {
+     "k": "partitions",
+     "v": "—",
+     "cfg": "1",
+     "dk": null,
+     "hasShort": false,
+     "short": ""
+    },
+    {
+     "k": "pii",
+     "v": "yes",
+     "cfg": "1",
+     "dk": null,
+     "hasShort": false,
+     "short": ""
+    }
+   ],
+   "wh": [
+    {
+     "k": "schema",
+     "v": "analytical tables",
+     "cfg": null,
+     "dk": "1",
+     "hasShort": true,
+     "short": "analytical tables"
+    },
+    {
+     "k": "retention",
+     "v": "730 d",
+     "cfg": "1",
+     "dk": null,
+     "hasShort": false,
+     "short": ""
+    },
+    {
+     "k": "partitions",
+     "v": "—",
+     "cfg": "1",
+     "dk": null,
+     "hasShort": false,
+     "short": ""
+    },
+    {
+     "k": "pii",
+     "v": "no",
+     "cfg": "1",
+     "dk": null,
+     "hasShort": false,
+     "short": ""
+    }
+   ],
+   "feat": [
+    {
+     "k": "schema",
+     "v": "features.v4",
+     "cfg": null,
+     "dk": "1",
+     "hasShort": true,
+     "short": "features.v4"
+    },
+    {
+     "k": "retention",
+     "v": "90 d",
+     "cfg": "1",
+     "dk": null,
+     "hasShort": false,
+     "short": ""
+    },
+    {
+     "k": "partitions",
+     "v": "—",
+     "cfg": "1",
+     "dk": null,
+     "hasShort": false,
+     "short": ""
+    },
+    {
+     "k": "pii",
+     "v": "no",
+     "cfg": "1",
+     "dk": null,
+     "hasShort": false,
+     "short": ""
+    }
+   ],
+   "dash": [
+    {
+     "k": "instances",
+     "v": "1",
+     "cfg": null,
+     "dk": "1",
+     "hasShort": true,
+     "short": "1 instance"
+    },
+    {
+     "k": "per event",
+     "v": "30 ms",
+     "cfg": "1",
+     "dk": null,
+     "hasShort": false,
+     "short": ""
+    },
+    {
+     "k": "capacity",
+     "v": "1.33k/s",
+     "cfg": "1",
+     "dk": null,
+     "hasShort": false,
+     "short": ""
+    },
+    {
+     "k": "pii",
+     "v": "no",
+     "cfg": "1",
+     "dk": null,
+     "hasShort": false,
+     "short": ""
+    }
+   ],
+   "ml": [
+    {
+     "k": "instances",
+     "v": "2",
+     "cfg": null,
+     "dk": "1",
+     "hasShort": true,
+     "short": "2 instances"
+    },
+    {
+     "k": "per event",
+     "v": "80 ms",
+     "cfg": "1",
+     "dk": null,
+     "hasShort": false,
+     "short": ""
+    },
+    {
+     "k": "capacity",
+     "v": "400/s",
+     "cfg": "1",
+     "dk": null,
+     "hasShort": false,
+     "short": ""
+    },
+    {
+     "k": "pii",
+     "v": "no",
+     "cfg": "1",
+     "dk": null,
+     "hasShort": false,
+     "short": ""
+    }
+   ]
+  },
+  "state": {
+   "queued": [
+    {
+     "k": "dwell",
+     "v": "1.0m",
+     "cfg": null,
+     "dk": "1",
+     "hasShort": true,
+     "short": "~1.0m in state"
+    },
+    {
+     "k": "entry",
+     "v": "accept request",
+     "cfg": "1",
+     "dk": null,
+     "hasShort": false,
+     "short": ""
+    },
+    {
+     "k": "exit",
+     "v": "—",
+     "cfg": "1",
+     "dk": null,
+     "hasShort": false,
+     "short": ""
+    }
+   ],
+   "planning": [
+    {
+     "k": "dwell",
+     "v": "6.0m",
+     "cfg": null,
+     "dk": "1",
+     "hasShort": true,
+     "short": "~6.0m in state"
+    },
+    {
+     "k": "entry",
+     "v": "build task graph",
+     "cfg": "1",
+     "dk": null,
+     "hasShort": false,
+     "short": ""
+    },
+    {
+     "k": "exit",
+     "v": "—",
+     "cfg": "1",
+     "dk": null,
+     "hasShort": false,
+     "short": ""
+    }
+   ],
+   "executing": [
+    {
+     "k": "dwell",
+     "v": "18m",
+     "cfg": null,
+     "dk": "1",
+     "hasShort": true,
+     "short": "~18m in state"
+    },
+    {
+     "k": "entry",
+     "v": "tool calls",
+     "cfg": "1",
+     "dk": null,
+     "hasShort": false,
+     "short": ""
+    },
+    {
+     "k": "exit",
+     "v": "—",
+     "cfg": "1",
+     "dk": null,
+     "hasShort": false,
+     "short": ""
+    }
+   ],
+   "reviewing": [
+    {
+     "k": "dwell",
+     "v": "12m",
+     "cfg": null,
+     "dk": "1",
+     "hasShort": true,
+     "short": "~12m in state"
+    },
+    {
+     "k": "entry",
+     "v": "quality gate",
+     "cfg": "1",
+     "dk": null,
+     "hasShort": false,
+     "short": ""
+    },
+    {
+     "k": "exit",
+     "v": "—",
+     "cfg": "1",
+     "dk": null,
+     "hasShort": false,
+     "short": ""
+    }
+   ],
+   "completed": [
+    {
+     "k": "dwell",
+     "v": "0.0m",
+     "cfg": null,
+     "dk": "1",
+     "hasShort": true,
+     "short": "~0.0m in state"
+    },
+    {
+     "k": "entry",
+     "v": "—",
+     "cfg": "1",
+     "dk": null,
+     "hasShort": false,
+     "short": ""
+    },
+    {
+     "k": "exit",
+     "v": "final response",
+     "cfg": "1",
+     "dk": null,
+     "hasShort": false,
+     "short": ""
+    }
+   ],
+   "approval": [
+    {
+     "k": "dwell",
+     "v": "4.0h",
+     "cfg": null,
+     "dk": "1",
+     "hasShort": true,
+     "short": "~4.0h in state"
+    },
+    {
+     "k": "entry",
+     "v": "human gate",
+     "cfg": "1",
+     "dk": null,
+     "hasShort": false,
+     "short": ""
+    },
+    {
+     "k": "exit",
+     "v": "—",
+     "cfg": "1",
+     "dk": null,
+     "hasShort": false,
+     "short": ""
+    }
+   ],
+   "blocked": [
+    {
+     "k": "dwell",
+     "v": "1.5h",
+     "cfg": null,
+     "dk": "1",
+     "hasShort": true,
+     "short": "~1.5h in state"
+    },
+    {
+     "k": "entry",
+     "v": "missing input",
+     "cfg": "1",
+     "dk": null,
+     "hasShort": false,
+     "short": ""
+    },
+    {
+     "k": "exit",
+     "v": "—",
+     "cfg": "1",
+     "dk": null,
+     "hasShort": false,
+     "short": ""
+    }
+   ],
+   "retrying": [
+    {
+     "k": "dwell",
+     "v": "4.0m",
+     "cfg": null,
+     "dk": "1",
+     "hasShort": true,
+     "short": "~4.0m in state"
+    },
+    {
+     "k": "entry",
+     "v": "recoverable error",
+     "cfg": "1",
+     "dk": null,
+     "hasShort": false,
+     "short": ""
+    },
+    {
+     "k": "exit",
+     "v": "—",
+     "cfg": "1",
+     "dk": null,
+     "hasShort": false,
+     "short": ""
+    }
+   ],
+   "failed": [
+    {
+     "k": "dwell",
+     "v": "0.0m",
+     "cfg": null,
+     "dk": "1",
+     "hasShort": true,
+     "short": "~0.0m in state"
+    },
+    {
+     "k": "entry",
+     "v": "—",
+     "cfg": "1",
+     "dk": null,
+     "hasShort": false,
+     "short": ""
+    },
+    {
+     "k": "exit",
+     "v": "—",
+     "cfg": "1",
+     "dk": null,
+     "hasShort": false,
+     "short": ""
+    }
+   ],
+   "cancelled": [
+    {
+     "k": "dwell",
+     "v": "0.0m",
+     "cfg": null,
+     "dk": "1",
+     "hasShort": true,
+     "short": "~0.0m in state"
+    },
+    {
+     "k": "entry",
+     "v": "—",
+     "cfg": "1",
+     "dk": null,
+     "hasShort": false,
+     "short": ""
+    },
+    {
+     "k": "exit",
+     "v": "—",
+     "cfg": "1",
+     "dk": null,
+     "hasShort": false,
+     "short": ""
+    }
+   ],
+   "expired": [
+    {
+     "k": "dwell",
+     "v": "0.0m",
+     "cfg": null,
+     "dk": "1",
+     "hasShort": true,
+     "short": "~0.0m in state"
+    },
+    {
+     "k": "entry",
+     "v": "—",
+     "cfg": "1",
+     "dk": null,
+     "hasShort": false,
+     "short": ""
+    },
+    {
+     "k": "exit",
+     "v": "—",
+     "cfg": "1",
+     "dk": null,
+     "hasShort": false,
+     "short": ""
+    }
+   ]
+  }
+ },
+ "defaultEdge": {
+  "architecture": {
+   "cust>edge": "http",
+   "cust>gw": "http",
+   "cust>apia": "http",
+   "cust>apib": "http",
+   "cust>redis": "query",
+   "cust>pg": "query",
+   "cust>bus": "queue",
+   "cust>wrk": "http",
+   "cust>obs": "http",
+   "cust>audit": "query",
+   "cust>dr": "query",
+   "edge>cust": "http",
+   "edge>gw": "http",
+   "edge>apia": "http",
+   "edge>apib": "http",
+   "edge>redis": "query",
+   "edge>pg": "query",
+   "edge>bus": "queue",
+   "edge>wrk": "http",
+   "edge>obs": "http",
+   "edge>audit": "query",
+   "edge>dr": "query",
+   "gw>cust": "http",
+   "gw>edge": "http",
+   "gw>apia": "http",
+   "gw>apib": "http",
+   "gw>redis": "query",
+   "gw>pg": "query",
+   "gw>bus": "queue",
+   "gw>wrk": "http",
+   "gw>obs": "http",
+   "gw>audit": "query",
+   "gw>dr": "query",
+   "apia>cust": "http",
+   "apia>edge": "http",
+   "apia>gw": "http",
+   "apia>apib": "http",
+   "apia>redis": "query",
+   "apia>pg": "query",
+   "apia>bus": "queue",
+   "apia>wrk": "http",
+   "apia>obs": "http",
+   "apia>audit": "query",
+   "apia>dr": "query",
+   "apib>cust": "http",
+   "apib>edge": "http",
+   "apib>gw": "http",
+   "apib>apia": "http",
+   "apib>redis": "query",
+   "apib>pg": "query",
+   "apib>bus": "queue",
+   "apib>wrk": "http",
+   "apib>obs": "http",
+   "apib>audit": "query",
+   "apib>dr": "query",
+   "redis>cust": "http",
+   "redis>edge": "http",
+   "redis>gw": "http",
+   "redis>apia": "http",
+   "redis>apib": "http",
+   "redis>pg": "query",
+   "redis>bus": "queue",
+   "redis>wrk": "http",
+   "redis>obs": "http",
+   "redis>audit": "query",
+   "redis>dr": "query",
+   "pg>cust": "http",
+   "pg>edge": "http",
+   "pg>gw": "http",
+   "pg>apia": "http",
+   "pg>apib": "http",
+   "pg>redis": "query",
+   "pg>bus": "queue",
+   "pg>wrk": "http",
+   "pg>obs": "http",
+   "pg>audit": "query",
+   "pg>dr": "query",
+   "bus>cust": "queue",
+   "bus>edge": "queue",
+   "bus>gw": "queue",
+   "bus>apia": "queue",
+   "bus>apib": "queue",
+   "bus>redis": "queue",
+   "bus>pg": "queue",
+   "bus>wrk": "queue",
+   "bus>obs": "queue",
+   "bus>audit": "queue",
+   "bus>dr": "queue",
+   "wrk>cust": "http",
+   "wrk>edge": "http",
+   "wrk>gw": "http",
+   "wrk>apia": "http",
+   "wrk>apib": "http",
+   "wrk>redis": "query",
+   "wrk>pg": "query",
+   "wrk>bus": "queue",
+   "wrk>obs": "http",
+   "wrk>audit": "query",
+   "wrk>dr": "query",
+   "obs>cust": "http",
+   "obs>edge": "http",
+   "obs>gw": "http",
+   "obs>apia": "http",
+   "obs>apib": "http",
+   "obs>redis": "query",
+   "obs>pg": "query",
+   "obs>bus": "queue",
+   "obs>wrk": "http",
+   "obs>audit": "query",
+   "obs>dr": "query",
+   "audit>cust": "http",
+   "audit>edge": "http",
+   "audit>gw": "http",
+   "audit>apia": "http",
+   "audit>apib": "http",
+   "audit>redis": "query",
+   "audit>pg": "query",
+   "audit>bus": "queue",
+   "audit>wrk": "http",
+   "audit>obs": "http",
+   "audit>dr": "query",
+   "dr>cust": "http",
+   "dr>edge": "http",
+   "dr>gw": "http",
+   "dr>apia": "http",
+   "dr>apib": "http",
+   "dr>redis": "query",
+   "dr>pg": "query",
+   "dr>bus": "queue",
+   "dr>wrk": "http",
+   "dr>obs": "http",
+   "dr>audit": "query"
+  },
+  "workflow": {
+   "commit>pr": "next",
+   "commit>build": "next",
+   "commit>qg": "next",
+   "commit>approve": "next",
+   "commit>canary": "next",
+   "commit>notes": "observe",
+   "commit>rollback": "next",
+   "commit>rolled": "fail",
+   "commit>release": "next",
+   "commit>done": "next",
+   "pr>commit": "next",
+   "pr>build": "next",
+   "pr>qg": "next",
+   "pr>approve": "next",
+   "pr>canary": "next",
+   "pr>notes": "observe",
+   "pr>rollback": "next",
+   "pr>rolled": "fail",
+   "pr>release": "next",
+   "pr>done": "next",
+   "build>commit": "next",
+   "build>pr": "next",
+   "build>qg": "next",
+   "build>approve": "next",
+   "build>canary": "next",
+   "build>notes": "observe",
+   "build>rollback": "next",
+   "build>rolled": "fail",
+   "build>release": "next",
+   "build>done": "next",
+   "qg>commit": "next",
+   "qg>pr": "next",
+   "qg>build": "next",
+   "qg>approve": "next",
+   "qg>canary": "next",
+   "qg>notes": "observe",
+   "qg>rollback": "next",
+   "qg>rolled": "fail",
+   "qg>release": "next",
+   "qg>done": "next",
+   "approve>commit": "approve",
+   "approve>pr": "approve",
+   "approve>build": "approve",
+   "approve>qg": "approve",
+   "approve>canary": "approve",
+   "approve>notes": "observe",
+   "approve>rollback": "approve",
+   "approve>rolled": "fail",
+   "approve>release": "approve",
+   "approve>done": "approve",
+   "canary>commit": "next",
+   "canary>pr": "next",
+   "canary>build": "next",
+   "canary>qg": "next",
+   "canary>approve": "next",
+   "canary>notes": "observe",
+   "canary>rollback": "next",
+   "canary>rolled": "fail",
+   "canary>release": "next",
+   "canary>done": "next",
+   "notes>commit": "next",
+   "notes>pr": "next",
+   "notes>build": "next",
+   "notes>qg": "next",
+   "notes>approve": "next",
+   "notes>canary": "next",
+   "notes>rollback": "next",
+   "notes>rolled": "fail",
+   "notes>release": "next",
+   "notes>done": "next",
+   "rollback>commit": "next",
+   "rollback>pr": "next",
+   "rollback>build": "next",
+   "rollback>qg": "next",
+   "rollback>approve": "next",
+   "rollback>canary": "next",
+   "rollback>notes": "observe",
+   "rollback>rolled": "fail",
+   "rollback>release": "next",
+   "rollback>done": "next",
+   "rolled>commit": "next",
+   "rolled>pr": "next",
+   "rolled>build": "next",
+   "rolled>qg": "next",
+   "rolled>approve": "next",
+   "rolled>canary": "next",
+   "rolled>notes": "observe",
+   "rolled>rollback": "next",
+   "rolled>release": "next",
+   "rolled>done": "next",
+   "release>commit": "next",
+   "release>pr": "next",
+   "release>build": "next",
+   "release>qg": "next",
+   "release>approve": "next",
+   "release>canary": "next",
+   "release>notes": "observe",
+   "release>rollback": "next",
+   "release>rolled": "fail",
+   "release>done": "next",
+   "done>commit": "next",
+   "done>pr": "next",
+   "done>build": "next",
+   "done>qg": "next",
+   "done>approve": "next",
+   "done>canary": "next",
+   "done>notes": "observe",
+   "done>rollback": "next",
+   "done>rolled": "fail",
+   "done>release": "next"
+  },
+  "sequence": {
+   "user>web": "request",
+   "user>api": "request",
+   "user>auth": "request",
+   "user>redis": "request",
+   "user>pg": "request",
+   "user>trace": "request",
+   "web>user": "request",
+   "web>api": "request",
+   "web>auth": "request",
+   "web>redis": "request",
+   "web>pg": "request",
+   "web>trace": "request",
+   "api>user": "request",
+   "api>web": "request",
+   "api>auth": "request",
+   "api>redis": "request",
+   "api>pg": "request",
+   "api>trace": "request",
+   "auth>user": "request",
+   "auth>web": "request",
+   "auth>api": "request",
+   "auth>redis": "request",
+   "auth>pg": "request",
+   "auth>trace": "request",
+   "redis>user": "request",
+   "redis>web": "request",
+   "redis>api": "request",
+   "redis>auth": "request",
+   "redis>pg": "request",
+   "redis>trace": "request",
+   "pg>user": "request",
+   "pg>web": "request",
+   "pg>api": "request",
+   "pg>auth": "request",
+   "pg>redis": "request",
+   "pg>trace": "request",
+   "trace>user": "request",
+   "trace>web": "request",
+   "trace>api": "request",
+   "trace>auth": "request",
+   "trace>redis": "request",
+   "trace>pg": "request"
+  },
+  "dataflow": {
+   "web>mobile": "stream",
+   "web>edge": "stream",
+   "web>gate": "governed",
+   "web>stream": "stream",
+   "web>dlq": "deadletter",
+   "web>vault": "governed",
+   "web>wh": "stream",
+   "web>feat": "stream",
+   "web>dash": "query",
+   "web>ml": "query",
+   "mobile>web": "stream",
+   "mobile>edge": "stream",
+   "mobile>gate": "governed",
+   "mobile>stream": "stream",
+   "mobile>dlq": "deadletter",
+   "mobile>vault": "governed",
+   "mobile>wh": "stream",
+   "mobile>feat": "stream",
+   "mobile>dash": "query",
+   "mobile>ml": "query",
+   "edge>web": "stream",
+   "edge>mobile": "stream",
+   "edge>gate": "governed",
+   "edge>stream": "stream",
+   "edge>dlq": "deadletter",
+   "edge>vault": "governed",
+   "edge>wh": "stream",
+   "edge>feat": "stream",
+   "edge>dash": "query",
+   "edge>ml": "query",
+   "gate>web": "governed",
+   "gate>mobile": "governed",
+   "gate>edge": "governed",
+   "gate>stream": "governed",
+   "gate>dlq": "deadletter",
+   "gate>vault": "governed",
+   "gate>wh": "governed",
+   "gate>feat": "governed",
+   "gate>dash": "governed",
+   "gate>ml": "governed",
+   "stream>web": "stream",
+   "stream>mobile": "stream",
+   "stream>edge": "stream",
+   "stream>gate": "governed",
+   "stream>dlq": "deadletter",
+   "stream>vault": "governed",
+   "stream>wh": "stream",
+   "stream>feat": "stream",
+   "stream>dash": "query",
+   "stream>ml": "query",
+   "dlq>web": "stream",
+   "dlq>mobile": "stream",
+   "dlq>edge": "stream",
+   "dlq>gate": "governed",
+   "dlq>stream": "stream",
+   "dlq>vault": "governed",
+   "dlq>wh": "stream",
+   "dlq>feat": "stream",
+   "dlq>dash": "query",
+   "dlq>ml": "query",
+   "vault>web": "governed",
+   "vault>mobile": "governed",
+   "vault>edge": "governed",
+   "vault>gate": "governed",
+   "vault>stream": "governed",
+   "vault>dlq": "deadletter",
+   "vault>wh": "governed",
+   "vault>feat": "governed",
+   "vault>dash": "governed",
+   "vault>ml": "governed",
+   "wh>web": "stream",
+   "wh>mobile": "stream",
+   "wh>edge": "stream",
+   "wh>gate": "governed",
+   "wh>stream": "stream",
+   "wh>dlq": "deadletter",
+   "wh>vault": "governed",
+   "wh>feat": "batch",
+   "wh>dash": "query",
+   "wh>ml": "query",
+   "feat>web": "stream",
+   "feat>mobile": "stream",
+   "feat>edge": "stream",
+   "feat>gate": "governed",
+   "feat>stream": "stream",
+   "feat>dlq": "deadletter",
+   "feat>vault": "governed",
+   "feat>wh": "batch",
+   "feat>dash": "query",
+   "feat>ml": "query",
+   "dash>web": "stream",
+   "dash>mobile": "stream",
+   "dash>edge": "stream",
+   "dash>gate": "governed",
+   "dash>stream": "stream",
+   "dash>dlq": "deadletter",
+   "dash>vault": "governed",
+   "dash>wh": "stream",
+   "dash>feat": "stream",
+   "dash>ml": "query",
+   "ml>web": "stream",
+   "ml>mobile": "stream",
+   "ml>edge": "stream",
+   "ml>gate": "governed",
+   "ml>stream": "stream",
+   "ml>dlq": "deadletter",
+   "ml>vault": "governed",
+   "ml>wh": "stream",
+   "ml>feat": "stream",
+   "ml>dash": "query"
+  },
+  "state": {
+   "queued>planning": "event",
+   "queued>executing": "event",
+   "queued>reviewing": "event",
+   "queued>completed": "event",
+   "queued>approval": "event",
+   "queued>blocked": "event",
+   "queued>retrying": "event",
+   "queued>failed": "failure",
+   "queued>cancelled": "cancel",
+   "queued>expired": "timeout",
+   "planning>queued": "event",
+   "planning>executing": "event",
+   "planning>reviewing": "event",
+   "planning>completed": "event",
+   "planning>approval": "event",
+   "planning>blocked": "event",
+   "planning>retrying": "event",
+   "planning>failed": "failure",
+   "planning>cancelled": "cancel",
+   "planning>expired": "timeout",
+   "executing>queued": "event",
+   "executing>planning": "event",
+   "executing>reviewing": "event",
+   "executing>completed": "event",
+   "executing>approval": "event",
+   "executing>blocked": "event",
+   "executing>retrying": "event",
+   "executing>failed": "failure",
+   "executing>cancelled": "cancel",
+   "executing>expired": "timeout",
+   "reviewing>queued": "event",
+   "reviewing>planning": "event",
+   "reviewing>executing": "event",
+   "reviewing>completed": "event",
+   "reviewing>approval": "event",
+   "reviewing>blocked": "event",
+   "reviewing>retrying": "event",
+   "reviewing>failed": "failure",
+   "reviewing>cancelled": "cancel",
+   "reviewing>expired": "timeout",
+   "completed>queued": "event",
+   "completed>planning": "event",
+   "completed>executing": "event",
+   "completed>reviewing": "event",
+   "completed>approval": "event",
+   "completed>blocked": "event",
+   "completed>retrying": "event",
+   "completed>failed": "failure",
+   "completed>cancelled": "cancel",
+   "completed>expired": "timeout",
+   "approval>queued": "approve",
+   "approval>planning": "approve",
+   "approval>executing": "approve",
+   "approval>reviewing": "approve",
+   "approval>completed": "approve",
+   "approval>blocked": "approve",
+   "approval>retrying": "approve",
+   "approval>failed": "failure",
+   "approval>cancelled": "cancel",
+   "approval>expired": "timeout",
+   "blocked>queued": "event",
+   "blocked>planning": "event",
+   "blocked>executing": "event",
+   "blocked>reviewing": "event",
+   "blocked>completed": "event",
+   "blocked>approval": "event",
+   "blocked>retrying": "event",
+   "blocked>failed": "failure",
+   "blocked>cancelled": "cancel",
+   "blocked>expired": "timeout",
+   "retrying>queued": "event",
+   "retrying>planning": "event",
+   "retrying>executing": "event",
+   "retrying>reviewing": "event",
+   "retrying>completed": "event",
+   "retrying>approval": "event",
+   "retrying>blocked": "event",
+   "retrying>failed": "failure",
+   "retrying>cancelled": "cancel",
+   "retrying>expired": "timeout",
+   "failed>queued": "event",
+   "failed>planning": "event",
+   "failed>executing": "event",
+   "failed>reviewing": "event",
+   "failed>completed": "event",
+   "failed>approval": "event",
+   "failed>blocked": "event",
+   "failed>retrying": "event",
+   "failed>cancelled": "cancel",
+   "failed>expired": "timeout",
+   "cancelled>queued": "event",
+   "cancelled>planning": "event",
+   "cancelled>executing": "event",
+   "cancelled>reviewing": "event",
+   "cancelled>completed": "event",
+   "cancelled>approval": "event",
+   "cancelled>blocked": "event",
+   "cancelled>retrying": "event",
+   "cancelled>failed": "failure",
+   "cancelled>expired": "timeout",
+   "expired>queued": "event",
+   "expired>planning": "event",
+   "expired>executing": "event",
+   "expired>reviewing": "event",
+   "expired>completed": "event",
+   "expired>approval": "event",
+   "expired>blocked": "event",
+   "expired>retrying": "event",
+   "expired>failed": "failure",
+   "expired>cancelled": "cancel"
+  }
+ },
+ "spark": {
+  "a": "0.0,11.6 13.5,6.1 27.0,8.9 40.5,2.0 54.0,13.0",
+  "b": "",
+  "c": "0.0,13.0 27.0,13.0 54.0,13.0",
+  "none": ""
+ },
+ "pkt": [
+  {
+   "opacity": 0,
+   "strokeWidth": "1px"
+  },
+  {
+   "opacity": 0.4153810490705693,
+   "strokeWidth": "1.002px",
+   "--dur": "2.16s"
+  },
+  {
+   "opacity": 0.6353810490705692,
+   "strokeWidth": "1.002px",
+   "--dur": "2.16s"
+  },
+  {
+   "opacity": 0,
+   "strokeWidth": "1px"
+  },
+  {
+   "opacity": 0.7482819116792697,
+   "strokeWidth": "1.8px",
+   "--dur": "1.09s"
+  },
+  {
+   "opacity": 0.9,
+   "strokeWidth": "2.4px",
+   "--dur": "0.52s"
+  }
+ ],
+ "tone": {
+  "architecture": {
+   "fL": [
+    "12ms",
+    "481ms",
+    "1.44s",
+    "1.60s",
+    "10.00s"
+   ],
+   "p99": [
+    "",
+    "warn",
+    "warn",
+    "warn",
+    "crit"
+   ],
+   "drop": [
+    "",
+    "warn",
+    "crit"
+   ],
+   "weight": [
+    "1",
+    "2",
+    "3"
+   ],
+   "unit": [
+    "sent",
+    "83% busy",
+    "83% busy",
+    "83% busy",
+    "83% busy",
+    "83% busy",
+    "83% busy",
+    "83% busy",
+    "83% busy",
+    "83% busy",
+    "83% busy",
+    "83% busy"
+   ],
+   "rate": [
+    "http · 778/s",
+    "http · 778/s",
+    "grpc · 778/s",
+    "grpc · 778/s",
+    "sql · 778/s",
+    "sql · 778/s",
+    "sql · 778/s",
+    "sql · 778/s",
+    "event · 778/s",
+    "event · 778/s",
+    "queue · 778/s",
+    "http · 778/s",
+    "http · 778/s",
+    "repl · 778/s"
+   ],
+   "rateDesign": [
+    "http",
+    "http",
+    "grpc",
+    "grpc",
+    "sql",
+    "sql",
+    "sql",
+    "sql",
+    "event",
+    "event",
+    "queue",
+    "http",
+    "http",
+    "repl"
+   ]
+  },
+  "workflow": {
+   "fL": [
+    "12m",
+    "8.0h",
+    "1.0d",
+    "1.1d",
+    "6.9d"
+   ],
+   "p99": [
+    "",
+    "",
+    "warn",
+    "crit",
+    "crit"
+   ],
+   "drop": [
+    "",
+    "",
+    ""
+   ],
+   "weight": [
+    "1",
+    "2",
+    "3"
+   ],
+   "unit": [
+    "83% occupied",
+    "83% occupied",
+    "83% occupied",
+    "83% occupied",
+    "83% occupied",
+    "83% occupied",
+    "83% occupied",
+    "83% occupied",
+    "83% occupied",
+    "83% occupied",
+    "83% occupied"
+   ],
+   "rate": [
+    "next · 778/h",
+    "next · 778/h",
+    "next · 778/h",
+    "next · 778/h",
+    "fail · 778/h",
+    "approved · 778/h",
+    "denied · 778/h",
+    "next · 778/h",
+    "fail · 778/h",
+    "next · 778/h",
+    "next · 778/h",
+    "evidence · 778/h"
+   ],
+   "rateDesign": [
+    "next",
+    "next",
+    "next",
+    "next",
+    "fail",
+    "approved",
+    "denied",
+    "next",
+    "fail",
+    "next",
+    "next",
+    "evidence"
+   ]
+  },
+  "sequence": {
+   "fL": [
+    "12ms",
+    "481ms",
+    "1.44s",
+    "1.60s",
+    "10.00s"
+   ],
+   "p99": [
+    "",
+    "warn",
+    "warn",
+    "warn",
+    "crit"
+   ],
+   "drop": [
+    "",
+    "warn",
+    "crit"
+   ],
+   "weight": [
+    "1",
+    "2",
+    "3"
+   ],
+   "unit": [
+    "caller",
+    "83% busy",
+    "83% busy",
+    "83% busy",
+    "83% busy",
+    "83% busy",
+    "83% busy"
+   ],
+   "rate": [
+    "request · 5 ms",
+    "request · 8 ms",
+    "request · 6 ms",
+    "response · 1 ms",
+    "request · 2 ms",
+    "response · 1 ms",
+    "request · 38 ms",
+    "response · 2 ms",
+    "async · 1 ms",
+    "response · 3 ms",
+    "response · 12 ms",
+    "event · 0 ms"
+   ],
+   "rateDesign": [
+    "request · 5 ms",
+    "request · 8 ms",
+    "request · 6 ms",
+    "response · 1 ms",
+    "request · 2 ms",
+    "response · 1 ms",
+    "request · 38 ms",
+    "response · 2 ms",
+    "async · 1 ms",
+    "response · 3 ms",
+    "response · 12 ms",
+    "event · 0 ms"
+   ]
+  },
+  "dataflow": {
+   "fL": [
+    "12ms",
+    "481ms",
+    "1.44s",
+    "1.60s",
+    "10.00s"
+   ],
+   "p99": [
+    "",
+    "warn",
+    "warn",
+    "warn",
+    "crit"
+   ],
+   "drop": [
+    "",
+    "warn",
+    "crit"
+   ],
+   "weight": [
+    "1",
+    "2",
+    "3"
+   ],
+   "unit": [
+    "sent",
+    "sent",
+    "83% busy",
+    "83% busy",
+    "83% busy",
+    "83% busy",
+    "83% busy",
+    "83% busy",
+    "83% busy",
+    "83% busy",
+    "83% busy"
+   ],
+   "rate": [
+    "event · 778/s",
+    "event · 778/s",
+    "governed · 778/s",
+    "governed · 778/s",
+    "stream · 778/s",
+    "stream · 778/s",
+    "dead-letter · 778/s",
+    "query · 778/s",
+    "batch · 778/s",
+    "batch · 778/s",
+    "governed · 778/s"
+   ],
+   "rateDesign": [
+    "event",
+    "event",
+    "governed",
+    "governed",
+    "stream",
+    "stream",
+    "dead-letter",
+    "query",
+    "batch",
+    "batch",
+    "governed"
+   ]
+  },
+  "state": {
+   "fL": [
+    "12m",
+    "8.0h",
+    "1.0d",
+    "1.1d",
+    "6.9d"
+   ],
+   "p99": [
+    "",
+    "",
+    "warn",
+    "crit",
+    "crit"
+   ],
+   "drop": [
+    "",
+    "",
+    ""
+   ],
+   "weight": [
+    "1",
+    "2",
+    "3"
+   ],
+   "unit": [
+    "83% occupied",
+    "83% occupied",
+    "83% occupied",
+    "83% occupied",
+    "83% occupied",
+    "83% occupied",
+    "83% occupied",
+    "83% occupied",
+    "83% occupied",
+    "83% occupied",
+    "83% occupied"
+   ],
+   "rate": [
+    "event · 778/h",
+    "event · 778/h",
+    "cancel · 778/h",
+    "event · 778/h",
+    "event · 778/h",
+    "failure · 778/h",
+    "event · 778/h",
+    "approved · 778/h",
+    "cancel · 778/h",
+    "timeout · 778/h",
+    "event · 778/h",
+    "timeout · 778/h",
+    "retry · 778/h",
+    "failure · 778/h",
+    "event · 778/h",
+    "event · 778/h"
+   ],
+   "rateDesign": [
+    "event",
+    "event",
+    "cancel",
+    "event",
+    "event",
+    "failure",
+    "event",
+    "approved",
+    "cancel",
+    "timeout",
+    "event",
+    "timeout",
+    "retry",
+    "failure",
+    "event",
+    "event"
+   ]
+  }
+ }
+}

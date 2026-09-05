@@ -1,0 +1,35 @@
+:root{
+/* graph canvas: blueprint drafting surface (grid images live in --grid-canvas) */
+--graph-canvas:var(--stone-25);--graph-grid-minor:16px;--graph-grid-major:80px;
+--graph-grid-minor-color:rgba(99,102,241,0.06);--graph-grid-major-color:rgba(99,102,241,0.12);
+/* node construction: square, pixel-filled, hard offset shadows; --nb = kind border set per node */
+--node-radius:0px;--node-border-w:1.5px;--node-pixel:6px;
+--node-shadow:4px 4px 0 color-mix(in srgb,var(--nb,var(--stone-400)) 28%,transparent),8px 8px 0 color-mix(in srgb,var(--nb,var(--stone-400)) 7%,transparent); /* @kind other */
+--node-shadow-drag:6px 6px 0 color-mix(in srgb,var(--nb,var(--stone-400)) 28%,transparent),12px 12px 0 color-mix(in srgb,var(--nb,var(--stone-400)) 8%,transparent); /* @kind other */
+/* ports: small visible mark, larger invisible hit area */
+--port-size:7px;--port-border-w:1.5px;--port-fill:var(--surface-card);--port-hit:8px;--port-hit-touch:22px;
+/* edges */
+--edge-default:var(--stone-400);--edge-stroke:var(--edge-default);--edge-w:1.25px;--edge-w-active:1.5px;--edge-hover:var(--stone-600);--edge-selected:var(--indigo-500);--edge-muted:var(--stone-200);--edge-invalid:var(--danger);--edge-label:var(--stone-500);--edge-radius:5px;
+/* selection grammar (interaction state, never semantic identity) */
+--selection:var(--indigo-500);--selection-ring:var(--indigo-200);--selection-marquee-bg:rgba(99,102,241,0.06);
+/* health: entity condition, never interaction */
+--health-ok:#059669;--health-warn:#d97706;--health-critical:var(--danger);
+/* telemetry: layers on topology, number/weight/opacity before animation */
+--telemetry-bar-h:3px;--telemetry-bar-track:var(--stone-200);--telemetry-bar-fill:var(--stone-500);--trace:var(--indigo-500);
+}
+/* ===== graph layer v2 (promoted from the Workbench prototype, Aug 2026) ===== */
+:root{
+/* orthogonal router constants: were hardcoded in app geometry code */
+--edge-stub:18px;--edge-marker-inset:3px;--edge-marker-size:11px;
+/* edge health (downstream condition). Ranks BELOW interaction, ABOVE weight. */
+--edge-warn:var(--health-warn);--edge-critical:var(--health-critical);--edge-w-critical:2px;
+/* flow layer: rate expressed as motion. Opt-in per surface, capped, never a default. */
+--edge-flow-dash:3 23; /* @kind other */ --edge-flow-color:var(--accent-deep);--edge-flow-dur:1.4s; /* @kind other */ --edge-flow-w:1px;--edge-flow-cap:28; /* @kind other */
+/* endpoint handles: screen-constant — consumers divide r and hit by the viewport scale k */
+--edge-endpoint-r:5.5px;--edge-endpoint-r-active:7px;--edge-endpoint-hit:20px;
+--edge-endpoint-w:2px;--edge-endpoint-w-active:3px;
+/* node health mark, carried in the header so it survives compact zoom */
+--node-health-dot:9px;
+/* telemetry sparkline: the second sanctioned telemetry form after the bar */
+--telemetry-spark-w:54px;--telemetry-spark-h:14px;--telemetry-spark-opacity:0.8; /* @kind other */
+}

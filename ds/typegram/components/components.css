@@ -1,0 +1,55 @@
+/* Typegram component classes — consumed by the React primitives in components/ */
+.tg-btn{background:var(--surface-raised);border:1px solid var(--border-strong);border-radius:var(--radius-control);padding:4px 11px;font-family:var(--font-mono);font-size:var(--text-ui);color:var(--text-control);cursor:pointer;transition:background .12s,border-color .12s,color .12s}
+.tg-btn:hover{background:var(--surface-inset)}
+.tg-btn--primary{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:500}
+.tg-btn--primary:hover{background:var(--accent-strong)}
+.tg-btn--danger{background:var(--danger-tint);border-color:var(--danger-border);color:var(--danger-text)}
+.tg-btn--danger:hover{background:var(--danger-hover)}
+.tg-btn--active{background:var(--accent-tint);border-color:var(--accent);color:var(--accent-deep)}
+.tg-btn[data-tint="class"]:hover{background:var(--kind-class-bg);border-color:var(--kind-class-border);color:var(--kind-class-text)}
+.tg-btn[data-tint="type"]:hover{background:var(--kind-type-bg);border-color:var(--kind-type-border);color:var(--kind-type-text)}
+.tg-btn[data-tint="union"]:hover{background:var(--kind-union-bg);border-color:var(--kind-union-border);color:var(--kind-union-text)}
+.tg-btn[data-tint="interface"]:hover{background:var(--kind-interface-bg);border-color:var(--kind-interface-border);color:var(--kind-interface-text)}
+.tg-btn[data-tint="function"]:hover{background:var(--kind-function-bg);border-color:var(--kind-function-border);color:var(--kind-function-text)}
+.tg-btn[data-tint="component"]:hover{background:var(--kind-component-bg);border-color:var(--kind-component-border);color:var(--kind-component-text)}
+.tg-btn[data-tint="instance"]:hover{background:var(--kind-instance-bg);border-color:var(--kind-instance-border);color:var(--kind-instance-text)}
+/* tint by visual family — the public colour channel; the UML-kind rows above are the deprecated alias */
+.tg-btn[data-tint="indigo"]:hover{background:var(--family-indigo-bg);border-color:var(--family-indigo-border);color:var(--family-indigo-text)}
+.tg-btn[data-tint="emerald"]:hover{background:var(--family-emerald-bg);border-color:var(--family-emerald-border);color:var(--family-emerald-text)}
+.tg-btn[data-tint="amber"]:hover{background:var(--family-amber-bg);border-color:var(--family-amber-border);color:var(--family-amber-text)}
+.tg-btn[data-tint="purple"]:hover{background:var(--family-purple-bg);border-color:var(--family-purple-border);color:var(--family-purple-text)}
+.tg-btn[data-tint="cyan"]:hover{background:var(--family-cyan-bg);border-color:var(--family-cyan-border);color:var(--family-cyan-text)}
+.tg-btn[data-tint="orange"]:hover{background:var(--family-orange-bg);border-color:var(--family-orange-border);color:var(--family-orange-text)}
+.tg-btn[data-tint="stone"]:hover{background:var(--family-stone-bg);border-color:var(--family-stone-border);color:var(--family-stone-text)}
+.tg-btn[data-tint="danger"]:hover{background:var(--family-danger-bg);border-color:var(--family-danger-border);color:var(--family-danger-text)}
+.tg-select{background:var(--surface-raised);color:var(--text-control);border:1px solid var(--border-strong);border-radius:var(--radius-control);font-family:var(--font-mono);font-size:var(--text-ui);padding:4px 8px}
+.tg-input{background:var(--surface-card);border:1px solid var(--border-strong);border-radius:var(--radius-control);padding:4px 8px;font-family:var(--font-mono);font-size:var(--text-ui);color:var(--text-body);min-width:0}
+.tg-input:focus{outline:none;border-color:var(--accent)}
+.tg-input::placeholder{color:var(--text-faint)}
+.tg-chip{display:inline-flex;align-items:center;gap:6px;background:var(--surface-raised);border:1px solid var(--border-subtle);border-radius:var(--radius-pill);padding:3px 10px 3px 6px;font-family:var(--font-mono);font-size:var(--text-ui);color:var(--text-secondary)}
+.tg-chip-swatch{width:11px;height:11px;border-radius:var(--radius-sm);border:1.5px solid}
+.tg-badge{display:inline-block;border:1px solid;border-radius:var(--radius-pill);padding:3px 10px;font-family:var(--font-mono);font-size:var(--text-ui);font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tg-label{font-family:var(--font-mono);font-size:var(--text-ui);letter-spacing:var(--tracking-label);text-transform:uppercase;color:var(--text-faint)}
+.tg-error{padding:8px 20px;background:var(--danger-tint);color:var(--danger-text);font-family:var(--font-mono);font-size:var(--text-error);border-bottom:1px solid var(--danger-border)}
+.tg-panel{background:var(--surface-card);border:1px solid var(--border-subtle);border-radius:var(--radius-panel);box-shadow:var(--shadow-panel);padding:12px;display:flex;flex-direction:column;gap:8px;font-family:var(--font-mono);font-size:var(--text-ui);box-sizing:border-box}
+.tg-zoom{display:inline-flex;align-items:center;gap:4px;background:var(--surface-card);border:1px solid var(--border-subtle);border-radius:var(--radius-panel);box-shadow:var(--shadow-float);padding:5px 6px;font-family:var(--font-mono);font-size:var(--text-ui)}
+.tg-zoom-btn{width:26px;height:24px;background:var(--surface-raised);border:1px solid var(--border-strong);border-radius:var(--radius-control);color:var(--text-control);cursor:pointer;font-size:13px;line-height:1;font-family:var(--font-mono)}
+.tg-zoom-btn:hover{background:var(--accent-tint);border-color:var(--accent)}
+.tg-zoom-fit{width:auto;padding:0 9px;font-size:var(--text-ui)}
+.tg-zoom-label{min-width:44px;text-align:center;color:var(--text-secondary);cursor:pointer;user-select:none}
+.tg-logo{background:var(--brand-gradient);color:#fff;display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-weight:500;box-shadow:var(--shadow-logo)}
+.tg-node{display:inline-block;border:1.5px solid var(--nb);background-color:var(--nf);background-image:linear-gradient(color-mix(in srgb,var(--nb) 16%,transparent) 1px,transparent 1px),linear-gradient(90deg,color-mix(in srgb,var(--nb) 16%,transparent) 1px,transparent 1px);background-size:6px 6px;filter:drop-shadow(4px 4px 0 color-mix(in srgb,var(--nb) 35%,transparent)) drop-shadow(8px 8px 0 color-mix(in srgb,var(--nb) 14%,transparent));font-family:var(--font-mono);font-size:var(--text-diagram);color:var(--accent-ink);letter-spacing:0.1px}
+.tg-node[data-kind="class"]{--nf:var(--kind-class-bg);--nb:var(--kind-class-border)}
+.tg-node[data-kind="type"]{--nf:var(--kind-type-bg);--nb:var(--kind-type-border)}
+.tg-node[data-kind="union"]{--nf:var(--kind-union-bg);--nb:var(--kind-union-border)}
+.tg-node[data-kind="interface"]{--nf:var(--kind-interface-bg);--nb:var(--kind-interface-border)}
+.tg-node[data-kind="function"]{--nf:var(--kind-function-bg);--nb:var(--kind-function-border)}
+.tg-node[data-kind="component"]{--nf:var(--kind-component-bg);--nb:var(--kind-component-border)}
+.tg-node[data-kind="instance"]{--nf:var(--kind-instance-bg);--nb:var(--kind-instance-border)}
+.tg-node[data-kind="external"]{--nf:var(--kind-external-bg);--nb:var(--kind-external-border)}
+.tg-node[data-selected]{border-width:2.5px;border-style:dashed}
+.tg-node-title{padding:6px 14px;text-align:center;font-size:12.5px;font-weight:500;border-bottom:1px solid var(--nb)}
+.tg-node-stereo{font-weight:400;font-size:var(--text-diagram)}
+.tg-node-section{padding:4px 0;border-bottom:1px solid var(--nb)}
+.tg-node-section:last-child{border-bottom:none}
+.tg-node-row{padding:2px 14px;white-space:nowrap}

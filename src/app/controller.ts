@@ -180,6 +180,9 @@ export class WorkbenchController {
   parkDoc(): void { const s = this.state; this.docs[s.paradigm] = { nodes: s.nodes, edges: s.edges, regions: s.regions, rps: s.rps, presetId: s.presetId, view: s.view, touched: this.touched, hist: this.history.hist, future: this.history.future }; }
   switchParadigm(pid: ParadigmId): void {
     if (pid === this.state.paradigm) { this.setState({ paraOpen: false }); return; }
+    // a running simulation never carries over: the new model waits for an explicit run
+    const wasRunning = this.state.running && this.state.mode !== 'design';
+    if (wasRunning) { this.setState({ running: false }); this.notify('simulation paused · press run or r to start it on ' + PARADIGMS[pid].label, 'ok', 4000); }
     this.parkDoc(); this.clearRuntimeDom();
     const d: ParkedDoc | null = this.docs[pid] ?? null;
     this.simState = null; this.metrics = null; this.nhist = {}; this.hadM = false; this.uptimeS = 0; this.planner.invalidate(); this.nodeH = {}; this.nodeHMax = {}; this._maxSig = null;

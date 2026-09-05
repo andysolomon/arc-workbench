@@ -26,6 +26,17 @@ describe('controller', () => {
     ctl.switchParadigm('dataflow'); ctl.store.drainAfterCommit(); ctl.store.drainAfterCommit();
     expect(ctl.state.nodes).toBe(before); expect(ctl.state.rps).toBe(777); expect(ctl.state.view).toEqual({ x: 5, y: 6, k: 0.5 });
   });
+  it('switching paradigm pauses a running simulation and says so; a design-mode switch is silent', () => {
+    vi.useFakeTimers();
+    ctl.setState({ mode: 'simulate', running: true });
+    ctl.switchParadigm('workflow'); ctl.store.drainAfterCommit(); ctl.store.drainAfterCommit();
+    expect(ctl.state.running).toBe(false); expect(ctl.state.toast?.text).toContain('simulation paused'); expect(ctl.state.toast?.text).toContain('workflow');
+    vi.advanceTimersByTime(4500); expect(ctl.state.toast).toBeNull();
+    ctl.setState({ mode: 'design', running: true });
+    ctl.switchParadigm('state'); ctl.store.drainAfterCommit(); ctl.store.drainAfterCommit();
+    expect(ctl.state.running).toBe(true); expect(ctl.state.toast).toBeNull();
+    vi.useRealTimers();
+  });
   it('keyboard: palette, undo/redo, run, theme, trace, create, escape unwinding, arrows, delete', () => {
     key(ctl, '/'); expect(ctl.state.palette).toBe(true);
     key(ctl, 'Escape'); expect(ctl.state.palette).toBe(false);

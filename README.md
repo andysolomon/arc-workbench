@@ -28,6 +28,11 @@ Node 22+, pnpm 9. Zero UI dependencies: React 18 and nothing else at runtime.
 | `pnpm lint` | typecheck + the acceptance greps (no hex literals, no aliases in `model`/`store`, no `any`, no TODO) |
 | `pnpm goldens` | regenerate `tests/golden/data` from the **original** prototype modules |
 
+**Presets** replace the live document as one undoable transaction: a single `⌘Z` brings back the
+previous graph, preset selection and load. If the document has edits since it was loaded, the preset
+picker asks first; cancelling changes nothing. Loading a preset — or undoing / redoing across one —
+restarts the simulation clock, metrics and findings; run / pause is left as it was.
+
 **share** puts the whole document in the URL fragment (`#d=<base64url json>`), copies the link and
 confirms with a toast; opening the link restores the diagram (as the `Shared link` preset). Nothing
 leaves the browser — the fragment is never sent to a server.

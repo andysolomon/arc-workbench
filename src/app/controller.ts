@@ -10,7 +10,7 @@ import { analyze as analyzeAll, handoffs, type Analysis, type Finding } from '..
 import { fmt, hasPackets, makeParadigmSim, makeSim, protoOf as protoOfPure, rateText, tick, tickSequence, tickState, tickWorkflow, timeline, transitionText, type Metrics, type ParadigmSim, type QueueSim, type RunState, type SimState } from '../sim';
 import { CULL_FROM, crispK, crispStep, docBounds, fitView, gridStyleFor, viewCss, worldBox, zoomCentred, zoomLevelOf, type GridStyle, type ViewCss, type WorldBox, type ZoomLevel } from '../view';
 import { Refs, applyEdgeGeo, applyRoutes, clearRuntimeDom, patchTelemetry, type PatchCtx } from '../telemetry';
-import { History, createStore, initialState, type Docks, type Mode, type Patch, type ParkedDoc, type Store, type Theme, type UiKey, type WorkbenchState, UIOPTS } from '../store';
+import { History, createStore, initialState, type Docks, type Mode, type Patch, type ParkedDoc, type Snapshot, type Store, type Theme, type UiKey, type WorkbenchState, UIOPTS } from '../store';
 import type { Handlers } from '../render/types';
 import { resolveProps, type ResolvedProps, type WorkbenchProps } from './props';
 import { W } from './viewModel';
@@ -74,6 +74,8 @@ export class WorkbenchController {
   private _toastT = 0;
   private _hc: (() => void) | null = null;
   private _sharedPayload: string | null = null;
+  /** the document as loaded (JSON); the doc is dirty when the live graph differs from it */
+  private _cleanDoc: string | null = null;
   private ro: ResizeObserver | null = null;
   private _kd: ((e: KeyboardEvent) => void) | null = null;
   readonly handlers: Handlers;
@@ -177,7 +179,7 @@ export class WorkbenchController {
   }
   defaultEdgeKind(a: GraphNode, b: GraphNode): string { return defaultEdgeKind(this.paraId(), a, b, this.state.nextKind); }
   // a document per paradigm: switching never destroys work — the other document is parked
-  parkDoc(): void { const s = this.state; this.docs[s.paradigm] = { nodes: s.nodes, edges: s.edges, regions: s.regions, rps: s.rps, presetId: s.presetId, view: s.view, touched: this.touched, hist: this.history.hist, future: this.history.future }; }
+  parkDoc(): void { const s = this.state; this.docs[s.paradigm] = { nodes: s.nodes, edges: s.edges, regions: s.regions, rps: s.rps, presetId: s.presetId, view: s.view, touched: this.touched, hist: this.history.hist, future: this.history.future, clean: this._cleanDoc }; }
   switchParadigm(pid: ParadigmId): void {
     if (pid === this.state.paradigm) { this.setState({ paraOpen: false }); return; }
     // a running simulation never carries over: the new model waits for an explicit run
@@ -188,12 +190,12 @@ export class WorkbenchController {
     this.simState = null; this.metrics = null; this.nhist = {}; this.hadM = false; this.uptimeS = 0; this.planner.invalidate(); this.nodeH = {}; this.nodeHMax = {}; this._maxSig = null;
     this.setState({ paradigm: pid, nodes: [], edges: [], regions: [], paraOpen: false, createOpen: false, sel: null, connect: null, rewire: null, hoverEdge: null, focus: null, nextKind: null, search: '', collapsed: {} }, () => {
       this.simState = this.makeSimState();
-      if (d) { this.history.reset(d.hist || [], d.future || []); this.touched = false; this.setState({ nodes: d.nodes, edges: d.edges, regions: d.regions, rps: d.rps, presetId: d.presetId, view: d.view }, () => this.fitWhenReady()); }
-      else this.loadPreset(EXAMPLES[pid][0]!.id);
+      if (d) { this.history.reset(d.hist || [], d.future || []); this.touched = false; this._cleanDoc = d.clean ?? null; this.setState({ nodes: d.nodes, edges: d.edges, regions: d.regions, rps: d.rps, presetId: d.presetId, view: d.view }, () => this.fitWhenReady()); }
+      else this.openPreset(EXAMPLES[pid][0]!.id);
     });
   }
   createDoc(pid: ParadigmId): void {
-    const go = (): void => { this.snap(); const b = BLANK(pid); this.setState({ nodes: [], edges: [], regions: [], rps: b.rps, presetId: 'blank', sel: null, createOpen: false, paraOpen: false }, () => { this.simState = this.makeSimState(); this.metrics = null; this.hadM = false; }); };
+    const go = (): void => { this.snapDoc(); const b = BLANK(pid); this.setState({ nodes: [], edges: [], regions: [], rps: b.rps, presetId: 'blank', sel: null, createOpen: false, paraOpen: false }, () => { this.simState = this.makeSimState(); this.metrics = null; this.hadM = false; }); this.markClean(); };
     if (pid === this.state.paradigm) go(); else { this.parkDoc(); this.docs[pid] = null; this.switchParadigm(pid); setTimeout(go, 0); }
   }
   autoLayout(): void {
@@ -432,14 +434,58 @@ export class WorkbenchController {
 
   // ---- history / model ops ----
   snap(): void { this.history.snap(this.graph()); }
-  undo(): void { const g = this.history.undo(this.graph()); if (g) this.setState({ ...g, sel: null, connect: null, rewire: null }); }
-  redo(): void { const g = this.history.redo(this.graph()); if (g) this.setState({ ...g, sel: null, connect: null, rewire: null }); }
-  loadPreset(id: string): void {
-    const pid = this.state.paradigm, p = id === 'blank' ? BLANK(pid) : EXAMPLES[pid].find(x => x.id === id); if (!p) return;
+  /** a document-level transaction: graph + preset + load + clean mark, so one undo restores it all */
+  snapDoc(): void { this.history.snap(this.docSnapshot()); }
+  private docSnapshot(): Snapshot { const s = this.state; return { ...this.graph(), presetId: s.presetId, rps: s.rps, clean: this._cleanDoc }; }
+  undo(): void { const g = this.history.undo(this.docSnapshot()); if (g) this.applySnapshot(g); }
+  redo(): void { const g = this.history.redo(this.docSnapshot()); if (g) this.applySnapshot(g); }
+  private applySnapshot(g: Snapshot): void {
+    const { clean, ...rest } = g;
+    // crossing a document boundary: the simulation clock, metrics and findings start over (run/pause persists)
+    if (g.presetId !== undefined) { this.resetDocRuntime(); this._cleanDoc = clean ?? null; this.touched = false; }
+    this.setState({ ...rest, sel: null, connect: null, rewire: null, hoverEdge: null, focus: null }, () => { if (g.presetId !== undefined) this.fitWhenReady(); });
+  }
+  /** a new document under the same paradigm: runtime DOM, sim clock, metrics, findings and routes all start over */
+  private resetDocRuntime(): void {
     this.clearRuntimeDom();
-    this.simState = this.makeSimState(); this.metrics = null; this.nhist = {}; this.history.reset(); this.planner.invalidate();
-    this.touched = false; this.hadM = false; this.uptimeS = 0; this.findings = [];
-    this.setState({ presetId: id, nodes: p.nodes.map(n => ({ ...n })), edges: p.edges.map(e => ({ ...e })), regions: (p.regions || []).map(r => ({ ...r })), rps: p.rps, sel: null, connect: null, rewire: null, hoverEdge: null, focus: null }, () => this.fitWhenReady());
+    this.simState = this.makeSimState(); this.metrics = null; this.nhist = {}; this.hadM = false; this.uptimeS = 0; this.findings = []; this.planner.invalidate();
+  }
+  markClean(): void { this._cleanDoc = JSON.stringify(this.graph()); }
+  /** edits since the document was loaded (undoing back to the loaded state makes it clean again) */
+  get dirty(): boolean { return this._cleanDoc !== null && JSON.stringify(this.graph()) !== this._cleanDoc; }
+  presetName(id: string): string { return id === 'blank' ? 'Blank' : EXAMPLES[this.state.paradigm].find(x => x.id === id)?.name ?? id; }
+  /**
+   * Presets replace the live document as ONE recoverable history transaction. A dirty document
+   * asks first; cancelling changes nothing. An empty, never-edited document (first load, a new
+   * paradigm) is opened fresh with no history.
+   */
+  loadPreset(id: string, confirmed = false): void {
+    const pid = this.state.paradigm, s = this.state, p = id === 'blank' ? BLANK(pid) : EXAMPLES[pid].find(x => x.id === id); if (!p) return;
+    const empty = !s.nodes.length && !s.edges.length && !s.regions.length;
+    if (empty && !this.history.canUndo) { this.openPreset(id); return; }
+    if (id === s.presetId && !this.dirty) return;
+    if (this.dirty && !confirmed) {
+      const n = s.nodes.length;
+      this.setState({ palette: false, confirm: {
+        title: id === s.presetId ? 'Reload ' + this.presetName(id) + '?' : 'Replace ' + this.presetName(s.presetId) + ' with ' + this.presetName(id) + '?',
+        detail: 'Your edited document (' + n + ' ' + this.T.unitNoun + ') leaves the canvas. Undo brings it back.',
+        ok: 'replace', run: () => this.loadPreset(id, true),
+      } });
+      return;
+    }
+    this.snapDoc();
+    this.applyPreset(id, p);
+  }
+  /** open a preset with no history — the first document of a paradigm */
+  openPreset(id: string): void {
+    const pid = this.state.paradigm, p = id === 'blank' ? BLANK(pid) : EXAMPLES[pid].find(x => x.id === id); if (!p) return;
+    this.history.reset();
+    this.applyPreset(id, p);
+  }
+  private applyPreset(id: string, p: { nodes: GraphNode[]; edges: GraphEdge[]; regions?: GraphRegion[]; rps: number }): void {
+    this.resetDocRuntime(); this.touched = false;
+    this.setState({ presetId: id, nodes: p.nodes.map(n => ({ ...n })), edges: p.edges.map(e => ({ ...e })), regions: (p.regions || []).map(r => ({ ...r })), rps: p.rps, sel: null, connect: null, rewire: null, hoverEdge: null, focus: null, confirm: null }, () => this.fitWhenReady());
+    this.markClean();
   }
   /** open the document a `#d=` share link carries, or fall back to the default example */
   openLocation(): void {
@@ -447,7 +493,7 @@ export class WorkbenchController {
     this._sharedPayload = payload;
     const doc = payload ? decodeDocument(payload) : null;
     if (doc) { this.loadDocument(doc); return; }
-    this.loadPreset(EXAMPLES[this.state.paradigm][0]!.id);
+    this.openPreset(EXAMPLES[this.state.paradigm][0]!.id);
     if (payload) this.notify('shared link could not be read · opened the default example', 'warn', 5000);
   }
   /** replace the live document with an exchange document (share link · file); parks nothing it overwrites */
@@ -463,6 +509,7 @@ export class WorkbenchController {
       sel: null, connect: null, rewire: null, hoverEdge: null, focus: null, paraOpen: false, createOpen: false, nextKind: null, search: '', collapsed: {},
     });
     this.simState = this.makeSimState();
+    this.markClean();
     this.fitWhenReady();
   }
   /** share: the document becomes the URL fragment, the link goes to the clipboard, and a toast says which */

@@ -26,6 +26,45 @@ describe('controller', () => {
     ctl.switchParadigm('dataflow'); ctl.store.drainAfterCommit(); ctl.store.drainAfterCommit();
     expect(ctl.state.nodes).toBe(before); expect(ctl.state.rps).toBe(777); expect(ctl.state.view).toEqual({ x: 5, y: 6, k: 0.5 });
   });
+  describe('preset replacement', () => {
+    const load = (id: string) => { ctl.loadPreset(id); ctl.store.drainAfterCommit(); };
+    const ids = () => ctl.state.nodes.map(n => n.id).join(',');
+    it('a clean document swaps presets at once, as one undoable transaction', () => {
+      const before = ids(), rps0 = ctl.state.rps; expect(ctl.dirty).toBe(false);
+      load('blank'); expect(ctl.state.confirm).toBeNull(); expect(ctl.state.presetId).toBe('blank'); expect(ids()).toBe('');
+      ctl.undo(); expect(ctl.state.presetId).toBe('analytics'); expect(ids()).toBe(before); expect(ctl.state.rps).toBe(rps0); expect(ctl.dirty).toBe(false);
+      ctl.redo(); expect(ctl.state.presetId).toBe('blank'); expect(ids()).toBe('');
+    });
+    it('a dirty document asks first; cancel and Escape change nothing; the select keeps its value', () => {
+      key(ctl, 'ArrowRight'); key(ctl, 'Delete'); expect(ctl.dirty).toBe(true);
+      const edited = ids(), h = ctl.history.hist.length;
+      load('blank');
+      expect(ctl.state.confirm?.title).toBe('Replace Product Analytics with Blank?'); expect(ctl.state.presetId).toBe('analytics'); expect(ids()).toBe(edited);
+      key(ctl, 'Escape'); expect(ctl.state.confirm).toBeNull(); expect(ids()).toBe(edited); expect(ctl.history.hist.length).toBe(h);
+      load('analytics'); expect(ctl.state.confirm?.title).toBe('Reload Product Analytics?');
+      ctl.setState({ confirm: null }); expect(ids()).toBe(edited); expect(ctl.state.presetId).toBe('analytics');
+    });
+    it('confirming replaces the document; one undo restores graph, preset, load and dirtiness; redo re-applies', () => {
+      key(ctl, 'ArrowRight'); key(ctl, 'Delete'); ctl.setState({ rps: 4321, mode: 'simulate' }); ctl.step(0.25); ctl.step(0.25);
+      const edited = ids(); expect(ctl.uptimeS).toBeGreaterThan(0);
+      load('blank'); ctl.state.confirm!.run(); ctl.store.drainAfterCommit();
+      expect(ctl.state.confirm).toBeNull(); expect(ctl.state.presetId).toBe('blank'); expect(ctl.dirty).toBe(false); expect(ctl.uptimeS).toBe(0); expect(ctl.metrics).toBeNull();
+      ctl.undo(); ctl.store.drainAfterCommit();
+      expect(ctl.state.presetId).toBe('analytics'); expect(ids()).toBe(edited); expect(ctl.state.rps).toBe(4321); expect(ctl.dirty).toBe(true); expect(ctl.uptimeS).toBe(0);
+      ctl.undo(); expect(ids()).not.toBe(edited); expect(ctl.dirty).toBe(false); // the delete itself
+      ctl.redo(); expect(ids()).toBe(edited);
+      ctl.redo(); ctl.store.drainAfterCommit(); expect(ctl.state.presetId).toBe('blank'); expect(ctl.dirty).toBe(false);
+      // undoing a dirty document's replacement makes it dirty again, so a further preset pick still asks
+      ctl.undo(); load('blank'); expect(ctl.state.confirm).not.toBeNull();
+    });
+    it('a new blank document is a document transaction too, and the clean mark travels with a parked document', () => {
+      ctl.createDoc('dataflow'); ctl.store.drainAfterCommit(); expect(ctl.state.presetId).toBe('blank'); expect(ctl.dirty).toBe(false);
+      ctl.undo(); expect(ctl.state.presetId).toBe('analytics'); expect(ctl.state.nodes.length).toBeGreaterThan(0);
+      key(ctl, 'ArrowRight'); key(ctl, 'Delete'); expect(ctl.dirty).toBe(true);
+      ctl.switchParadigm('workflow'); ctl.store.drainAfterCommit(); ctl.store.drainAfterCommit(); expect(ctl.dirty).toBe(false);
+      ctl.switchParadigm('dataflow'); ctl.store.drainAfterCommit(); ctl.store.drainAfterCommit(); expect(ctl.dirty).toBe(true);
+    });
+  });
   it('switching paradigm pauses a running simulation and says so; a design-mode switch is silent', () => {
     vi.useFakeTimers();
     ctl.setState({ mode: 'simulate', running: true });

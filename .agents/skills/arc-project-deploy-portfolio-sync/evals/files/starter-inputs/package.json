@@ -1,0 +1,8 @@
+{
+  "name": "budget-buddy",
+  "scripts": {
+    "lint": "echo lint ok",
+    "build": "echo build ok",
+    "test": "echo test ok"
+  }
+}

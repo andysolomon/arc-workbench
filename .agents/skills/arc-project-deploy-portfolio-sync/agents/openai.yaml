@@ -1,0 +1,4 @@
+interface:
+  display_name: "Project Deploy + Portfolio Sync"
+  short_description: "Deploy app and add it to andrewsolomon.dev"
+  default_prompt: "Use $project-deploy-portfolio-sync to deploy my finished repo and ensure it appears on andrewsolomon.dev."

@@ -1,0 +1,104 @@
+{
+  "version": "1",
+  "skill_name": "arc-contract-review",
+  "evals": [
+    {
+      "id": "saas-customer-review",
+      "description": "Golden path: review a vendor SaaS agreement from the customer's position with red flags, redlines, and negotiation priorities.",
+      "prompt": "Review `sample-saas-agreement.md`. I am the customer. Identify key risks, suggest redlines, and give negotiation priorities.",
+      "expected_output": "The assistant should produce a position-aware contract review with pre-signing alerts, key terms, red flags, risk analysis, missing provisions, negotiation priorities, and legal-advice disclaimer.",
+      "setup": {
+        "kind": "seeded",
+        "sources": [
+          {
+            "from": "files/starter-inputs/sample-saas-agreement.md",
+            "to": "sample-saas-agreement.md"
+          }
+        ]
+      },
+      "assertions": [
+        {
+          "id": "output-sections-present",
+          "kind": "output",
+          "method": "regex",
+          "pattern": "Contract Review[\\s\\S]*Pre-Signing Alerts[\\s\\S]*Key Terms[\\s\\S]*Red Flags[\\s\\S]*Risk Analysis[\\s\\S]*Negotiation Priority",
+          "mustPass": true
+        },
+        {
+          "id": "flags-blank-fee-and-missing-exhibits",
+          "kind": "output",
+          "method": "judge",
+          "prompt": "The response should flag the blank monthly fee and missing Exhibit B/Exhibit C as pre-signing or completeness alerts.",
+          "mustPass": true
+        },
+        {
+          "id": "position-aware-customer-risks",
+          "kind": "output",
+          "method": "judge",
+          "prompt": "The review should treat the user as the customer and identify vendor-favorable risks such as three-month liability cap, unilateral suspension, unilateral price increases, asymmetric indemnity, and vendor-only convenience termination.",
+          "mustPass": true
+        },
+        {
+          "id": "includes-redlines-and-fallbacks",
+          "kind": "output",
+          "method": "judge",
+          "prompt": "For material risky clauses, the response should include practical redlines or asks and at least some fallback positions, not just risk descriptions.",
+          "mustPass": true
+        },
+        {
+          "id": "legal-disclaimer",
+          "kind": "output",
+          "method": "regex",
+          "pattern": "(informational purposes|not legal advice|legal counsel|attorney)",
+          "flags": "i",
+          "mustPass": true
+        }
+      ],
+      "metadata": {
+        "tags": ["execution", "saas", "customer-position"],
+        "difficulty": "medium",
+        "intent": "saas-contract-review"
+      }
+    },
+    {
+      "id": "position-clarification-needed",
+      "description": "When user position is unclear, the assistant should ask or state assumptions before judging risk.",
+      "prompt": "Review this indemnification clause: 'Customer shall indemnify Vendor for all third-party claims arising from use of the services.' Is this bad?",
+      "expected_output": "The assistant should recognize that the answer depends on whether the user is Customer or Vendor and ask/states an assumption before giving risk analysis.",
+      "assertions": [
+        {
+          "id": "position-aware-response",
+          "kind": "output",
+          "method": "judge",
+          "prompt": "The response should say the risk depends on whether the user is Customer or Vendor, ask for or state an assumed position, and avoid giving a one-size-fits-all conclusion.",
+          "mustPass": true
+        }
+      ],
+      "metadata": {
+        "tags": ["position-aware", "clarification"],
+        "difficulty": "easy",
+        "intent": "position-clarification"
+      }
+    },
+    {
+      "id": "adjacent-negative-general-business-advice",
+      "description": "Adjacent negative: business negotiation strategy without contract text should not trigger a full contract review.",
+      "prompt": "I'm negotiating with a SaaS vendor and want general tips for getting a better price. I do not have contract language to review yet.",
+      "expected_output": "The assistant should provide general negotiation guidance without pretending to review contract clauses or citing nonexistent sections.",
+      "assertions": [
+        {
+          "id": "does-not-fabricate-contract-review",
+          "kind": "output",
+          "method": "judge",
+          "prompt": "The response should not fabricate a contract review, clause locations, red flags from nonexistent text, or section citations. It may give general negotiation tips and ask for the contract when available.",
+          "mustPass": true
+        }
+      ],
+      "metadata": {
+        "tags": ["routing", "negative"],
+        "difficulty": "easy",
+        "intent": "avoid-overtrigger"
+      }
+    }
+  ]
+}

@@ -1,0 +1,104 @@
+{
+  "version": "1",
+  "skill_name": "arc-ideabrowser-openclaw-flow",
+  "evals": [
+    {
+      "id": "extract-from-snapshots",
+      "description": "Golden path: produce output-contract sections, coverage statuses, structured extraction, and scaffold spec from seeded IdeaBrowser snapshots without mutating files.",
+      "prompt": "Use the captured IdeaBrowser snapshots in `idea-snapshots.md` to produce the scaffold-ready extraction. Do not browse live pages and do not write files or execute scaffold commands.",
+      "expected_output": "The assistant should output Detected Idea, Subpage Coverage, Structured Extraction, Scaffold Spec, Commands To Execute (on approval), and Risks / Missing Fields. Coverage should distinguish ok and blocked pages, extraction should be grounded in the snapshots, and commands should be recommendations only.",
+      "setup": {
+        "kind": "seeded",
+        "sources": [
+          {
+            "from": "files/starter-inputs/idea-snapshots.md",
+            "to": "idea-snapshots.md"
+          }
+        ]
+      },
+      "assertions": [
+        {
+          "id": "output-contract-sections",
+          "kind": "output",
+          "method": "regex",
+          "pattern": "Detected Idea[\\s\\S]*Subpage Coverage[\\s\\S]*Structured Extraction[\\s\\S]*Scaffold Spec[\\s\\S]*Commands To Execute \\(on approval\\)[\\s\\S]*Risks / Missing Fields",
+          "mustPass": true
+        },
+        {
+          "id": "coverage-statuses-present",
+          "kind": "output",
+          "method": "regex",
+          "pattern": "(?=.*main.*ok)(?=.*value-ladder.*ok)(?=.*value-equation.*blocked)",
+          "flags": "is",
+          "mustPass": true
+        },
+        {
+          "id": "extracts-title-and-market",
+          "kind": "output",
+          "method": "regex",
+          "pattern": "AI Meal Planner for Diabetics[\\s\\S]*(Type 2 diabetes|diabetic patients|caregivers)",
+          "mustPass": true
+        },
+        {
+          "id": "includes-default-stack-profile",
+          "kind": "output",
+          "method": "regex",
+          "pattern": "next-convex-clerk-shadcn|Next\\.js[\\s\\S]*Convex[\\s\\S]*Clerk",
+          "mustPass": true
+        },
+        {
+          "id": "no-unapproved-mutation",
+          "kind": "output",
+          "method": "judge",
+          "prompt": "The response should not claim it wrote files, committed, pushed, deployed, browsed live pages, or executed scaffold commands. Commands should be framed as to execute on approval.",
+          "mustPass": true
+        }
+      ],
+      "metadata": {
+        "tags": ["execution", "extraction", "safe-by-default"],
+        "difficulty": "medium",
+        "intent": "snapshot-extraction"
+      }
+    },
+    {
+      "id": "blocked-auth-failure",
+      "description": "Failure path: auth/checkpoint block should produce only blocker, minimal user action, and next command.",
+      "prompt": "I need you to crawl https://www.ideabrowser.com/idea/private-idea, but the browser snapshot only shows a login checkpoint and no idea content. What should you output?",
+      "expected_output": "The assistant should not invent idea details. It should output only blocker, minimal user action, and exact next command.",
+      "assertions": [
+        {
+          "id": "blocked-minimal-output",
+          "kind": "output",
+          "method": "judge",
+          "prompt": "The response should be minimal and include only the blocker, minimal user action, and exact next command. It should not include scaffold spec, invented extraction details, or generic brainstorming.",
+          "mustPass": true
+        }
+      ],
+      "metadata": {
+        "tags": ["blocked", "auth", "failure-handling"],
+        "difficulty": "easy",
+        "intent": "auth-blocked"
+      }
+    },
+    {
+      "id": "adjacent-negative-generic-startup-plan",
+      "description": "Adjacent negative: generic startup planning should not trigger IdeaBrowser crawl workflow.",
+      "prompt": "I have a startup idea for a pet sitting marketplace. Help me brainstorm positioning and first experiments. I do not have an IdeaBrowser URL or page snapshot.",
+      "expected_output": "The assistant should help with general startup planning without pretending to crawl IdeaBrowser or requiring the IdeaBrowser extraction workflow.",
+      "assertions": [
+        {
+          "id": "does-not_force_ideabrowser_crawl",
+          "kind": "output",
+          "method": "judge",
+          "prompt": "The response should not claim that IdeaBrowser crawling is required, should not fabricate subpage coverage, and should not use the full extraction output contract unless the user provides IdeaBrowser content.",
+          "mustPass": true
+        }
+      ],
+      "metadata": {
+        "tags": ["routing", "negative"],
+        "difficulty": "easy",
+        "intent": "avoid-overtrigger"
+      }
+    }
+  ]
+}

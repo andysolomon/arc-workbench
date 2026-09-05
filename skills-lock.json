@@ -1,0 +1,143 @@
+{
+  "version": 1,
+  "skills": {
+    "andrew-mode": {
+      "source": "andysolomon/arc-skills",
+      "sourceType": "github",
+      "skillPath": "andrew-mode/SKILL.md",
+      "computedHash": "2e6d913f127775a6862a1ce23c521222b8adfb5524ceda7f2a9d448d5c70464a"
+    },
+    "arc-bug-finder": {
+      "source": "andysolomon/arc-skills",
+      "sourceType": "github",
+      "skillPath": "arc-bug-finder/SKILL.md",
+      "computedHash": "77b43905660325f6fe68cff95f4045f07f2919315e3f5f606288876d88b87202"
+    },
+    "arc-bug-fixer": {
+      "source": "andysolomon/arc-skills",
+      "sourceType": "github",
+      "skillPath": "arc-bug-fixer/SKILL.md",
+      "computedHash": "5daf600944a286b65919e7368b6616a1f67485c6fcb0ef021c6ebc61e44a695d"
+    },
+    "arc-contract-review": {
+      "source": "andysolomon/arc-skills",
+      "sourceType": "github",
+      "skillPath": "arc-contract-review/SKILL.md",
+      "computedHash": "32161c2f1a9901a977b8a50ef464de47f39d143b935c1e49607d8d9fcb1326c2"
+    },
+    "arc-conventional-commits": {
+      "source": "andysolomon/arc-skills",
+      "sourceType": "github",
+      "skillPath": "arc-conventional-commits/SKILL.md",
+      "computedHash": "dcf5be9370020dc058da29e8f44c26cd3e6d0b14860de154be784b084f7bd18c"
+    },
+    "arc-creating-evals": {
+      "source": "andysolomon/arc-skills",
+      "sourceType": "github",
+      "skillPath": "arc-creating-evals/SKILL.md",
+      "computedHash": "d8e35c4b49c347820ba31b823c7649ff5662ad2a93b10ef37d1a815e775a1cf8"
+    },
+    "arc-creating-skill": {
+      "source": "andysolomon/arc-skills",
+      "sourceType": "github",
+      "skillPath": "arc-creating-skill/SKILL.md",
+      "computedHash": "d99883e57d74b37b46fc82f99f538a7ff4d67a256cb78e11bf5c8f82756dfe7d"
+    },
+    "arc-creating-user-stories": {
+      "source": "andysolomon/arc-skills",
+      "sourceType": "github",
+      "skillPath": "arc-creating-user-stories/SKILL.md",
+      "computedHash": "8b99ba7cd85914a65ee73a21a3536827097063536491406a11d4eece33906f6e"
+    },
+    "arc-defining-work": {
+      "source": "andysolomon/arc-skills",
+      "sourceType": "github",
+      "skillPath": "arc-defining-work/SKILL.md",
+      "computedHash": "b5147fa0f7d4fd398bf76fe14dd388d289d173eca1bcc095d39784abcc15143d"
+    },
+    "arc-git-pr-check": {
+      "source": "andysolomon/arc-skills",
+      "sourceType": "github",
+      "skillPath": "arc-git-pr-check/SKILL.md",
+      "computedHash": "127a214a8fc1e5da3d2d35097f8e17db03f5c4d1d25d63ab2fd29e670d3e0f41"
+    },
+    "arc-gitlab-glab": {
+      "source": "andysolomon/arc-skills",
+      "sourceType": "github",
+      "skillPath": "arc-gitlab-glab/SKILL.md",
+      "computedHash": "24566dce4ef698c36b38714d8f59a6bd31c8cbb6b83cc1cdef551eea621bab17"
+    },
+    "arc-ideabrowser-openclaw-flow": {
+      "source": "andysolomon/arc-skills",
+      "sourceType": "github",
+      "skillPath": "arc-ideabrowser-openclaw-flow/SKILL.md",
+      "computedHash": "ae42f83087a0bab5f563b96f6c764d6b30bb7184f4f7b7d6abf2a30e088789ed"
+    },
+    "arc-implementation-plan-progress": {
+      "source": "andysolomon/arc-skills",
+      "sourceType": "github",
+      "skillPath": "arc-implementation-plan-progress/SKILL.md",
+      "computedHash": "14d2ee138ac83cc50e45683ba8296f768b5cea8ba73ca52478c9956fbb0f98aa"
+    },
+    "arc-linear-issue-creator": {
+      "source": "andysolomon/arc-skills",
+      "sourceType": "github",
+      "skillPath": "arc-linear-issue-creator/SKILL.md",
+      "computedHash": "ab195b9e17ff2477ce6fd073fb57c68477724dfedb16cd599575a7795ea20755"
+    },
+    "arc-parallel-implement": {
+      "source": "andysolomon/arc-skills",
+      "sourceType": "github",
+      "skillPath": "arc-parallel-implement/SKILL.md",
+      "computedHash": "102bd9cd61ec20790799f7a44401d6f7aa5d38912796bd1b5fec3eb7faac0842"
+    },
+    "arc-planning-work": {
+      "source": "andysolomon/arc-skills",
+      "sourceType": "github",
+      "skillPath": "arc-planning-work/SKILL.md",
+      "computedHash": "538fabb83d8cb2cb0eeb4f0a9307d10e6a4ebd929fb4d804480c9a8bdf26718e"
+    },
+    "arc-pr-review-loop": {
+      "source": "andysolomon/arc-skills",
+      "sourceType": "github",
+      "skillPath": "arc-pr-review-loop/SKILL.md",
+      "computedHash": "ae25b55e21b333b9f94fd9c93f79c2045ebc3f8176474ae31a729c924b1bd167"
+    },
+    "arc-prd-to-issues": {
+      "source": "andysolomon/arc-skills",
+      "sourceType": "github",
+      "skillPath": "arc-prd-to-issues/SKILL.md",
+      "computedHash": "eb1f07b90db2c39afc183bf8b40bce81038ff8c5fbddda20a5d8328916316814"
+    },
+    "arc-project-deploy-portfolio-sync": {
+      "source": "andysolomon/arc-skills",
+      "sourceType": "github",
+      "skillPath": "arc-project-deploy-portfolio-sync/SKILL.md",
+      "computedHash": "c72b8a8c3f4a94b1a232b87d34d32c72c3a02c1fb441eb9df67b8a71e4b4ef1c"
+    },
+    "arc-sf-jwt-bearer": {
+      "source": "andysolomon/arc-skills",
+      "sourceType": "github",
+      "skillPath": "arc-sf-jwt-bearer/SKILL.md",
+      "computedHash": "0d0d6b81b31533cfe54ba6d73ca98fa1747d7c71139e70f27110024216ad4d30"
+    },
+    "arc-system-design": {
+      "source": "andysolomon/arc-skills",
+      "sourceType": "github",
+      "skillPath": "arc-system-design/SKILL.md",
+      "computedHash": "ade957e7887f734d3ecf6eb3cf56f4832bfa5871c9f2ca4b9191e9911bf76125"
+    },
+    "arc-webgl-performance": {
+      "source": "andysolomon/arc-skills",
+      "sourceType": "github",
+      "skillPath": "arc-webgl-performance/SKILL.md",
+      "computedHash": "ef078905cef13f676fb2f080d313b93862ffaf348a6cf24b8b374c56566ceafc"
+    },
+    "arc-work-issue": {
+      "source": "andysolomon/arc-skills",
+      "sourceType": "github",
+      "skillPath": "arc-work-issue/SKILL.md",
+      "computedHash": "5210dc334fe3ce55f8266e97e478f66ed34bb635a1a82be075ba21971cfacde9"
+    }
+  }
+}

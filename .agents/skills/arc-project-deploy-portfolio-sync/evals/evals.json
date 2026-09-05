@@ -1,0 +1,124 @@
+{
+  "version": "1",
+  "skill_name": "arc-project-deploy-portfolio-sync",
+  "evals": [
+    {
+      "id": "local-portfolio-sync-with-known-url",
+      "description": "Golden path without live external deployment: sync a local portfolio page/card using a known live URL and report blockers/next commands.",
+      "prompt": "Budget Buddy is finished. The current workspace is the app repo, and the local portfolio repo is `andrewsolomon.dev/`. Use the known live URL `https://budget-buddy.vercel.app`. Do not run live Vercel deploys in this eval environment; update the local portfolio page/card and report the exact next deploy commands.",
+      "expected_output": "The assistant should update the portfolio site locally, include the live demo URL, avoid faking live deploy verification, and return the required output sections.",
+      "setup": {
+        "kind": "seeded",
+        "sources": [
+          {
+            "from": "files/starter-inputs/package.json",
+            "to": "package.json"
+          },
+          {
+            "from": "files/starter-inputs/README.md",
+            "to": "README.md"
+          },
+          {
+            "from": "files/starter-inputs/andrewsolomon.dev/index.html",
+            "to": "andrewsolomon.dev/index.html"
+          },
+          {
+            "from": "files/starter-inputs/andrewsolomon.dev/projects/existing.html",
+            "to": "andrewsolomon.dev/projects/existing.html"
+          }
+        ]
+      },
+      "assertions": [
+        {
+          "id": "portfolio-page-created",
+          "kind": "workspace",
+          "method": "file-exists",
+          "path": "andrewsolomon.dev/projects/budget-buddy.html",
+          "mustPass": true
+        },
+        {
+          "id": "homepage-links-project",
+          "kind": "workspace",
+          "method": "file-contains",
+          "path": "andrewsolomon.dev/index.html",
+          "pattern": "budget-buddy|Budget Buddy",
+          "mustPass": true
+        },
+        {
+          "id": "project-page-has-live-url",
+          "kind": "workspace",
+          "method": "file-contains",
+          "path": "andrewsolomon.dev/projects/budget-buddy.html",
+          "pattern": "https://budget-buddy\\.vercel\\.app",
+          "mustPass": true
+        },
+        {
+          "id": "output-contract-sections",
+          "kind": "output",
+          "method": "regex",
+          "pattern": "Project Deploy Status[\\s\\S]*Portfolio Sync Status[\\s\\S]*Live URLs[\\s\\S]*Findings / Risks[\\s\\S]*Next Commands",
+          "mustPass": true
+        },
+        {
+          "id": "does-not-fake-live-deploy",
+          "kind": "output",
+          "method": "judge",
+          "prompt": "The response should not claim that live Vercel deployment or public URL reachability was verified, because the prompt explicitly forbids live deploys in the eval environment. It should instead list exact next deploy/verify commands or blockers.",
+          "mustPass": true
+        }
+      ],
+      "metadata": {
+        "tags": ["execution", "portfolio-sync", "no-live-deploy"],
+        "difficulty": "medium",
+        "intent": "local-sync-known-url"
+      }
+    },
+    {
+      "id": "adjacent-negative-vercel-only",
+      "description": "Adjacent negative: generic Vercel troubleshooting should not trigger portfolio sync.",
+      "prompt": "My Vercel build is failing with a TypeScript error. Help me debug the deployment logs; do not add anything to andrewsolomon.dev.",
+      "expected_output": "The assistant should focus on Vercel/build debugging and should not start the portfolio sync workflow.",
+      "assertions": [
+        {
+          "id": "avoids-portfolio-sync",
+          "kind": "output",
+          "method": "judge",
+          "prompt": "The response should not propose creating portfolio pages, homepage cards, or andrewsolomon.dev changes for a generic Vercel build failure.",
+          "mustPass": true
+        }
+      ],
+      "metadata": {
+        "tags": ["routing", "negative"],
+        "difficulty": "easy",
+        "intent": "avoid-overtrigger"
+      }
+    },
+    {
+      "id": "blocked-deploy-output-contract",
+      "description": "Blocked path: missing deployment context should produce blockers and next commands in the output contract.",
+      "prompt": "Deploy this finished project and sync it to my portfolio, but I have not provided Vercel credentials or the local andrewsolomon.dev repo. Explain what is blocked and what commands/context you need next.",
+      "expected_output": "The assistant should use the required five output sections and identify exact blockers rather than inventing URLs.",
+      "assertions": [
+        {
+          "id": "output-contract-sections-blocked",
+          "kind": "output",
+          "method": "regex",
+          "pattern": "Project Deploy Status[\\s\\S]*Portfolio Sync Status[\\s\\S]*Live URLs[\\s\\S]*Findings / Risks[\\s\\S]*Next Commands",
+          "mustPass": true
+        },
+        {
+          "id": "blockers-not-fake-urls",
+          "kind": "output",
+          "method": "judge",
+          "prompt": "The response should clearly state missing Vercel credentials/context and missing local portfolio repo as blockers, and should not invent live deployment URLs.",
+          "mustPass": true
+        }
+      ],
+      "metadata": {
+        "tags": ["blocked", "output-contract"],
+        "difficulty": "easy",
+        "intent": "blocked-no-fake-urls"
+      }
+    }
+  ]
+}

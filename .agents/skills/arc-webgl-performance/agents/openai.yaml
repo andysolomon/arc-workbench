@@ -1,0 +1,4 @@
+interface:
+  display_name: "3D Web Performance"
+  short_description: "Measure and optimize WebGL transitions"
+  default_prompt: "Use $arc-webgl-performance to profile and improve this 3D web rendering path."

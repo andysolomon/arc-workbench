@@ -1,0 +1,104 @@
+# Reusable CI templates (hidden .jobs). A consuming repo `include:`s this file and defines
+# thin jobs that `extends:` these templates. Generalize the tool calls to your stack.
+#
+# Conventions encoded here:
+# - Hidden jobs (leading `.`) are templates; they never run until extended.
+# - Cost-burning jobs are code-gated (rules + changes) so docs-only MRs skip them.
+# - Secrets are the consumer's, masked; decode at point of use, never log.
+# - Scheduled-pipeline guard so a schedule doesn't fire the build jobs.
+
+variables:
+  CI_IMAGE: "node:22" # point at a prebaked image to skip per-job installs (measure first)
+  COVERAGE_MIN: "85"
+  npm_config_cache: "$CI_PROJECT_DIR/.npm"
+
+# --- shared fragments ---
+.cli:
+  image: $CI_IMAGE
+  before_script:
+    - command -v your-tool >/dev/null 2>&1 || install-your-tool # skip if image prebakes it
+
+.cache:
+  cache:
+    key: "$CI_COMMIT_REF_SLUG"
+    paths: [.npm/]
+
+# Code-gated rules. Consumers needing a different path set override `rules:` in their job.
+.rules-code-gated:
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+      changes: &code-paths
+        - "src/**/*"
+        - "config/**/*"
+        - "package.json"
+        - "package-lock.json"
+        - ".gitlab-ci.yml"
+        - "ci-templates/**/*"
+    - if: '$CI_COMMIT_BRANCH == "main" && $CI_PIPELINE_SOURCE != "schedule"'
+      changes: *code-paths
+    - if: '$CI_COMMIT_BRANCH =~ /^hotfix\// && $CI_PIPELINE_SOURCE != "schedule"'
+      changes: *code-paths
+
+.rules-release-gated:
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main" && $CI_PIPELINE_SOURCE != "schedule"'
+      changes: *code-paths
+    - if: '$CI_COMMIT_BRANCH =~ /^hotfix\// && $CI_PIPELINE_SOURCE != "schedule"'
+      changes: *code-paths
+
+# --- job templates ---
+# Static analysis. UNCONDITIONAL in the consumer (anchors a passing pipeline for docs-only
+# MRs under only_allow_merge_if_pipeline_succeeds), so this template carries NO rule —
+# the consumer supplies it.
+.scan:
+  extends: [.cli, .cache]
+  script:
+    - run-static-analysis --fail-on high
+  artifacts:
+    when: always
+    paths: [scan-results.json]
+    expire_in: 30 days
+
+.unit-test:
+  extends: [.cache, .rules-code-gated]
+  image: node:22
+  script:
+    - npm ci
+    - npm test
+
+# Build an immutable, versioned artifact; hand its id downstream via dotenv.
+.build:
+  extends: [.cli, .cache, .rules-release-gated]
+  script:
+    - echo "$DEPLOY_SECRET_B64" | base64 -d | your-tool login --stdin -
+    - ARTIFACT_ID=$(your-tool build --json | jq -r .id)
+    - echo "ARTIFACT_ID=$ARTIFACT_ID" > build.env
+  artifacts:
+    reports:
+      dotenv: build.env
+    expire_in: 90 days
+
+# Install the BUILT artifact into a fresh staging env + run e2e. Consumer sets needs:[build].
+.staging-install:
+  extends: [.cli, .rules-release-gated]
+  script:
+    - echo "$DEPLOY_SECRET_B64" | base64 -d | your-tool login --stdin -
+    - your-tool deploy "$ARTIFACT_ID" --target staging-$CI_JOB_ID
+    - npm ci && npm run e2e
+  after_script:
+    - your-tool teardown staging-$CI_JOB_ID || true
+
+# Production install — MANUAL gate. Consumer sets needs:[build, staging-install].
+.prod-install:
+  extends: [.cli, .cache]
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main" && $CI_PIPELINE_SOURCE != "schedule"'
+      changes: *code-paths
+      when: manual
+    - if: '$CI_COMMIT_BRANCH =~ /^hotfix\// && $CI_PIPELINE_SOURCE != "schedule"'
+      changes: *code-paths
+      when: manual
+  allow_failure: false
+  script:
+    - echo "$PROD_SECRET_B64" | base64 -d | your-tool login --stdin -   # PROTECTED var
+    - your-tool deploy "$ARTIFACT_ID" --target prod

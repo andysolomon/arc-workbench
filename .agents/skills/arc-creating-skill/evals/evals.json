@@ -1,0 +1,104 @@
+{
+  "version": "1",
+  "skill_name": "arc-creating-skill",
+  "evals": [
+    {
+      "id": "create-model-invoked-skill",
+      "description": "Golden path: create a model-invoked skill from raw notes with progressive disclosure and eval hooks.",
+      "prompt": "Create a new skill from `notes.md` for reviewing API contracts. It should trigger automatically when I ask for contract review, and it should include eval coverage.",
+      "expected_output": "The assistant should create a SKILL.md-style skill design with model-invoked frontmatter, concise steps with completion criteria, disclosed references for long review rules, and starter eval coverage.",
+      "setup": {
+        "kind": "seeded",
+        "sources": [
+          {
+            "from": "files/starter-inputs/notes.md",
+            "to": "notes.md"
+          }
+        ]
+      },
+      "assertions": [
+        {
+          "id": "model-invoked-frontmatter",
+          "kind": "output",
+          "method": "judge",
+          "prompt": "The response should specify model-invoked skill frontmatter with a trigger-oriented description rather than disabling model invocation.",
+          "mustPass": true
+        },
+        {
+          "id": "completion-criteria",
+          "kind": "output",
+          "method": "judge",
+          "prompt": "The proposed skill steps should include checkable completion criteria, not vague advice.",
+          "mustPass": true
+        },
+        {
+          "id": "progressive-disclosure",
+          "kind": "output",
+          "method": "judge",
+          "prompt": "The response should move long API-contract review rules or templates into linked sibling reference files rather than bloating SKILL.md.",
+          "mustPass": true
+        },
+        {
+          "id": "eval-hooks",
+          "kind": "output",
+          "method": "judge",
+          "prompt": "The response should include starter eval coverage with a positive path and an adjacent negative for over-triggering.",
+          "mustPass": true
+        }
+      ],
+      "metadata": {
+        "tags": ["execution", "golden-path"],
+        "difficulty": "medium",
+        "intent": "create-skill"
+      }
+    },
+    {
+      "id": "adjacent-negative-eval-suite-only",
+      "description": "Adjacent negative: adding evals for an existing skill should use arc-creating-evals, not create a new skill.",
+      "prompt": "Add eval coverage for this existing SKILL.md. Do not create a new skill; just write evals/evals.json.",
+      "expected_output": "The assistant should avoid creating a new skill and should route toward eval-suite authoring instead.",
+      "assertions": [
+        {
+          "id": "does-not-create-skill",
+          "kind": "output",
+          "method": "judge",
+          "prompt": "The response should not draft a new SKILL.md or describe creating a new skill; it should focus on eval coverage for the existing skill.",
+          "mustPass": true
+        }
+      ],
+      "metadata": {
+        "tags": ["routing", "negative"],
+        "difficulty": "easy",
+        "intent": "avoid-overtrigger"
+      }
+    },
+    {
+      "id": "user-invoked-choice",
+      "description": "Invocation decision: a personal/manual-only workflow should become user-invoked.",
+      "prompt": "Turn my private deployment checklist into a skill. I only want to invoke it by name, and I do not want it taking context unless I ask for it.",
+      "expected_output": "The assistant should choose user-invoked mode with disable-model-invocation and a short human-facing description.",
+      "assertions": [
+        {
+          "id": "disable-model-invocation",
+          "kind": "output",
+          "method": "regex",
+          "pattern": "disable-model-invocation:\\s*true",
+          "flags": "i",
+          "mustPass": true
+        },
+        {
+          "id": "explains-context-load",
+          "kind": "output",
+          "method": "judge",
+          "prompt": "The response should explain that user-invoked mode avoids model context load because the user will invoke the skill manually.",
+          "mustPass": true
+        }
+      ],
+      "metadata": {
+        "tags": ["invocation", "user-invoked"],
+        "difficulty": "easy",
+        "intent": "manual-only-skill"
+      }
+    }
+  ]
+}

@@ -1,0 +1,59 @@
+# Thin CONSUMER .gitlab-ci.yml — adopts the reusable templates.
+# 1) include the template (local for one repo, or project:+ref: a TAG for cross-repo)
+# 2) set your variables
+# 3) define real jobs that `extends:` the .templates and assign a stage:
+# Secrets (Settings > CI/CD > Variables, masked): DEPLOY_SECRET_B64 (UNPROTECTED so MR
+# pipelines can reach it), PROD_SECRET_B64 (PROTECTED — main/hotfix only).
+
+include:
+  - local: ci-templates/reusable-pipeline.template.yml
+  # cross-repo alternative (PIN ref to a tag, never a moving branch):
+  # - project: "group/platform-ci"
+  #   file: "templates/reusable-pipeline.template.yml"
+  #   ref: "v1.0.0"
+
+variables:
+  COVERAGE_MIN: "85"
+
+stages: [validate, test, package, test-release, release, maintenance]
+
+# UNCONDITIONAL anchor job so docs-only MRs still have a passing pipeline.
+scan:
+  extends: .scan
+  stage: validate
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: '$CI_COMMIT_BRANCH == "main" && $CI_PIPELINE_SOURCE != "schedule"'
+    - if: '$CI_COMMIT_BRANCH =~ /^hotfix\// && $CI_PIPELINE_SOURCE != "schedule"'
+
+unit-test:
+  extends: .unit-test
+  stage: test
+
+build:
+  extends: .build
+  stage: package
+
+staging-install:
+  extends: .staging-install
+  stage: test-release
+  needs: [build]
+
+prod-install:
+  extends: .prod-install
+  stage: release
+  needs: [build, staging-install]
+
+# Schedule-only maintenance (drift check, backup). Settings > CI/CD > Schedules, ref main.
+drift-check:
+  extends: .cli
+  stage: maintenance
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+  script:
+    - echo "$PROD_SECRET_B64" | base64 -d | your-tool login --stdin -
+    - your-tool retrieve --target prod
+    - git diff > drift.diff || true
+    - 'echo "drift files: $(git diff --name-only | wc -l | tr -d " ")"'
+    - git checkout -- .
+  artifacts: { when: always, paths: [drift.diff], expire_in: 30 days }

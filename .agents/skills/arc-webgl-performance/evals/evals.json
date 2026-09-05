@@ -1,0 +1,60 @@
+{
+  "version": "1",
+  "skill_name": "arc-webgl-performance",
+  "evals": [
+    {
+      "id": "profile-orbit-transition",
+      "description": "Golden path: attribute and reduce a WebGL view-transition stall without weakening budgets.",
+      "prompt": "Profile the Orbit view transition in this Three.js app. The benchmark starts at the Orbit button pointerdown and reports a 400 ms long task. Inspect the scene construction and shader warmup, add phase attribution, reduce hidden work, and run the existing performance and browser checks. Keep the result honest if the remaining task is GPU-driver first presentation.",
+      "expected_output": "The assistant should identify the interaction window, instrument scene construction/shader kickoff/first render, scope compileAsync to the active subtree, defer default-off resources, preserve budgets, and report before/after measurements with environment and variance.",
+      "assertions": [
+        {
+          "id": "interaction-window-is-correct",
+          "kind": "output",
+          "method": "judge",
+          "prompt": "The response should distinguish an Orbit pointerdown transition metric from page startup and explain how long-task filtering is applied.",
+          "mustPass": true
+        },
+        {
+          "id": "attributes-before-claiming",
+          "kind": "output",
+          "method": "judge",
+          "prompt": "The response should identify separate measurements for scene construction, shader kickoff/readiness, and first render, and avoid claiming JavaScript shader compilation caused a task without evidence.",
+          "mustPass": true
+        },
+        {
+          "id": "preserves-performance-guardrails",
+          "kind": "output",
+          "method": "judge",
+          "prompt": "The response should retain or add absolute and same-runner regression budgets rather than loosening them to make the run pass.",
+          "mustPass": true
+        }
+      ],
+      "metadata": {
+        "tags": ["webgl", "profiling", "golden-path"],
+        "difficulty": "hard",
+        "intent": "attribute-and-optimize"
+      }
+    },
+    {
+      "id": "adjacent-negative-css-only",
+      "description": "Adjacent negative: a static CSS layout change does not need the 3D performance workflow.",
+      "prompt": "Change the button border radius in this static settings panel. Do not inspect WebGL shaders, add a browser benchmark, or create performance budgets.",
+      "expected_output": "The assistant should make the small CSS change without forcing the full WebGL profiling workflow, unless the repository's own acceptance checks require it.",
+      "assertions": [
+        {
+          "id": "does-not-overtrigger",
+          "kind": "output",
+          "method": "judge",
+          "prompt": "The response should not invent shader attribution or a 3D performance plan for a static CSS-only change.",
+          "mustPass": true
+        }
+      ],
+      "metadata": {
+        "tags": ["routing", "negative"],
+        "difficulty": "easy",
+        "intent": "avoid-overtrigger"
+      }
+    }
+  ]
+}

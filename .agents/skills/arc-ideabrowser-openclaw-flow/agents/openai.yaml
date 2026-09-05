@@ -1,0 +1,4 @@
+interface:
+  display_name: "IdeaBrowser OpenClaw Flow"
+  short_description: "Extract idea tab data and output scaffold spec"
+  default_prompt: "Use $ideabrowser-openclaw-flow to read my attached IdeaBrowser tab and generate a scaffold-ready project spec."

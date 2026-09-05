@@ -8,7 +8,7 @@ export function ConfirmDialog({ ctl, c }: { ctl: WorkbenchController; c: Confirm
   const okRef = useRef<HTMLButtonElement>(null), ref = useDialog(okRef);
   const close = (): void => ctl.setState({ confirm: null });
   return (
-    <div onClick={close} style={{ position: 'fixed', inset: 0, background: 'var(--wb-scrim)', display: 'flex', justifyContent: 'center', alignItems: 'flex-start', paddingTop: '120px', zIndex: 60 }}>
+    <div onClick={close} style={{ position: 'fixed', inset: 0, background: 'var(--scrim)', display: 'flex', justifyContent: 'center', alignItems: 'flex-start', paddingTop: '120px', zIndex: 60 }}>
       <div ref={ref} role="alertdialog" aria-modal="true" aria-labelledby="wb-confirm-title" aria-describedby="wb-confirm-detail" onClick={e => e.stopPropagation()} style={{ width: '440px', maxWidth: 'calc(100vw - 32px)', background: 'var(--surface-card)', border: '1px solid var(--border-subtle)', borderRadius: '10px', boxShadow: 'var(--shadow-panel)', overflow: 'hidden', animation: 'wb-fade var(--motion-fast) ease-out' }}>
         <div style={{ padding: '16px 18px 6px' }}>
           <h2 id="wb-confirm-title" style={{ margin: 0, fontFamily: 'var(--font-sans)', fontSize: '15px', fontWeight: 600, letterSpacing: '-0.01em' }}>{c.title}</h2>

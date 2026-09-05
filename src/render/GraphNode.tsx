@@ -54,14 +54,14 @@ export const NodeView = memo(function NodeView({ n, h }: { n: NodeVM; h: Handler
           <div className="tg-gnode-kind">{n.typeLbl}</div>
           <div className="tg-gnode-title" style={TITLE}>{n.title}</div>
         </div>
-        {n.showHdot ? <span className="wb-hdot" data-t="hdot" title={n.hword}>{n.glyph}</span> : null}
+        {n.showHdot ? <span className="tg-hdot" data-t="hdot" title={n.hword}>{n.glyph}</span> : null}
       </div>
-      {n.hasAnn ? <span className="wb-ann" data-sev={n.annSev}>{n.annText}</span> : null}
+      {n.hasAnn ? <span className="tg-ann" data-sev={n.annSev}>{n.annText}</span> : null}
       {n.showTel ? (
         <div className="tg-gnode-tel">
           <div className="tg-tel-row" data-primary="1" style={{ alignItems: 'center' }}>
             <span style={{ whiteSpace: 'nowrap' }}><span className="tg-tel-v" data-t="rate" style={RATE}>{n.rate}</span> <span data-t="unit" style={UNIT}>{n.unit}</span></span>
-            <svg className="wb-spark" viewBox="0 0 54 14" preserveAspectRatio="none" style={SPARK}>
+            <svg className="tg-spark" viewBox="0 0 54 14" preserveAspectRatio="none" style={SPARK}>
               <polyline data-t="spark" points={n.spark} style={POLY} />
             </svg>
           </div>

@@ -1,6 +1,5 @@
-/* App-local stylesheet — the <style> block of Workbench v10.dc.html, verbatim except: the two hex
-   fallbacks on `a` (tokens exist) and the dialog scrim rgba literal, which became --wb-scrim. */
-:root{--wb-scrim:rgba(28,25,23,0.42)}
+/* App-local stylesheet — Workbench CHROME only (header · panels · dialogs · strip · shell forms).
+   Everything that styles a graph primitive lives in @typegram/graph (components/graph/telemetry.css). */
 html,body{margin:0;height:100%;overflow:hidden}
 *{box-sizing:border-box}
 input,select,button{font-family:var(--font-mono)}
@@ -10,14 +9,6 @@ a{color:var(--link)}a:hover{color:var(--link-hover)}
 ::-webkit-scrollbar-thumb{background:var(--border-strong);border-radius:5px}
 ::-webkit-scrollbar-track{background:transparent}
 @keyframes wb-fade{from{opacity:0}}
-@keyframes wb-flow{to{stroke-dashoffset:-26}}
-.wb-packets{fill:none;stroke:var(--accent-deep);stroke-dasharray:3 23;stroke-linecap:round;pointer-events:none;animation:wb-flow var(--dur,1.4s) linear infinite}
-@media (prefers-reduced-motion:reduce){.wb-packets{animation:none;opacity:0!important}}
-.tg-gcanvas{--edge-channel-gap-tight:6px;--edge-channel-gap-normal:8px;--edge-channel-gap-loose:12px;--edge-channel-gap:var(--edge-channel-gap-normal)}
-.tg-gcanvas[data-chan="tight"]{--edge-channel-gap:var(--edge-channel-gap-tight)}
-.tg-gcanvas[data-chan="loose"]{--edge-channel-gap:var(--edge-channel-gap-loose)}
-.tg-gcanvas[data-probe] *{transition:none!important;animation:none!important}
-.tg-gnode,.wb-elayer{will-change:transform}
 .wb-insp{width:264px;right:14px;top:12px;bottom:12px}
 .wb-insp[data-dense="on"]{width:214px}
 .wb-find{left:14px;top:12px;bottom:12px;width:308px;max-width:calc(100% - 28px)}
@@ -45,15 +36,6 @@ main:has(.wb-insp[data-dense="on"]) .wb-zoom{right:244px}
 .wb-insp[data-dense="on"] .tg-input,.wb-insp[data-dense="on"] .tg-select{padding:3px 7px}
 .wb-insp[data-dense="on"] [data-mgrid]{gap:4px 10px!important;grid-template-columns:minmax(0,1fr)!important}
 .wb-insp[data-dense="on"] label{gap:3px!important}
-.wb-chan{stroke:var(--selection);stroke-width:1;stroke-dasharray:2 7;opacity:.5;pointer-events:none}
-.tg-gcanvas[data-o-chan="off"] .wb-chan{display:none}
-.tg-gcanvas[data-o-labels="off"] [data-t="elabel"],.tg-gcanvas[data-o-rates="off"] .wb-erate,.tg-gcanvas[data-o-packets="off"] .wb-packets,.tg-gcanvas[data-o-spark="off"] .wb-spark{display:none}
-.wb-hdot{margin-left:auto;flex:none;font-size:9px;line-height:1;color:var(--text-faint)}
-.tg-gnode[data-health="warn"] .wb-hdot,.tg-gnode[data-health="warn"] .tg-tel-v,.tg-gnode[data-health="warn"] .tg-gnode-status{color:var(--health-warn)}
-.tg-gnode[data-health="crit"] .wb-hdot,.tg-gnode[data-health="crit"] .tg-tel-v,.tg-gnode[data-health="crit"] .tg-gnode-status{color:var(--health-critical)}
-.tg-gnode[data-health="crit"]{border-color:var(--health-critical)}
-.wb-packets[data-health="warn"]{stroke:var(--health-warn)}
-.wb-packets[data-health="critical"]{stroke:var(--health-critical)}
 .wb-hud [data-t]{color:var(--text-body)}
 .wb-hud{flex:1 1 auto}
 .wb-hud-stats{flex-wrap:nowrap}
@@ -70,10 +52,6 @@ main:has(.wb-insp[data-dense="on"]) .wb-zoom{right:244px}
 .wb-toast{display:inline-block;background:var(--surface-raised);border:1px solid var(--border-subtle);color:var(--text-body);border-radius:999px;padding:6px 14px;font-size:11px;letter-spacing:0.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;box-shadow:var(--shadow-float);animation:wb-fade .18s ease-out}
 .wb-toast[data-tone="warn"]{border-color:var(--health-warn);color:var(--health-warn)}
 /* state machine: a transition is event [guard] / action — three stacked lines, event carries the weight */
-.tg-gcanvas[data-paradigm="state"] .tg-edge-label[data-role="event"],.tg-gcanvas[data-paradigm="workflow"] .tg-edge-label[data-role="event"]{fill:var(--text-secondary);font-weight:500}
-.tg-edge-label[data-role="guard"]{fill:var(--text-muted)}
-.tg-edge-label[data-role="action"]{fill:var(--text-faint)}
-.tg-gcanvas[data-zoom="compact"] .tg-edge-label[data-role="guard"],.tg-gcanvas[data-zoom="compact"] .tg-edge-label[data-role="action"]{display:none}
 @media (max-width:900px){.wb-cmd{display:none}.wb-preset{max-width:200px}}
 @media (pointer:coarse){
   /* touch baseline: 44 × 44 css px (Apple HIG · WCAG 2.5.5) on every control and port hit area */
@@ -86,16 +64,7 @@ main:has(.wb-insp[data-dense="on"]) .wb-zoom{right:244px}
   .tg-pswitch{min-height:44px}
   .wb-hud input[type=range]{height:28px!important}
   .wb-settings button,.wb-frow,.tg-pitem{min-height:44px}
-  .tg-gcanvas{--port-hit:22px}
-  .tg-gcanvas[data-touch="1"] .tg-port{opacity:.55}
-  .tg-gcanvas[data-touch="1"] .tg-gnode[data-state="selected"] .tg-port,.tg-gcanvas[data-touch="1"] .tg-gnode[data-state="connecting"] .tg-port{opacity:1}
 }
-.tg-gcanvas[data-zoom="compact"] .tg-gnode-tel{display:flex}
-.tg-gcanvas[data-zoom="compact"] .tg-gnode-tel > :not([data-primary]){display:none}
-.tg-gcanvas[data-zoom="compact"] .wb-spark,.tg-gcanvas[data-zoom="compact"] .wb-erate{display:none}
-.tg-gcanvas[data-zoom="working"]:not([data-mode="design"]) .tg-gnode-body,.tg-gcanvas[data-zoom="compact"] .tg-gnode-body{display:none}
-.tg-gcanvas[data-zoom="overview"] .tg-gnode-kind{font-size:11px;letter-spacing:0.04em}
-.tg-gcanvas[data-zoom="overview"] .tg-gnode-title{font-size:20px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:172px}
 /* mode alters information density, not structure: design strips telemetry back to
    drafting, analyze keeps the same canvas and lays annotations over it. */
 /* design mode, every paradigm: working = identity + one property (instances · owner · role ·
@@ -103,16 +72,7 @@ main:has(.wb-insp[data-dense="on"]) .wb-zoom{right:244px}
    [data-cfg] gating, resting-hidden connected ports and the shadow echo live in the design
    system (graph layer v2.1 / v3.1); only the short/full value spans are app-local. */
 [data-vs]{display:none}
-.tg-gcanvas[data-mode="design"][data-zoom="working"] .tg-gnode-row [data-dk],.tg-gcanvas[data-mode="design"][data-zoom="working"] .tg-gnode-row [data-vf]{display:none}
-.tg-gcanvas[data-mode="design"][data-zoom="working"] .tg-gnode-row [data-vs]{display:inline}
 @media (prefers-reduced-motion:reduce){.wb-insp,[data-chrome]{animation:none!important}}
-.tg-gcanvas[data-zoom="overview"] .wb-ann{display:none}
-.tg-gcanvas[data-mode="analyze"] .wb-spark{display:none}
-.wb-hl{fill:none;stroke:var(--selection);stroke-width:8px;stroke-linecap:round;stroke-linejoin:round;opacity:0.16;pointer-events:none}
-.wb-ann{position:absolute;left:-1.5px;top:-14px;display:inline-flex;align-items:center;height:15px;padding:0 5px;font-size:9px;line-height:1;letter-spacing:0.09em;text-transform:uppercase;border:1px solid;background:var(--surface-card);white-space:nowrap;pointer-events:none}
-.wb-ann[data-sev="crit"]{border-color:var(--health-critical);color:var(--health-critical)}
-.wb-ann[data-sev="warn"]{border-color:var(--health-warn);color:var(--health-warn)}
-.wb-ann[data-sev="info"]{border-color:var(--accent);color:var(--accent-deep);background:var(--accent-tint)}
 .wb-frow{display:flex;flex-direction:column;gap:3px;width:100%;text-align:left;background:transparent;border:none;border-radius:6px;padding:8px 9px;cursor:pointer;font-family:var(--font-mono);font-size:10.5px;line-height:1.55;color:var(--text-secondary)}
 .wb-frow:hover{background:var(--surface-inset)}
 .wb-frow[data-on="1"]{background:var(--accent-tint)}
@@ -121,19 +81,10 @@ main:has(.wb-insp[data-dense="on"]) .wb-zoom{right:244px}
 .wb-fdot[data-tone="warn"]{border-color:var(--health-warn);background:var(--health-warn)}
 .wb-fdot[data-tone="info"]{border-color:var(--accent);background:var(--accent)}
 .wb-tel[data-off="1"]{opacity:0.45}
-.tg-gcanvas[data-paradigm="sequence"] .tg-gnode{min-width:0}
-.tg-gcanvas[data-paradigm="sequence"] .tg-gnode-body,.tg-gcanvas[data-paradigm="sequence"] .tg-gnode-tel .tg-tel-row:not([data-primary]){display:none}
-.tg-gcanvas[data-paradigm="sequence"] .tg-port[data-side="top"],.tg-gcanvas[data-paradigm="sequence"] .tg-port[data-side="bottom"]{display:none}
 /* data flow: two conceptual families on one construction. data (at rest / in transit) keeps
    mass — pixel fill, both hard shadows, body rows ruled like records, filled swatch, ≡ mark.
    process (transformation / execution) is a flat operator — no fill, one shadow, hollow swatch,
    ƒ mark. Kind colour is unchanged; the family reads before the colour does. */
-.tg-gnode[data-form="data"] .tg-gnode-kind::before{content:"≡ ";letter-spacing:0}
-.tg-gnode[data-form="process"] .tg-gnode-kind::before{content:"ƒ ";letter-spacing:0}
-.tg-gnode[data-form="data"] .tg-gnode-row + .tg-gnode-row{border-top:1px solid color-mix(in srgb,var(--nb) 22%,transparent)}
-.tg-gnode[data-form="process"]{background-image:none;box-shadow:4px 4px 0 color-mix(in srgb,var(--nb) 28%,transparent)}
-.tg-gnode[data-form="process"][data-state="dragging"]{box-shadow:6px 6px 0 color-mix(in srgb,var(--nb) 28%,transparent)}
-.tg-gnode[data-form="process"] .tg-gnode-swatch{background:transparent;box-shadow:inset 0 0 0 1.5px var(--nb)}
 .wb-formkey{display:flex;gap:12px;padding:0 12px 4px;color:var(--text-faint);font-size:10px;white-space:nowrap}
 .wb-formkey b{font-weight:500;color:var(--text-muted)}
 .wb-lib-other{opacity:0.75}
@@ -158,8 +109,6 @@ input[type=checkbox]{accent-color:var(--accent)}
 .wb-ev b{font-weight:500;color:var(--text-body)}
 /* accessibility (ARC-166): visible focus everywhere, screen-reader-only live regions */
 .wb-sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
-.tg-gcanvas:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
-.tg-gnode:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
 .tg-btn:focus-visible,.tg-select:focus-visible,.tg-input:focus-visible,.tg-pswitch:focus-visible,.tg-pitem:focus-visible,.wb-frow:focus-visible,input[type=range]:focus-visible,[role="switch"]:focus-visible,.wb-settings button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 /* stress lab (ARC-162) */
 .wb-bench{width:100%;border-collapse:collapse;font-size:11px}

@@ -31,7 +31,7 @@ export function resolveNode(r: NodeRef): NodeRef {
 export function resolveEdge(r: EdgeRef): EdgeRef {
   if (r.q) return r;
   const g = r.g;
-  r.path = g.querySelector('path.tg-edge'); r.hit = g.querySelector('.tg-edge-hit'); r.pkt = g.querySelector('.wb-packets'); r.hl = g.querySelector('.wb-hl');
+  r.path = g.querySelector('path.tg-edge'); r.hit = g.querySelector('.tg-edge-hit'); r.pkt = g.querySelector('.tg-packets'); r.hl = g.querySelector('.tg-hl');
   r.elabel = g.querySelector('[data-t="elabel"]'); r.erate = g.querySelector('[data-t="erate"]');
   r.q = true;
   return r;

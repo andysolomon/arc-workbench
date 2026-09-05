@@ -54,7 +54,7 @@ Prototype method → port location (WB lines):
    workflows). The brief specifies pnpm; the lockfile was replaced with `pnpm-lock.yaml` and
    the workflows now use `pnpm/action-setup@v4` + `pnpm install --frozen-lockfile`. Node is
    pinned to 22 in CI (the brief's target); the machine that produced this port runs Node 26.
-2. **Design-system copy lives at `ds/typegram/`**, outside `src/`, so the acceptance grep for
+2. **The design system is the workspace package `packages/typegram` (`@typegram/graph`)**, outside `src/`, so the acceptance grep for
    hex literals under `src/` stays meaningful. Only tokens, `components.css`, `graph.css` and
    `paradigms.css` are copied (the runtime CSS the prototype's helmet loads), as-is.
 3. **Document shape.** §7.1 of the brief (flat `GraphNode { id, type, name, x, y, … }`,
@@ -180,3 +180,4 @@ Prototype method → port location (WB lines):
 | Token engines report `err` over the same ≤300-completion window as p99 (`doneBad`) | the prototype's cumulative `badN/doneN` and windowed p99 could disagree on what "the run" was | `sim/paradigms.ts` · identical to the prototype until 300 completions |
 | `Metrics.prov` (timestamp · tick · window · samples · warm) | provenance for every surface; absent only on legacy fixtures | `sim/metrics.ts` |
 | Findings carry `evidence[]`; the state bad-exit finding cites observed completions; p99 footers print through `fL` like the HUD | ARC-169 acceptance: evidence, observed counts, one formatter per unit | `analyze/*` · `tests/golden/analyze.test.ts` normalises both |
+| The design system is the workspace package `@typegram/graph` (`packages/typegram`); the app-only graph rules (`wb-packets · hl · spark · hdot · erate · elayer · chan · ann`, `--wb-scrim`) moved into it as `tg-*` / `--scrim` (`components/graph/telemetry.css`) | ARC-167: Workbench consumes the canonical package instead of being the accidental upstream; `pnpm lint` guards the boundary | `src/theme/index.css` imports by package name; pixels unchanged (visual spec) |

@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      '@typegram/graph':
+        specifier: workspace:*
+        version: link:packages/typegram
       react:
         specifier: ^18.3.1
         version: 18.3.1
@@ -90,6 +93,8 @@ importers:
       vitest:
         specifier: ^3.0.0
         version: 3.2.7(@types/node@22.20.1)(jiti@2.6.1)(jsdom@25.0.1)
+
+  packages/typegram: {}
 
 packages:
 

@@ -2,7 +2,7 @@
   "name": "arc-workbench",
   "version": "1.8.0",
   "private": true,
-  "description": "Workbench — five-paradigm graph editor with simulation, analysis and tracing",
+  "description": "Workbench \u2014 five-paradigm graph editor with simulation, analysis and tracing",
   "type": "module",
   "packageManager": "pnpm@9.15.9",
   "engines": {
@@ -23,11 +23,13 @@
     "goldens": "node scripts/goldens.mjs",
     "lint": "pnpm typecheck && node scripts/lint.mjs",
     "release": "semantic-release",
-    "serve:proto": "python3 -m http.server 4180 -d \"Form submission process\""
+    "serve:proto": "python3 -m http.server 4180 -d \"Form submission process\"",
+    "specimens": "node scripts/specimens.mjs"
   },
   "dependencies": {
     "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "react-dom": "^18.3.1",
+    "@typegram/graph": "workspace:*"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.13.0",

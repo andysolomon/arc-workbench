@@ -8,7 +8,7 @@ import { useDialog } from './useDialog';
 export function CreateDialog({ ctl }: { ctl: WorkbenchController }) {
   const s = ctl.state, ref = useDialog();
   return (
-    <div onClick={() => ctl.setState({ createOpen: false })} style={{ position: 'fixed', inset: 0, background: 'var(--wb-scrim)', display: 'flex', justifyContent: 'center', alignItems: 'flex-start', paddingTop: '90px', zIndex: 50 }}>
+    <div onClick={() => ctl.setState({ createOpen: false })} style={{ position: 'fixed', inset: 0, background: 'var(--scrim)', display: 'flex', justifyContent: 'center', alignItems: 'flex-start', paddingTop: '90px', zIndex: 50 }}>
       <div ref={ref} role="dialog" aria-modal="true" aria-labelledby="wb-create-title" onClick={e => e.stopPropagation()} style={{ width: '560px', maxWidth: 'calc(100vw - 32px)', background: 'var(--surface-card)', border: '1px solid var(--border-subtle)', borderRadius: '10px', boxShadow: 'var(--shadow-panel)', overflow: 'hidden', animation: 'wb-fade var(--motion-fast) ease-out' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '14px 18px', borderBottom: '1px solid var(--border-subtle)' }}>
           <h2 id="wb-create-title" style={{ margin: 0, fontFamily: 'var(--font-sans)', fontSize: '15px', fontWeight: 600, letterSpacing: '-0.01em' }}>Create diagram</h2>

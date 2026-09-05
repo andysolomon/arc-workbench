@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 // The controller drives the store exactly as the prototype's methods did: paradigm switching parks
 // and restores, keyboard bindings dispatch, model ops snapshot for undo, design mode clears runtime attrs.
-import { beforeEach, describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { WorkbenchController } from '../../src/app/controller';
 import { onKey } from '../../src/app/keyboard';
 import { EXAMPLES } from '../../src/paradigms';
@@ -9,7 +9,12 @@ import { setIdClock } from '../../src/model';
 
 const key = (ctl: WorkbenchController, k: string, o: Partial<KeyboardEventInit> = {}) => onKey(ctl, new KeyboardEvent('keydown', { key: k, ...o }));
 let ctl: WorkbenchController;
-beforeEach(() => { ctl = new WorkbenchController(); ctl.loadPreset(EXAMPLES.dataflow[0]!.id); ctl.setState({ mode: 'design', ready: true }); setIdClock(() => 99); });
+let uiStorage: Record<string, string>;
+beforeEach(() => {
+  uiStorage = {};
+  vi.stubGlobal('localStorage', { clear: () => { uiStorage = {}; }, getItem: (key: string) => uiStorage[key] ?? null, setItem: (key: string, value: string) => { uiStorage[key] = value; } });
+  ctl = new WorkbenchController(); ctl.loadPreset(EXAMPLES.dataflow[0]!.id); ctl.setState({ mode: 'design', ready: true }); setIdClock(() => 99);
+});
 
 describe('controller', () => {
   it('switching paradigm parks the current document and restores it on the way back', () => {
@@ -65,7 +70,16 @@ describe('controller', () => {
   it('palette items cover modes, paradigms, examples, settings and every library type', () => {
     const labels = ctl.paletteItems().map(i => i.label);
     expect(labels).toContain('design mode'); expect(labels).toContain('change diagram type · workflow'); expect(labels).toContain('load example · product analytics');
-    expect(labels).toContain('+ event stream'); expect(labels).toContain('fit canvas'); expect(labels.some(l => l.startsWith('hide edge labels'))).toBe(true);
+    expect(labels).toContain('+ event stream'); expect(labels).toContain('fit canvas'); expect(labels.some(l => l.startsWith('hide edge labels'))).toBe(true); expect(labels.some(l => l.startsWith('hide edge hover card'))).toBe(true);
     ctl.setState({ pq: 'trace' }); expect(ctl.paletteItems().map(i => i.label)).toEqual(['show execution trace']);
+  });
+  it('edge card setting defaults on, persists, and closes an open card when disabled', () => {
+    const id = ctl.state.edges[0]!.id;
+    ctl.setState({ sel: { kind: 'edge', id }, hoverEdge: id }); ctl.cardFor = id; ctl.cardPos = { left: 12, top: 24 };
+    expect(ctl.state.ui.edgeCard).toBe(true);
+    ctl.setUi('edgeCard');
+    expect(ctl.state.ui.edgeCard).toBe(false); expect(ctl.state.hoverEdge).toBe(id); expect(ctl.state.sel).toEqual({ kind: 'edge', id }); expect(ctl.cardFor).toBeNull(); expect(ctl.cardPos).toBeNull();
+    expect(JSON.parse(uiStorage['wb.ui'] || '{}').edgeCard).toBe(false);
+    ctl.setUi('edgeCard'); expect(ctl.state.ui.edgeCard).toBe(true);
   });
 });

@@ -5,9 +5,9 @@ import type { Side } from '../router/geometry';
 
 export type Theme = 'dark' | 'light';
 export type Mode = 'design' | 'simulate' | 'analyze';
-export interface UiFlags { labels: boolean; rates: boolean; packets: boolean; spark: boolean; grid: boolean; pixel: boolean; hints: boolean; channels: boolean; dense: boolean; semantic: boolean; tidy: boolean; tiers: boolean; trace: boolean }
+export interface UiFlags { labels: boolean; rates: boolean; packets: boolean; spark: boolean; grid: boolean; pixel: boolean; hints: boolean; channels: boolean; dense: boolean; semantic: boolean; tidy: boolean; tiers: boolean; trace: boolean; edgeCard: boolean }
 export type UiKey = keyof UiFlags;
-export const UIOPTS: ReadonlyArray<readonly [UiKey, string]> = [['labels', 'edge labels'], ['rates', 'edge rate text'], ['packets', 'traffic packets'], ['spark', 'node sparklines'], ['grid', 'blueprint grid'], ['tiers', 'tier bands · design'], ['pixel', 'pixel node fill'], ['semantic', 'semantic zoom'], ['tidy', 'auto-tidy overlaps'], ['channels', 'routing channels'], ['dense', 'compact inspector'], ['hints', 'onboarding hints']];
+export const UIOPTS: ReadonlyArray<readonly [UiKey, string]> = [['labels', 'edge labels'], ['rates', 'edge rate text'], ['edgeCard', 'edge hover card'], ['packets', 'traffic packets'], ['spark', 'node sparklines'], ['grid', 'blueprint grid'], ['tiers', 'tier bands · design'], ['pixel', 'pixel node fill'], ['semantic', 'semantic zoom'], ['tidy', 'auto-tidy overlaps'], ['channels', 'routing channels'], ['dense', 'compact inspector'], ['hints', 'onboarding hints']];
 
 export interface Connect { from: string; side: Side }
 export interface Rewire { edgeId: string; end: 'from' | 'to' }
@@ -46,7 +46,7 @@ export interface WorkbenchState {
   ui: UiFlags;
 }
 
-export const INITIAL_UI: UiFlags = { labels: true, rates: true, packets: true, spark: true, grid: true, pixel: true, hints: true, channels: false, dense: false, semantic: true, tidy: false, tiers: true, trace: false };
+export const INITIAL_UI: UiFlags = { labels: true, rates: true, edgeCard: true, packets: true, spark: true, grid: true, pixel: true, hints: true, channels: false, dense: false, semantic: true, tidy: false, tiers: true, trace: false };
 export const initialState = (): WorkbenchState => ({
   ready: false, theme: null, mode: 'simulate', running: true, rps: 2400, sel: null, presetId: 'video', paradigm: 'dataflow',
   nodes: [], edges: [], regions: [], view: { x: 60, y: 30, k: 1 }, search: '', collapsed: {}, drawerOpen: false, libOpen: true,

@@ -1,6 +1,7 @@
 // header: title · paradigm switcher · undo/redo · lens · HUD · presets · settings · theme · commands · share (WB 135–252)
 import type { WorkbenchController } from '../app/controller';
 import { EXAMPLES } from '../paradigms';
+import { SHARED_PRESET } from '../app/share';
 import { LogoMark } from './ds/LogoMark';
 import { DraftingHud, Hud } from './Hud';
 import { ParadigmSwitcher } from './ParadigmSwitcher';
@@ -11,6 +12,7 @@ const SEP = { width: '1px', height: '22px', background: 'var(--border-subtle)', 
 export function Header({ ctl, tierCount, unlinked }: { ctl: WorkbenchController; tierCount: number; unlinked: number }) {
   const s = ctl.state, simOn = s.mode !== 'design';
   const presets = EXAMPLES[s.paradigm].map(p => ({ id: p.id, name: p.name })).concat([{ id: 'blank', name: 'Blank' }]);
+  if (s.presetId === SHARED_PRESET) presets.unshift({ id: SHARED_PRESET, name: 'Shared link' });
   return (
     <div style={{ flex: 'none', display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '8px 10px', padding: '7px 14px', background: 'var(--surface-page)', borderBottom: '1px solid var(--border-subtle)' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flex: 'none' }}>
@@ -38,7 +40,7 @@ export function Header({ ctl, tierCount, unlinked }: { ctl: WorkbenchController;
         {s.settingsOpen ? <Settings ctl={ctl} /> : null}
         <button className="tg-btn wb-ico" onClick={() => ctl.toggleTheme()} title="toggle dark mode" aria-label="toggle theme">{ctl.th() === 'dark' ? '☀' : '☾'}</button>
         <button className="tg-btn wb-cmd" onClick={() => ctl.openPalette()} style={{ display: 'flex', alignItems: 'center', gap: '7px' }}>commands <span style={{ background: 'var(--surface-inset)', border: '1px solid var(--border-subtle)', borderRadius: '3px', padding: '0 4px', fontSize: '10px' }}>/</span></button>
-        <button className="tg-btn tg-btn--primary">share</button>
+        <button className="tg-btn tg-btn--primary" onClick={() => { void ctl.share(); }} title="copy a link to this diagram">share</button>
       </div>
     </div>
   );

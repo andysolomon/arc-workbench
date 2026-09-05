@@ -46,6 +46,10 @@ a{color:var(--link)}a:hover{color:var(--link-hover)}
 .wb-ico{width:30px;height:25px;padding:0;line-height:1;flex:none}
 .wb-hud-stats > div{white-space:nowrap}
 .wb-preset{max-width:118px;height:25px;padding-top:0;padding-bottom:0}
+/* toast: one line of confirmation floated over the canvas foot; the live region stays mounted so screen readers hear it */
+.wb-toast-live{position:absolute;left:50%;bottom:18px;transform:translateX(-50%);max-width:calc(100% - 32px);pointer-events:none;z-index:6}
+.wb-toast{display:inline-block;background:var(--surface-raised);border:1px solid var(--border-subtle);color:var(--text-body);border-radius:999px;padding:6px 14px;font-size:11px;letter-spacing:0.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;box-shadow:var(--shadow-float);animation:wb-fade .18s ease-out}
+.wb-toast[data-tone="warn"]{border-color:var(--health-warn);color:var(--health-warn)}
 /* state machine: a transition is event [guard] / action — three stacked lines, event carries the weight */
 .tg-gcanvas[data-paradigm="state"] .tg-edge-label[data-role="event"],.tg-gcanvas[data-paradigm="workflow"] .tg-edge-label[data-role="event"]{fill:var(--text-secondary);font-weight:500}
 .tg-edge-label[data-role="guard"]{fill:var(--text-muted)}

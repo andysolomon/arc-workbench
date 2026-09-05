@@ -1,7 +1,7 @@
 // Workbench root: subscribes to the store, builds the canvas view model, floats the chrome over
 // the canvas, and runs the prototype's lifecycle (mount · didUpdate · unmount).
 import { useEffect, useLayoutEffect, useMemo } from 'react';
-import { CommandPalette, CreateDialog, EdgeCard, Findings, Header, Hints, Inspector, Library, Strip, ZoomControl } from '../chrome';
+import { CommandPalette, CreateDialog, EdgeCard, Findings, Header, Hints, Inspector, Library, Strip, Toast, ZoomControl } from '../chrome';
 import { GraphCanvas } from '../render';
 import { useStore } from '../store';
 import { WorkbenchController } from './controller';
@@ -49,6 +49,7 @@ export function Workbench({ controller, ...props }: WorkbenchProps & { controlle
               <ZoomControl value={Math.round(v.k * 100)} onZoomIn={() => ctl.zoomBy(1.1)} onZoomOut={() => ctl.zoomBy(0.9)} onReset={() => ctl.resetZoom()} onFit={() => ctl.userFit()} />
             </div>
             <Inspector ctl={ctl} />
+            <Toast ctl={ctl} />
           </GraphCanvas>
           <Strip ctl={ctl} />
         </div>

@@ -28,6 +28,10 @@ Node 22+, pnpm 9. Zero UI dependencies: React 18 and nothing else at runtime.
 | `pnpm lint` | typecheck + the acceptance greps (no hex literals, no aliases in `model`/`store`, no `any`, no TODO) |
 | `pnpm goldens` | regenerate `tests/golden/data` from the **original** prototype modules |
 
+**share** puts the whole document in the URL fragment (`#d=<base64url json>`), copies the link and
+confirms with a toast; opening the link restores the diagram (as the `Shared link` preset). Nothing
+leaves the browser — the fragment is never sent to a server.
+
 `?static=1&p=<paradigm>&z=<overview|compact|working|detail>&mode=<design|simulate>` mounts the
 chrome-less canvas harness; `?zoomMode=smooth|crisp` mirrors the DC prop.
 

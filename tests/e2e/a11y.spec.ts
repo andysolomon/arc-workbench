@@ -4,7 +4,7 @@ import AxeBuilder from '@axe-core/playwright';
 import { expect, test, type Page } from '@playwright/test';
 import { openApp, setMode, state } from './helpers';
 
-// colour contrast is the design system's contract (ds/typegram tokens), audited there, not here
+// colour contrast is the design system's contract (@typegram/graph tokens), audited there, not here
 const scan = async (page: Page, what: string) => {
   const r = await new AxeBuilder({ page }).disableRules(['color-contrast']).analyze();
   const bad = r.violations.filter(v => v.impact === 'serious' || v.impact === 'critical');

@@ -43,9 +43,9 @@ export function GraphCanvas({ vm, h, children }: { vm: CanvasVM; h: Handlers; ch
       <div ref={h.setViewEl} style={viewStyle}>
         {vm.tiers.map(g => <TierBand key={g.id} g={g} />)}
         {vm.regions.map(r => <RegionView key={r.id} r={r} h={h} />)}
-        <svg className="wb-elayer" width="10" height="10" style={LAYER}>
+        <svg className="tg-elayer" width="10" height="10" style={LAYER}>
           <EdgeMarkerDefs />
-          {vm.chanGuides.map((g, i) => <line key={i} className="wb-chan" x1={g.x1} y1={g.y1} x2={g.x2} y2={g.y2} />)}
+          {vm.chanGuides.map((g, i) => <line key={i} className="tg-chan" x1={g.x1} y1={g.y1} x2={g.x2} y2={g.y2} />)}
           {vm.seq ? <SequenceLayer s={vm.seq} h={h} /> : null}
           {vm.edges.map(e => <EdgeView key={e.id} e={e} h={h} />)}
           {vm.hasConnect ? <path className="tg-edge" data-state="preview" ref={h.setConnectEl} d="" style={{ pointerEvents: 'none' }} /> : null}

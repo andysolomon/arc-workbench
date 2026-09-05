@@ -128,12 +128,24 @@ src/
   telemetry/   element registry + the imperative 4 Hz patch pass
   store/       state, history, park / restore per paradigm
   app/         Workbench root, controller, gestures, keyboard, view model
-ds/typegram/   the design system, copied as-is (tokens + graph CSS)
+packages/typegram/  @typegram/graph — the canonical design system (tokens · chrome · Graph Layer · docs + specimens)
 ```
 
 Rules that hold: `model` imports nothing. `render` never imports `sim` — telemetry strings are
 props on first paint and DOM patches after that. `chrome` never touches canvas DOM. Colour comes
-only from `var(--*)` tokens; the one added token is `--wb-scrim`.
+only from `var(--*)` tokens.
+
+The design system is a workspace package, **`@typegram/graph`** (`packages/typegram`), and the
+app only *consumes* it: `src/theme/index.css` imports it by name through the package `exports`;
+`src/theme/workbench.css` is app chrome only. Everything that styles a graph primitive — including
+the telemetry, channel, health, annotation and semantic-zoom rules that used to live in the app —
+is in `packages/typegram/components/graph/telemetry.css`. `pnpm lint` enforces the boundary:
+no relative reach into the package, no deep import outside `exports`, no custom property in the
+app outside the `--wb-` namespace, no copied token value or raw colour, no `.tg-*` primitive rule
+in app CSS, and every package stylesheet reachable through `exports`. The Graph Paradigm is
+documented in `packages/typegram/docs/graph-paradigm.md`; `pnpm specimens` freezes every paradigm ×
+lens from the real renderer into `docs/specimens/` with the package CSS alone. Versioning and
+migration notes: `packages/typegram/CHANGELOG.md`.
 
 ## Two colour channels
 

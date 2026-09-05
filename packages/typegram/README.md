@@ -244,3 +244,13 @@ Migration: DiagramNode (.tg-node) is the legacy UML-only recreation — keep it 
 - assets/logo.svg — the brand mark
 - ui_kits/typegram/ — interactive recreation of the app screen
 - SKILL.md — agent skill entry point
+
+## Package · `@typegram/graph`
+
+This directory is the canonical, versioned design system (`package.json` · `CHANGELOG.md`).
+Consumers import CSS through the package's `exports` — `tokens/*.css`, `components/*.css`,
+`components/graph/*.css`, `components/graph/paradigms/*.css` — never by relative path, and never
+copy a token value. The Graph Layer is documented in `docs/graph-paradigm.md` with live specimens
+for all five paradigms and three lenses in `docs/specimens/` (`pnpm specimens` regenerates them
+from Workbench's renderer). `components/graph/telemetry.css` holds the telemetry · channel · health
+· annotation · semantic-zoom rules; nothing that styles a graph primitive lives outside this package.

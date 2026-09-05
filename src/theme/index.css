@@ -1,14 +1,16 @@
-/* Design system — copied as-is from the Typegram export (ds/typegram). Load order mirrors Workbench v10's helmet. */
-@import '../../ds/typegram/tokens/fonts.css';
-@import '../../ds/typegram/tokens/colors.css';
-@import '../../ds/typegram/tokens/typography.css';
-@import '../../ds/typegram/tokens/spacing.css';
-@import '../../ds/typegram/tokens/base.css';
-@import '../../ds/typegram/tokens/graph.css';
-@import '../../ds/typegram/tokens/motion.css';
-@import '../../ds/typegram/components/components.css';
-@import '../../ds/typegram/components/graph/graph.css';
-@import '../../ds/typegram/tokens/themes.css';
-@import '../../ds/typegram/tokens/paradigms.css';
-@import '../../ds/typegram/components/graph/paradigms/paradigms.css';
+/* The design system is consumed from the canonical package (@typegram/graph); nothing is copied.
+   Load order mirrors Workbench v10's helmet. workbench.css is app chrome only. */
+@import '@typegram/graph/tokens/fonts.css';
+@import '@typegram/graph/tokens/colors.css';
+@import '@typegram/graph/tokens/typography.css';
+@import '@typegram/graph/tokens/spacing.css';
+@import '@typegram/graph/tokens/base.css';
+@import '@typegram/graph/tokens/graph.css';
+@import '@typegram/graph/tokens/motion.css';
+@import '@typegram/graph/components/components.css';
+@import '@typegram/graph/components/graph/graph.css';
+@import '@typegram/graph/tokens/themes.css';
+@import '@typegram/graph/tokens/paradigms.css';
+@import '@typegram/graph/components/graph/paradigms/paradigms.css';
+@import '@typegram/graph/components/graph/telemetry.css';
 @import './workbench.css';

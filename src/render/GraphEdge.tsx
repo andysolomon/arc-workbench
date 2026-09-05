@@ -20,14 +20,14 @@ export const EdgeView = memo(function EdgeView({ e, h }: { e: EdgeVM; h: Handler
   return (
     <g className="tg-edge-g" data-rel={e.rel} ref={el => h.setEdgeEl(e.id, el)} onPointerEnter={() => h.onEdgeEnter(e.id)} onPointerMove={ev => h.onEdgeMove(e.id, ev)} onPointerLeave={() => h.onEdgeLeave(e.id)} style={AUTO}>
       <title>{e.aria}</title>
-      {e.onPath ? <path className="wb-hl" d={e.d} /> : null}
+      {e.onPath ? <path className="tg-hl" d={e.d} /> : null}
       <path className="tg-edge-hit" d={e.d} onClick={ev => h.onEdgeClick(e.id, ev)} style={HIT} />
       <path className="tg-edge" data-rel={e.rel} data-state={e.state} data-weight={e.weight} data-health={e.stress} data-run={e.run ?? undefined} data-msg={e.msg ?? undefined} d={e.d} />
-      {e.packets ? <path className="wb-packets" data-t="pkt" data-health={e.stress} d={e.d} style={pkt} /> : null}
+      {e.packets ? <path className="tg-packets" data-t="pkt" data-health={e.stress} d={e.d} style={pkt} /> : null}
       {e.hasLabel ? <text className="tg-edge-label" data-t="elabel" data-role={e.labelRole ?? undefined} x={e.lx} y={e.ly} textAnchor="middle" style={NOPE}>{e.labelText}</text> : null}
       {e.hasGuard ? <text className="tg-edge-label" data-role="guard" x={e.lx} y={e.lyG} textAnchor="middle" style={NOPE}>{e.guardText}</text> : null}
       {e.hasAction ? <text className="tg-edge-label" data-role="action" x={e.lx} y={e.lyA} textAnchor="middle" style={NOPE}>{e.actionText}</text> : null}
-      <text className="tg-edge-label wb-erate" data-t="erate" x={e.lx} y={e.ly2} textAnchor="middle" style={NOPE}>{e.rateText}</text>
+      <text className="tg-edge-label tg-erate" data-t="erate" x={e.lx} y={e.ly2} textAnchor="middle" style={NOPE}>{e.rateText}</text>
     </g>
   );
 }, (p, q) => p.h === q.h && same(p.e, q.e));

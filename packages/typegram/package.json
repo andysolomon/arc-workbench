@@ -1,0 +1,16 @@
+{
+  "name": "@typegram/graph",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Typegram design system — tokens, chrome and the Graph Layer (five paradigms · three lenses). The canonical source Workbench consumes.",
+  "license": "UNLICENSED",
+  "sideEffects": true,
+  "files": ["tokens", "components", "docs", "README.md", "CHANGELOG.md"],
+  "exports": {
+    "./package.json": "./package.json",
+    "./tokens/*.css": "./tokens/*.css",
+    "./components/*.css": "./components/*.css",
+    "./components/graph/*.css": "./components/graph/*.css",
+    "./components/graph/paradigms/*.css": "./components/graph/paradigms/*.css"
+  }
+}

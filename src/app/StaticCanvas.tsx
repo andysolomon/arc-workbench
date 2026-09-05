@@ -1,5 +1,5 @@
 // Step-4 harness: the static canvas for any paradigm at any zoom level, no chrome.
-// ?p=architecture|workflow|sequence|dataflow|state  ?z=overview|compact|working|detail  ?mode=design|simulate
+// ?p=architecture|workflow|sequence|dataflow|state  ?z=overview|compact|working|detail  ?mode=design|simulate|analyze
 import { useLayoutEffect, useMemo, useRef, useState } from 'react';
 import type { ParadigmId } from '../model/document';
 import { isParadigmId } from '../model';
@@ -9,6 +9,7 @@ import { RoutePlanner, geomOfWith, seqGeo, type PlanInput } from '../router';
 import { makeParadigmSim, makeSim, protoOf, tick, tickSequence, tickState, tickWorkflow, timeline, type Metrics } from '../sim';
 import { gridStyleFor, viewCss } from '../view';
 import { W, buildCanvasVM } from './viewModel';
+import { analyze } from '../analyze';
 
 const K: Record<ZoomLevelAttr, number> = { overview: 0.35, compact: 0.55, working: 1, detail: 1.4 };
 const noop = (): void => {};
@@ -46,7 +47,7 @@ export function StaticCanvas() {
   const seq = pid === 'sequence' ? seqGeo({ nodes: ex.nodes, edges: ex.edges, nodeH, geomOf: geomOfWith(W, nodeH), regions: ex.regions, W, edgeDef: e => PARADIGMS.sequence.EDGES[e.kind], familyOf: n => familyOf('sequence', n), timeline }) : null;
   const vm = buildCanvasVM({
     paradigm: pid, mode, nodes: ex.nodes, edges: ex.edges, regions: ex.regions, view, rps: ex.rps, nodeH, footH, zoomLevel: zl, metrics, nhist: {},
-    sel: null, hoverEdge: null, rewire: null, connect: null, connectInvalid: null, focus: null, findings: [], routes, chans: planner.current.chans, seq,
+    sel: null, hoverEdge: null, rewire: null, connect: null, connectInvalid: null, focus: null, findings: mode === 'analyze' ? analyze(pid, ex.nodes, ex.edges, metrics, ex.regions, ex.rps).list : [], routes, chans: planner.current.chans, seq,
     ui: { pixel: true, tiers: true, packets: true, channels: false, trace: false, labels: true, rates: true, spark: true, semantic: true },
     motion: true, touch: false, rect: null, worldBox: null, chanGap: 'normal',
     viewStyle: viewCss(view, { live: true, zoomOk: false, smooth: true, zoomSafe: () => false }), gridStyle: gridStyleFor(view, true, true),

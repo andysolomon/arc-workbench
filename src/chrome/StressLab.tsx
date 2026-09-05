@@ -27,7 +27,7 @@ export function StressLab({ ctl }: { ctl: WorkbenchController }) {
   };
   const copy = async (): Promise<void> => { try { await navigator.clipboard.writeText(JSON.stringify({ at: new Date().toISOString(), results, verdicts: Object.fromEntries(Object.values(results).map(r => [r.scenario, judge(r)])) }, null, 2)); setCopied(true); setTimeout(() => setCopied(false), 1500); } catch { /* clipboard unavailable */ } };
   return (
-    <div onClick={close} style={{ position: 'fixed', inset: 0, background: 'var(--wb-scrim)', display: 'flex', justifyContent: 'center', alignItems: 'flex-start', paddingTop: '60px', zIndex: 55 }}>
+    <div onClick={close} style={{ position: 'fixed', inset: 0, background: 'var(--scrim)', display: 'flex', justifyContent: 'center', alignItems: 'flex-start', paddingTop: '60px', zIndex: 55 }}>
       <div ref={ref} role="dialog" aria-modal="true" aria-labelledby="wb-stress-title" onClick={e => e.stopPropagation()} style={{ width: '760px', maxWidth: 'calc(100vw - 32px)', maxHeight: 'calc(100vh - 90px)', display: 'flex', flexDirection: 'column', background: 'var(--surface-card)', border: '1px solid var(--border-subtle)', borderRadius: '10px', boxShadow: 'var(--shadow-panel)', overflow: 'hidden', animation: 'wb-fade var(--motion-fast) ease-out' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '14px 18px', borderBottom: '1px solid var(--border-subtle)' }}>
           <h2 id="wb-stress-title" style={{ margin: 0, fontFamily: 'var(--font-sans)', fontSize: '15px', fontWeight: 600, letterSpacing: '-0.01em' }}>Stress Lab</h2>

@@ -41,7 +41,7 @@ describe('render DOM contract', () => {
     expect(host.querySelectorAll('.tg-gnode').length).toBe(ex.nodes.length);
     // design: no telemetry, no health mark, body rows with the identity/configuration split
     expect(host.querySelector('.tg-gnode-tel')).toBeNull();
-    expect(host.querySelector('.wb-hdot')).toBeNull();
+    expect(host.querySelector('.tg-hdot')).toBeNull();
     expect(el.querySelector('.tg-gnode-row [data-dk]')!.textContent).toBe('owner');
     expect(el.querySelector('.tg-gnode-row[data-cfg]')).not.toBeNull();
     expect(el.querySelectorAll('.tg-port').length).toBe(4);
@@ -60,11 +60,11 @@ describe('render DOM contract', () => {
     expect(el.getAttribute('data-family')).toBe('indigo');
     for (const t of ['rate', 'unit', 'p99', 'q', 'spark', 'util', 'status', 'dot', 'hword', 'hdot']) expect(el.querySelector(`[data-t="${t}"]`), t).not.toBeNull();
     expect(host.querySelector('.tg-group')).toBeNull(); // tiers are design-only
-    expect(host.querySelectorAll('.wb-packets').length).toBeGreaterThan(0);
+    expect(host.querySelectorAll('.tg-packets').length).toBeGreaterThan(0);
   });
   it('edges: one shared layer, one marker set, hit twin, selection state, endpoint handles', () => {
     const { host, ex } = mount('state');
-    expect(host.querySelectorAll('svg.wb-elayer').length).toBe(1);
+    expect(host.querySelectorAll('svg.tg-elayer').length).toBe(1);
     expect(host.querySelectorAll('marker').length).toBe(5);
     const gs = host.querySelectorAll('g.tg-edge-g');
     expect(gs.length).toBe(ex.edges.length);

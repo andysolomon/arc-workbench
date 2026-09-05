@@ -7,11 +7,11 @@ try {
 await p.goto('http://localhost:4173/', { waitUntil: 'networkidle' }); await p.waitForTimeout(500);
 const shot = async n => p.screenshot({ path: `${out}/smoke-${n}.png` });
 await p.getByRole('button', { name: 'simulate', exact: true }).click(); await p.waitForTimeout(1600); await shot('sim');
-console.log('tel nodes', await p.locator('.tg-gnode-tel').count(), 'rate sample', await p.locator('[data-t="rate"]').first().textContent(), 'hud p99', await p.locator('.wb-hud [data-t="p99"]').textContent(), 'packets', await p.locator('.wb-packets').count());
+console.log('tel nodes', await p.locator('.tg-gnode-tel').count(), 'rate sample', await p.locator('[data-t="rate"]').first().textContent(), 'hud p99', await p.locator('.wb-hud [data-t="p99"]').textContent(), 'packets', await p.locator('.tg-packets').count());
 await p.locator('.tg-gnode[data-kind="stream"]').click(); await p.waitForTimeout(300); await shot('insp');
 console.log('inspector', await p.locator('.wb-insp').count(), 'metrics grid', await p.locator('[data-mgrid]').count(), 'selected', await p.locator('.tg-gnode[data-state="selected"]').count());
 await p.getByRole('button', { name: 'analyze', exact: true }).click(); await p.waitForTimeout(600); await shot('analyze');
-console.log('findings', await p.locator('.wb-frow').count(), 'ann', await p.locator('.wb-ann').count());
+console.log('findings', await p.locator('.wb-frow').count(), 'ann', await p.locator('.tg-ann').count());
 await p.keyboard.press('Escape'); await p.keyboard.press('Escape');
 // edge hover → card
 const edge = p.locator('g.tg-edge-g').nth(4); const bb = await edge.locator('.tg-edge-hit').boundingBox();

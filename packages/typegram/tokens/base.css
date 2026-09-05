@@ -1,3 +1,5 @@
 body{margin:0;background:var(--surface-page);color:var(--text-body);font-family:var(--font-sans)}
 a{color:var(--link)}a:hover{color:var(--link-hover)}
 button:disabled{opacity:0.35;cursor:default}
+/* modal scrim over the page (dialogs · sheets) */
+:root{--scrim:rgba(28,25,23,0.42)}

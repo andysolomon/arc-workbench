@@ -9,6 +9,7 @@ export interface UiFlags { labels: boolean; rates: boolean; packets: boolean; sp
 export type UiKey = keyof UiFlags;
 export const UIOPTS: ReadonlyArray<readonly [UiKey, string]> = [['labels', 'edge labels'], ['rates', 'edge rate text'], ['edgeCard', 'edge hover card'], ['packets', 'traffic packets'], ['spark', 'node sparklines'], ['grid', 'blueprint grid'], ['tiers', 'tier bands · design'], ['pixel', 'pixel node fill'], ['semantic', 'semantic zoom'], ['tidy', 'auto-tidy overlaps'], ['channels', 'routing channels'], ['dense', 'compact inspector'], ['hints', 'onboarding hints']];
 
+export interface Toast { text: string; tone: 'ok' | 'warn' }
 export interface Connect { from: string; side: Side }
 export interface Rewire { edgeId: string; end: 'from' | 'to' }
 export interface Focus { key: string; nodes: Record<string, 1>; edges: Record<string, 1>; keep: Record<string, 1> }
@@ -43,6 +44,8 @@ export interface WorkbenchState {
   createOpen: boolean;
   nextKind: string | null;
   settingsOpen: boolean;
+  /** transient confirmation strip (share · load failures); cleared by a timer */
+  toast: Toast | null;
   ui: UiFlags;
 }
 
@@ -51,5 +54,5 @@ export const initialState = (): WorkbenchState => ({
   ready: false, theme: null, mode: 'simulate', running: true, rps: 2400, sel: null, presetId: 'video', paradigm: 'dataflow',
   nodes: [], edges: [], regions: [], view: { x: 60, y: 30, k: 1 }, search: '', collapsed: {}, drawerOpen: false, libOpen: true,
   palette: false, pq: '', pi: 0, connect: null, hoverEdge: null, rewire: null, geo: 0, focus: null, paraOpen: false, createOpen: false, nextKind: null,
-  settingsOpen: false, ui: { ...INITIAL_UI },
+  settingsOpen: false, toast: null, ui: { ...INITIAL_UI },
 });

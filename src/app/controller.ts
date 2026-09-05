@@ -17,6 +17,9 @@ import { W } from './viewModel';
 import { stressDoc } from './stress';
 import { Gestures } from './gestures';
 import { onKey } from './keyboard';
+import { SHARED_PRESET, decodeDocument, sharePayload, shareUrl } from './share';
+import type { GraphDocument } from '../model';
+import type { Toast } from '../store';
 
 export interface PaletteItem { label: string; hint: string; run: () => void }
 export interface EdgeCardVM { fromName: string; toName: string; proto: string; left: number; top: number }
@@ -68,6 +71,9 @@ export class WorkbenchController {
   private _hoverOn = 0; private _hoverOff = 0;
   private _clearedFor: string | null = null;
   private timer = 0;
+  private _toastT = 0;
+  private _hc: (() => void) | null = null;
+  private _sharedPayload: string | null = null;
   private ro: ResizeObserver | null = null;
   private _kd: ((e: KeyboardEvent) => void) | null = null;
   readonly handlers: Handlers;
@@ -132,19 +138,22 @@ export class WorkbenchController {
     try { const u = JSON.parse(localStorage.getItem('wb.ui') || 'null') as Partial<WorkbenchState['ui']> | null; if (u) this.setState(s => ({ ui: { ...s.ui, ...u } })); } catch { /* storage unavailable */ }
     this.metrics = null; this.nhist = {}; this.history.reset();
     this.simState = this.makeSimState();
-    this.loadPreset(EXAMPLES.dataflow[0]!.id);
+    this.openLocation(); // a `#d=` share link opens as the document; otherwise the default example
     this.setState({ ready: true, mode: 'design', libOpen: window.innerWidth > 1060 });
     // simulation: 4Hz metric snapshots; the tick path is worker-shaped (snapshot in, patch out)
     this.timer = window.setInterval(() => { if (this.state.running && this.state.mode !== 'design') this.step(0.25); }, 250);
     this.gestures.mountWindow();
     window.addEventListener('keydown', this._kd = e => onKey(this, e));
+    // a share link pasted into this tab's address bar opens without a reload; our own share() writes are ignored
+    window.addEventListener('hashchange', this._hc = () => { const p = sharePayload(location.hash); if (p && p !== this._sharedPayload) this.openLocation(); });
   }
   unmount(): void {
     if (this.ro) this.ro.disconnect();
     for (const id of [this._fitRaf, this._zq, this._roq, this._doq]) if (id) cancelAnimationFrame(id);
-    clearInterval(this.timer); clearTimeout(this._rf); clearTimeout(this._rpsT); clearTimeout(this._hoverOn); clearTimeout(this._hoverOff);
+    clearInterval(this.timer); clearTimeout(this._rf); clearTimeout(this._toastT); clearTimeout(this._rpsT); clearTimeout(this._hoverOn); clearTimeout(this._hoverOff);
     this.gestures.unmountWindow();
     if (this._kd) window.removeEventListener('keydown', this._kd);
+    if (this._hc) window.removeEventListener('hashchange', this._hc);
   }
   /** componentDidUpdate: after every React commit */
   didUpdate(): void {
@@ -428,6 +437,52 @@ export class WorkbenchController {
     this.simState = this.makeSimState(); this.metrics = null; this.nhist = {}; this.history.reset(); this.planner.invalidate();
     this.touched = false; this.hadM = false; this.uptimeS = 0; this.findings = [];
     this.setState({ presetId: id, nodes: p.nodes.map(n => ({ ...n })), edges: p.edges.map(e => ({ ...e })), regions: (p.regions || []).map(r => ({ ...r })), rps: p.rps, sel: null, connect: null, rewire: null, hoverEdge: null, focus: null }, () => this.fitWhenReady());
+  }
+  /** open the document a `#d=` share link carries, or fall back to the default example */
+  openLocation(): void {
+    const payload = typeof location !== 'undefined' ? sharePayload(location.hash) : null;
+    this._sharedPayload = payload;
+    const doc = payload ? decodeDocument(payload) : null;
+    if (doc) { this.loadDocument(doc); return; }
+    this.loadPreset(EXAMPLES[this.state.paradigm][0]!.id);
+    if (payload) this.notify('shared link could not be read · opened the default example', 'warn', 5000);
+  }
+  /** replace the live document with an exchange document (share link · file); parks nothing it overwrites */
+  loadDocument(doc: GraphDocument, presetId: string = SHARED_PRESET): void {
+    const pid = doc.paradigm;
+    if (pid !== this.state.paradigm) { this.parkDoc(); this.docs[pid] = null; }
+    this.clearRuntimeDom();
+    this.simState = null; this.metrics = null; this.nhist = {}; this.hadM = false; this.uptimeS = 0; this.findings = [];
+    this.history.reset(); this.planner.invalidate(); this.nodeH = {}; this.nodeHMax = {}; this._maxSig = null; this.touched = false;
+    const rps = typeof doc.metadata.load === 'number' ? doc.metadata.load : BLANK(pid).rps;
+    this.setState({
+      paradigm: pid, presetId, nodes: doc.nodes.map(n => ({ ...n })), edges: doc.edges.map(e => ({ ...e })), regions: doc.regions.map(r => ({ ...r })), rps, view: { ...doc.view },
+      sel: null, connect: null, rewire: null, hoverEdge: null, focus: null, paraOpen: false, createOpen: false, nextKind: null, search: '', collapsed: {},
+    });
+    this.simState = this.makeSimState();
+    this.fitWhenReady();
+  }
+  /** share: the document becomes the URL fragment, the link goes to the clipboard, and a toast says which */
+  async share(): Promise<boolean> {
+    const s = this.state, url = shareUrl(s, location);
+    history.replaceState(null, '', url);
+    this._sharedPayload = sharePayload(location.hash);
+    const what = s.nodes.length + ' ' + this.T.unitNoun + ' · ' + s.edges.length + ' ' + this.T.edgeNoun;
+    try {
+      if (!navigator.clipboard) throw new Error('clipboard unavailable');
+      await navigator.clipboard.writeText(url);
+      this.notify('link copied · ' + what);
+      return true;
+    } catch {
+      this.notify('link is in the address bar · copy it to share ' + what, 'warn', 5000);
+      return false;
+    }
+  }
+  notify(text: string, tone: Toast['tone'] = 'ok', ms = 2800): void {
+    clearTimeout(this._toastT);
+    const toast: Toast = { text, tone };
+    this.setState({ toast });
+    this._toastT = window.setTimeout(() => { if (this.state.toast === toast) this.setState({ toast: null }); }, ms);
   }
   // A pending-fit latch: stays armed until the canvas has a real box AND every node has a
   // measured height. Cleared only by an actual fit, so it cannot be dropped on a timing race.

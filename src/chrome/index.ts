@@ -8,6 +8,7 @@ export { Findings } from './Findings';
 export { EdgeCard } from './EdgeCard';
 export { Inspector } from './Inspector';
 export { Strip } from './Strip';
+export { Toast } from './Toast';
 export { CreateDialog } from './CreateDialog';
 export { CommandPalette } from './CommandPalette';
 export { ZoomControl } from './ds/ZoomControl';

@@ -16,7 +16,7 @@ export function Header({ ctl, tierCount, unlinked }: { ctl: WorkbenchController;
   if (s.presetId === 'stress') presets.unshift({ id: 'stress', name: 'Stress fixture' });
   if (s.presetId === 'import') presets.unshift({ id: 'import', name: 'Imported' });
   return (
-    <header style={{ flex: 'none', display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '8px 10px', padding: '7px 14px', background: 'var(--surface-page)', borderBottom: '1px solid var(--border-subtle)' }}>
+    <header className="wb-header" style={{ flex: 'none', display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '8px 10px', padding: '7px 14px', background: 'var(--surface-page)', borderBottom: '1px solid var(--border-subtle)' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flex: 'none' }}>
         <LogoMark size={22} />
         <h1 style={{ margin: 0, fontFamily: 'var(--font-sans)', fontSize: '15px', fontWeight: 600, letterSpacing: '-0.01em', color: 'var(--text-body)' }}>Workbench</h1>

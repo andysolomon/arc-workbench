@@ -38,18 +38,20 @@ export function Workbench({ controller, ...props }: WorkbenchProps & { controlle
   // before mount the shell is stable and empty: nothing is drawn or replaced until storage has been read
   const shell = !s.ready;
   return (
-    <div data-screen-label="Workbench" style={{ display: 'flex', flexDirection: 'column', height: '100vh', background: 'var(--surface-page)', color: 'var(--text-body)', fontFamily: 'var(--font-mono)', fontSize: '11px', userSelect: 'none' }}>
+    <div data-screen-label="Workbench" className="wb-root" data-form={s.form} style={{ display: 'flex', flexDirection: 'column', background: 'var(--surface-page)', color: 'var(--text-body)', fontFamily: 'var(--font-mono)', fontSize: '11px', userSelect: 'none' }}>
       <Header ctl={ctl} tierCount={tierCount} unlinked={unlinked} />
-      <div style={{ flex: 1, display: 'flex', minHeight: 0 }}>
+      <div className="wb-body" style={{ flex: 1, display: 'flex', minHeight: 0, position: 'relative' }}>
         {s.libOpen ? <Library ctl={ctl} /> : null}
-        <main aria-label={(s.title || 'document') + ' · ' + ctl.T.label + ' · ' + s.mode} style={{ flex: 1, position: 'relative', minWidth: 0, display: 'flex', flexDirection: 'column' }}>
+        <main aria-label={(s.title || 'document') + ' · ' + ctl.T.label + ' · ' + s.mode} data-insp={s.sel ? '1' : '0'} data-find={an ? '1' : '0'}
+          onPointerDownCapture={() => { if (s.libOpen && s.form !== 'desktop') ctl.setState({ libOpen: false }); }} // the drawer is transient on a tablet: a canvas tap dismisses it
+          style={{ flex: 1, position: 'relative', minWidth: 0, display: 'flex', flexDirection: 'column' }}>
           <GraphCanvas vm={vm} h={ctl.handlers}>
             {shell ? <div className="wb-shell" role="status" aria-live="polite">opening your workspace…</div> : null}
             {!shell && !s.nodes.length ? <EmptyState ctl={ctl} /> : null}
             {showHints ? <Hints ctl={ctl} /> : null}
             {an ? <Findings ctl={ctl} an={an} /> : null}
             {card && vm.cardEdge ? <EdgeCard ctl={ctl} e={vm.cardEdge} vm={card} /> : null}
-            <div data-chrome="1" style={{ position: 'absolute', right: '16px', bottom: '16px' }}>
+            <div data-chrome="1" className="wb-zoom">
               <ZoomControl value={Math.round(v.k * 100)} onZoomIn={() => ctl.zoomBy(1.1)} onZoomOut={() => ctl.zoomBy(0.9)} onReset={() => ctl.resetZoom()} onFit={() => ctl.userFit()} />
             </div>
             <Inspector ctl={ctl} />

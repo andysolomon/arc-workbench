@@ -17,6 +17,7 @@ import { W } from './viewModel';
 import { stressDoc } from './stress';
 import { Gestures } from './gestures';
 import { onKey } from './keyboard';
+import { formOf } from './form';
 import { SHARED_PRESET, decodeDocument, docOf, sharePayload, shareUrl } from './share';
 import { LocalStorageStore, Workspace, newDocumentId, type KeyValueStore, type LoadResult, type StoredDocument } from '../persist';
 import { migrate, type GraphDocument } from '../model';
@@ -90,6 +91,7 @@ export class WorkbenchController {
   private _seenSig: DocSig | null = null;
   private _saveT = 0;
   private _hide: (() => void) | null = null;
+  private _form: (() => void) | null = null;
   private ro: ResizeObserver | null = null;
   private _kd: ((e: KeyboardEvent) => void) | null = null;
   readonly handlers: Handlers;
@@ -130,6 +132,12 @@ export class WorkbenchController {
   protoOf(e: GraphEdge): string { return protoOfPure(this.paraId(), e); }
   transitionText(e: GraphEdge): string { return transitionText(e); }
   th(): Theme { return this.state.theme || this.props.theme; }
+  /** form factor → state + a root attribute the stylesheet keys off */
+  applyForm(): void {
+    const form = formOf(window.innerWidth);
+    document.documentElement.dataset['form'] = form;
+    if (form !== this.state.form) this.setState({ form, ...(form !== 'desktop' && this.state.settingsOpen ? {} : {}) });
+  }
   applyTheme(): void {
     const h = document.documentElement, d = this.th() === 'dark';
     if (d) h.setAttribute('data-theme', 'dark'); else h.removeAttribute('data-theme');
@@ -159,7 +167,8 @@ export class WorkbenchController {
     const notices = this.restoreSession(); // the stored workspace (or the default example), then a `#d=` share link on top
     this.openLocation();
     this._savedSig = this._seenSig = this.docSig();
-    this.setState({ ready: true, mode: 'design', libOpen: window.innerWidth > 1060, save: this.workspace.stored().includes(this.state.paradigm) ? 'saved' : 'clean' });
+    this.applyForm();
+    this.setState({ ready: true, mode: 'design', libOpen: this.state.form === 'desktop', save: this.workspace.stored().includes(this.state.paradigm) ? 'saved' : 'clean' });
     // one dialog: the active paradigm's notice if it has one, else the first; the rest are toasts
     const first = notices.find(n => n.pid === this.state.paradigm) ?? notices[0];
     notices.forEach(n => { if (n !== first) this.notify(n.kind === 'invalid' ? 'stored ' + PARADIGMS[n.pid].label + ' document could not be read' : (n.recovered === 'interrupted' ? 'recovered an interrupted save of ' : 'restored the last good save of ') + n.record.title, 'warn', 6000); });
@@ -167,6 +176,8 @@ export class WorkbenchController {
     // a hidden tab or a closing page flushes whatever the debounce still holds
     this._hide = () => { if (document.visibilityState === 'hidden') this.flushSave(); };
     document.addEventListener('visibilitychange', this._hide); window.addEventListener('pagehide', this._hide);
+    // rotation, split view, browser chrome: the form follows the viewport width
+    window.addEventListener('resize', this._form = () => this.applyForm());
     // simulation: 4Hz metric snapshots; the tick path is worker-shaped (snapshot in, patch out)
     this.timer = window.setInterval(() => { if (this.state.running && this.state.mode !== 'design') this.step(0.25); }, 250);
     this.gestures.mountWindow();
@@ -179,7 +190,8 @@ export class WorkbenchController {
     for (const id of [this._fitRaf, this._zq, this._roq, this._doq]) if (id) cancelAnimationFrame(id);
     clearInterval(this.timer); clearTimeout(this._rf); clearTimeout(this._toastT);
     this.flushSave(); clearTimeout(this._saveT);
-    if (this._hide) { document.removeEventListener('visibilitychange', this._hide); window.removeEventListener('pagehide', this._hide); } clearTimeout(this._rpsT); clearTimeout(this._hoverOn); clearTimeout(this._hoverOff);
+    if (this._hide) { document.removeEventListener('visibilitychange', this._hide); window.removeEventListener('pagehide', this._hide); }
+    if (this._form) window.removeEventListener('resize', this._form); clearTimeout(this._rpsT); clearTimeout(this._hoverOn); clearTimeout(this._hoverOff);
     this.gestures.unmountWindow();
     if (this._kd) window.removeEventListener('keydown', this._kd);
     if (this._hc) window.removeEventListener('hashchange', this._hc);
@@ -428,22 +440,31 @@ export class WorkbenchController {
     if (this._clearedFor === key || this.gestures.drag || this.gestures.pinch || !this.refs.canvas) return;
     const inspEl = this.refs.insp, findEl = this.refs.find;
     if (!inspEl && !findEl) return;
-    let x0: number, x1: number;
-    if (s.kind === 'node') { const n = this.nById[s.id]; if (!n) return; x0 = n.x; x1 = n.x + this.W; }
+    let x0: number, x1: number, y0: number, y1: number;
+    if (s.kind === 'node') { const n = this.nById[s.id]; if (!n) return; x0 = n.x; x1 = n.x + this.W; y0 = n.y; y1 = n.y + this.footH(n.id); }
     else {
       const e = this.state.edges.find(x => x.id === s.id); if (!e) return;
       const geo = this.edgeGeom(e, null, null); if (!geo) return;
-      x0 = Math.min(geo.p1[0], geo.p2[0]); x1 = Math.max(geo.p1[0], geo.p2[0]);
+      x0 = Math.min(geo.p1[0], geo.p2[0]); x1 = Math.max(geo.p1[0], geo.p2[0]); y0 = Math.min(geo.p1[1], geo.p2[1]); y1 = Math.max(geo.p1[1], geo.p2[1]);
     }
     this._clearedFor = key;
     const r = this.refs.canvas.getBoundingClientRect(), v = this.state.view;
-    const right = inspEl ? inspEl.getBoundingClientRect().left - r.left - 20 : r.width - 20;
-    const left = findEl ? findEl.getBoundingClientRect().right - r.left + 20 : 20;
+    // a panel that spans the canvas width is a bottom sheet (tablet portrait): it hides rows, not columns
+    const rect = (el: HTMLElement | null): DOMRect | null => el ? el.getBoundingClientRect() : null;
+    const isSheet = (b: DOMRect | null): boolean => !!b && b.width >= r.width * 0.9;
+    const ib = rect(inspEl), fb = rect(findEl);
+    const right = ib && !isSheet(ib) ? ib.left - r.left - 20 : r.width - 20;
+    const left = fb && !isSheet(fb) ? fb.right - r.left + 20 : 20;
     const sx0 = x0 * v.k + v.x, sx1 = x1 * v.k + v.x;
-    let dx = 0;
+    let dx = 0, dy = 0;
     if (sx1 > right) dx = -Math.min(sx1 - right, Math.max(0, sx0 - left));       // pan left
     else if (sx0 < left) dx = Math.min(left - sx0, Math.max(0, right - sx1));    // pan right
-    if (Math.abs(dx) > 1) { this.gestures.tView = null; this.touched = true; this.setState({ view: { ...v, x: v.x + dx } }); }
+    const sheetTop = Math.min(...[ib, fb].filter((b): b is DOMRect => isSheet(b)).map(b => b.top - r.top));
+    if (Number.isFinite(sheetTop)) {
+      const bottom = sheetTop - 20, sy0 = y0 * v.k + v.y, sy1 = y1 * v.k + v.y;
+      if (sy1 > bottom) dy = -Math.min(sy1 - bottom, Math.max(0, sy0 - 20));    // pan up, never above the top edge
+    }
+    if (Math.abs(dx) > 1 || Math.abs(dy) > 1) { this.gestures.tView = null; this.touched = true; this.setState({ view: { ...v, x: v.x + dx, y: v.y + dy } }); }
   }
   toWorld(e: { clientX: number; clientY: number }): { x: number; y: number } { const r = this.refs.canvas!.getBoundingClientRect(), v = this.state.view; return { x: (e.clientX - r.left - v.x) / v.k, y: (e.clientY - r.top - v.y) / v.k }; }
   nodeAt(w: { x: number; y: number }, pad?: number): GraphNode | undefined { const p = pad == null ? 8 : pad; return this.state.nodes.find(n => w.x >= n.x - p && w.x <= n.x + this.W + p && w.y >= n.y - p && w.y <= n.y + (this.nodeH[n.id] || 88) + p); }

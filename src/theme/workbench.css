@@ -18,8 +18,15 @@ a{color:var(--link)}a:hover{color:var(--link-hover)}
 .tg-gcanvas[data-chan="loose"]{--edge-channel-gap:var(--edge-channel-gap-loose)}
 .tg-gcanvas[data-probe] *{transition:none!important;animation:none!important}
 .tg-gnode,.wb-elayer{will-change:transform}
-.wb-insp{width:264px}
+.wb-insp{width:264px;right:14px;top:12px;bottom:12px}
 .wb-insp[data-dense="on"]{width:214px}
+.wb-find{left:14px;top:12px;bottom:12px;width:308px;max-width:calc(100% - 28px)}
+.wb-zoom{position:absolute;right:16px;bottom:16px}
+/* the zoom control steps left of an open inspector instead of sitting underneath it */
+main[data-insp="1"] .wb-zoom{right:294px}
+main:has(.wb-insp[data-dense="on"]) .wb-zoom{right:244px}
+/* a long settings list scrolls rather than running off the viewport */
+.wb-settings{max-height:calc(100dvh - 190px);overflow-y:auto}
 /* the settings popover hangs under the header's right group, which is exactly where the inspector
    lives; with an inspector open it steps left of it (inspector width + 8px) so neither panel hides
    the other. The offsets track the two inspector widths above. */
@@ -67,14 +74,21 @@ a{color:var(--link)}a:hover{color:var(--link-hover)}
 .tg-edge-label[data-role="guard"]{fill:var(--text-muted)}
 .tg-edge-label[data-role="action"]{fill:var(--text-faint)}
 .tg-gcanvas[data-zoom="compact"] .tg-edge-label[data-role="guard"],.tg-gcanvas[data-zoom="compact"] .tg-edge-label[data-role="action"]{display:none}
-@media (max-width:900px){.wb-cmd{display:none}.wb-preset{max-width:150px}}
+@media (max-width:900px){.wb-cmd{display:none}.wb-preset{max-width:200px}}
 @media (pointer:coarse){
-  .tg-btn{min-height:36px}
-  .wb-ico{width:38px;height:36px;padding:0}
-  .tg-select,.tg-input{min-height:36px}
-  .wb-preset{height:36px}
-  .tg-zoom-btn{width:38px;height:34px}
-  .wb-hud input[type=range]{height:24px!important}
+  /* touch baseline: 44 × 44 css px (Apple HIG · WCAG 2.5.5) on every control and port hit area */
+  .tg-btn{min-height:44px}
+  .wb-ico{width:44px;height:44px;padding:0}
+  .tg-select,.tg-input{min-height:44px}
+  .wb-preset,.wb-title{height:44px}
+  .tg-zoom-btn{width:44px;height:44px}
+  .tg-zoom-label{min-height:44px;line-height:44px}
+  .tg-pswitch{min-height:44px}
+  .wb-hud input[type=range]{height:28px!important}
+  .wb-settings button,.wb-frow,.tg-pitem{min-height:44px}
+  .tg-gcanvas{--port-hit:22px}
+  .tg-gcanvas[data-touch="1"] .tg-port{opacity:.55}
+  .tg-gcanvas[data-touch="1"] .tg-gnode[data-state="selected"] .tg-port,.tg-gcanvas[data-touch="1"] .tg-gnode[data-state="connecting"] .tg-port{opacity:1}
 }
 .tg-gcanvas[data-zoom="compact"] .tg-gnode-tel{display:flex}
 .tg-gcanvas[data-zoom="compact"] .tg-gnode-tel > :not([data-primary]){display:none}
@@ -155,3 +169,28 @@ input[type=checkbox]{accent-color:var(--accent)}
 .wb-bench tr[data-pass="1"] td:last-child{color:var(--health-ok)}
 .wb-bench-report{border:1px solid var(--border-subtle);border-radius:8px;padding:6px 10px}
 .wb-bench-report summary{cursor:pointer;color:var(--text-secondary)}
+/* ===================== tablet shell (ARC-168) — README § Tablet ===================== */
+.wb-root{height:100vh;height:100dvh}
+.wb-header{padding-left:max(14px,env(safe-area-inset-left))!important;padding-right:max(14px,env(safe-area-inset-right))!important;padding-top:max(7px,env(safe-area-inset-top))!important}
+.wb-strip{padding-bottom:env(safe-area-inset-bottom)}
+/* both tablet forms: the library is an overlay drawer over the canvas, never a column that halves it */
+[data-form^="tablet"] .wb-lib{position:absolute;left:0;top:0;bottom:0;z-index:9;width:min(280px,60vw);box-shadow:var(--shadow-panel);padding-left:env(safe-area-inset-left)}
+[data-form^="tablet"] .wb-cmd{display:none}
+[data-form^="tablet"] .wb-title{width:140px}
+/* landscape: side panels stay, narrower; settings steps left of the narrower inspector */
+[data-form="tablet-landscape"] .wb-insp{width:240px;right:12px}
+[data-form="tablet-landscape"] .wb-insp[data-dense="on"]{width:214px}
+[data-form="tablet-landscape"] .wb-find{width:264px;left:12px}
+[data-form="tablet-landscape"] .wb-settings[data-insp="on"]{right:248px}
+[data-form="tablet-landscape"] .wb-settings[data-insp="dense"]{right:222px}
+[data-form="tablet-landscape"] main[data-insp="1"] .wb-zoom{right:268px}
+[data-form="tablet-landscape"] main:has(.wb-insp[data-dense="on"]) .wb-zoom{right:242px}
+/* portrait: inspector and findings are bottom sheets (≤ 45vh); both open → they split the width */
+[data-form="tablet-portrait"] .wb-insp,[data-form="tablet-portrait"] .wb-find{top:auto;bottom:0;left:0;right:0;width:auto;max-width:none;max-height:50%;border-radius:12px 12px 0 0;padding-bottom:env(safe-area-inset-bottom)}
+[data-form="tablet-portrait"] main[data-find="1"][data-insp="1"] .wb-find{right:50%}
+[data-form="tablet-portrait"] main[data-find="1"][data-insp="1"] .wb-insp{left:50%}
+[data-form="tablet-portrait"] .wb-settings[data-insp]{right:0}
+[data-form="tablet-portrait"] .wb-settings{max-height:30dvh}
+[data-form="tablet-portrait"] .wb-zoom{top:12px;bottom:auto}
+[data-form="tablet-portrait"] .wb-toast-live{top:12px;bottom:auto}
+[data-form="tablet-portrait"] .wb-empty{align-items:flex-start;padding-top:48px}

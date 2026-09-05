@@ -18,6 +18,8 @@
     "test:watch": "vitest",
     "test:e2e": "playwright test",
     "test:a11y": "playwright test tests/e2e/a11y.spec.ts tests/e2e/keyboard.spec.ts",
+    "bench": "BENCH=1 playwright test tests/e2e/bench.spec.ts",
+    "bench:compare": "node scripts/bench-compare.mjs",
     "goldens": "node scripts/goldens.mjs",
     "lint": "pnpm typecheck && node scripts/lint.mjs",
     "release": "semantic-release",

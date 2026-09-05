@@ -97,12 +97,16 @@ export function buildCanvasVM(s: CanvasInput): CanvasBuild {
   const rank = pktRank(s.edges, m);
   const stm = !!T.structured, motion = s.motion && s.ui.packets;
   const edges: EdgeVM[] = [];
+  const wb = s.worldBox, runEdge = m?.run?.edge ?? null;
   s.edges.forEach(e => {
     if (!nById[e.from] || !nById[e.to]) return;
     const geo = s.routes[e.id]; if (!geo) return;
     portConn[e.from + ':' + geo.s1] = 1; portConn[e.to + ':' + geo.s2] = 1;
     const seld = !!s.sel && s.sel.kind === 'edge' && s.sel.id === e.id;
     const hov = s.hoverEdge === e.id || (!!rw && rw.edgeId === e.id);
+    // large sequences: a message row outside the viewport halo is not drawn — unless it is selected,
+    // hovered or the traced execution sits on it, so selection and ↑↓ navigation keep working
+    if (p === 'sequence' && wb && !seld && !hov && runEdge !== e.id && (geo.ly < wb.y0 || geo.ly > wb.y1)) return;
     const rate = m ? m.edges[e.id] || 0 : 0;
     const hasLabel = !!e.label, hasGuard = stm && !!e.guard, hasAction = stm && !!e.action;
     const parts: string[] = []; if (hasLabel) parts.push('l'); if (hasGuard) parts.push('g'); if (hasAction) parts.push('a');
@@ -171,7 +175,8 @@ export function buildCanvasVM(s: CanvasInput): CanvasBuild {
   const ce = cardEdge && !rw && nById[cardEdge.from] && nById[cardEdge.to] ? cardEdge : null;
   const tiers = s.mode === 'design' && s.ui.tiers ? tiersOf(p, s.nodes, s.footH) : [];
   const regions = regionsViewOf(p, s.mode, s.regions, s.sel, s.seq);
-  const seq: SeqVM | null = s.seq ? { lines: s.seq.lines, ticks: s.seq.ticks, acts: s.seq.acts, cursor: s.ui.trace && simOn ? { x1: s.seq.x0, x2: s.seq.x1, y: s.seq.y0 - 44 * 0.5 } : null } : null;
+  const inY = (y: number, h = 0): boolean => !wb || (y + h >= wb.y0 && y <= wb.y1);
+  const seq: SeqVM | null = s.seq ? { lines: s.seq.lines, ticks: wb ? s.seq.ticks.filter(t => inY(t.y)) : s.seq.ticks, acts: wb ? s.seq.acts.filter(a => inY(a.y, a.h)) : s.seq.acts, cursor: s.ui.trace && simOn ? { x1: s.seq.x0, x2: s.seq.x1, y: s.seq.y0 - 44 * 0.5 } : null } : null;
   const chanGuides: ChanGuide[] = s.ui.channels && s.chans ? [...s.chans.x.map(c => ({ x1: c.c, y1: c.a - 8, x2: c.c, y2: c.b + 8 })), ...s.chans.y.map(c => ({ x1: c.a - 8, y1: c.c, x2: c.b + 8, y2: c.c }))] : [];
   return {
     attrs: { paradigm: p, mode: s.mode, zoom: zl, trace: s.ui.trace && s.mode === 'simulate' ? 'on' : 'off', touch: s.touch ? '1' : '0', oLabels: s.ui.labels ? 'on' : 'off', oRates: s.ui.rates ? 'on' : 'off', oPackets: s.ui.packets ? 'on' : 'off', oSpark: s.ui.spark ? 'on' : 'off', oChan: s.ui.channels ? 'on' : 'off', chan: s.chanGap },

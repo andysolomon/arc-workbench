@@ -154,6 +154,37 @@ One known cost: `zoomMode="crisp"` (the default) probes up to 24 nodes with
 `getBoundingClientRect` once per new zoom key to decide whether css `zoom` lays out identically
 to `transform`. It runs only on commit and is memoized per `k@dpr`.
 
+### Stress Lab · benchmark matrix
+
+`commands → stress lab` (or `?stress=1`) opens the Stress Lab: deterministic fixtures from
+`src/app/stress.ts`, measured in-page by `src/app/bench.ts` and judged against the budgets in
+`src/app/budgets.ts` — the single source for both the dialog and CI. Loading a fixture is one undo
+away from your document and is never autosaved.
+
+| scenario | fixture | what is measured |
+| --- | --- | --- |
+| `arch-100` · `arch-500` · `arch-1000` | 100 / 500 / 1000 architecture nodes, 1.5× edges | pan frame main-thread p95 + rAF cadence p95 · long tasks · telemetry pass avg with node / edge **render counts (must stay 0)** · findings refresh during simulation · cold route solve · commit add / delete / relayout · DOM / SVG / path counts |
+| `seq-500` · `seq-2000` | 40 participants, 500 / 2000 messages | the same, plus **messages rendered** — row culling (`SEQ_CULL_FROM` = 200) keeps the DOM flat; the selected, hovered and traced messages are always drawn and `↑↓` reveals a culled row |
+| `flow-300` | 300 data-flow nodes across 6 stages | the same, dense orthogonal routing |
+| `heap` | 12 cycles of paradigm switch → blank → example | JS heap before / after (with `--expose-gc`), growth ≤ 30 MB |
+
+`pnpm bench` runs the matrix headless and writes `bench-results/latest.json` plus a timestamped copy
+(schema: results + verdicts per scenario); `.github/workflows/bench.yml` runs it on every push to
+`main` and on demand, and uploads the file as an artifact. `pnpm bench:compare before.json
+after.json` prints every budget side by side and exits non-zero when a budget that passed now
+fails — regressions are numbers, not impressions. The rAF-cadence budget is only asserted on a
+hardware renderer (headless SwiftShader drops vsyncs whatever the app does); the heap budget only
+where `performance.memory` exists. `tests/e2e/perf.spec.ts` keeps the quick preset-scale check on
+every PR.
+
+Baselines (2026-09-05, headless Chromium): pan main-thread ≤ 0.8 ms and zero topology re-renders at
+every scale; sequence culling keeps 2000 messages at ~1.8k DOM elements; heap growth 0 MB over 12
+switch cycles. The large-scale ceilings are honest, not aspirational: at 500 architecture nodes a
+cold route solve is ~0.9 s and an add commits in ~2.4 s (three commits, each re-routing every edge
+because the obstacle set changed); at 1000 nodes ~4.4 s / ~10 s. Those budgets are set at ~2× the
+baseline (headless timings jitter ~1.5× under load) so regressions show as numbers; the fix is a spatial index for routing obstacles, tracked
+separately.
+
 ## Verification
 
 - **Goldens.** `scripts/goldens.mjs` runs the original `sim-engine.js`, `sim-paradigms.js`,

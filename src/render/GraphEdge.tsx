@@ -2,6 +2,7 @@
 // group mirrors data-rel so overview rules are direct attribute matches (no :has()).
 import { memo, type CSSProperties } from 'react';
 import type { EdgeVM, Handlers } from './types';
+import { renderStats } from './stats';
 
 const NOPE: CSSProperties = { pointerEvents: 'none' };
 const HIT: CSSProperties = { cursor: 'pointer' };
@@ -13,6 +14,7 @@ function same(a: EdgeVM, b: EdgeVM): boolean {
 }
 
 export const EdgeView = memo(function EdgeView({ e, h }: { e: EdgeVM; h: Handlers }) {
+  renderStats.edge++;
   const pkt: CSSProperties = { opacity: e.pktStyle.opacity, strokeWidth: e.pktStyle.strokeWidth };
   if (e.pktStyle.dur) (pkt as Record<string, string>)['--dur'] = e.pktStyle.dur;
   return (

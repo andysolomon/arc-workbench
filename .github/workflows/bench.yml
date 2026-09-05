@@ -1,0 +1,27 @@
+name: Benchmark
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+jobs:
+  bench:
+    name: Stress Lab matrix
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - uses: pnpm/action-setup@v4
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm exec playwright install --with-deps chromium
+      - name: Run the benchmark matrix against the documented budgets
+        run: pnpm bench
+      - name: Upload comparable artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bench-results-${{ github.sha }}
+          path: bench-results/
+          retention-days: 90

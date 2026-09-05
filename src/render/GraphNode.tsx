@@ -4,6 +4,7 @@
 // every [data-t] target after mount.
 import { memo, type CSSProperties } from 'react';
 import { NodePort } from './NodePort';
+import { renderStats } from './stats';
 import type { Handlers, NodeVM, Row } from './types';
 
 const TITLE: CSSProperties = { overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '158px' };
@@ -23,6 +24,7 @@ function same(a: NodeVM, b: NodeVM): boolean {
 }
 
 export const NodeView = memo(function NodeView({ n, h }: { n: NodeVM; h: Handlers }) {
+  renderStats.node++;
   const style: CSSProperties = { position: 'absolute', left: n.x + 'px', top: n.y + 'px', width: n.w + 'px', cursor: 'grab' };
   if (!n.pixel) style.backgroundImage = 'none';
   return (

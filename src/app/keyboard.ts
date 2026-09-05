@@ -14,6 +14,7 @@ export function onKey(c: WorkbenchController, e: KeyboardEvent): void {
     if (s.confirm) c.setState({ confirm: null });
     else if (s.kbConnect) { c.setState({ kbConnect: null }); c.announce('connect cancelled'); }
     else if (s.helpOpen) c.setState({ helpOpen: false });
+    else if (s.stressOpen) c.setState({ stressOpen: false });
     else if (s.palette) c.setState({ palette: false });
     else if (s.createOpen) c.setState({ createOpen: false });
     else if (s.paraOpen) c.setState({ paraOpen: false });

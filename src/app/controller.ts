@@ -8,7 +8,7 @@ import { OWNER_KINDS, autoLayout, deoverlap as deoverlapNodes, fitLanes as fitLa
 import { RoutePlanner, SEQ, anchorOf, geomOfWith, seqGeo as seqGeoPure, seqMsgs as seqMsgsPure, type Box, type EdgeGeo, type Overrides, type PlanInput, type Ptr, type RouteMap, type SeqGeo, type Side } from '../router';
 import { analyze as analyzeAll, handoffs, type Analysis, type Finding } from '../analyze';
 import { fmt, hasPackets, makeParadigmSim, makeSim, protoOf as protoOfPure, rateText, tick, tickSequence, tickState, tickWorkflow, timeline, transitionText, type Metrics, type ParadigmSim, type QueueSim, type RunState, type SimState } from '../sim';
-import { CULL_FROM, crispK, crispStep, docBounds, fitView, gridStyleFor, viewCss, worldBox, zoomCentred, zoomLevelOf, type GridStyle, type ViewCss, type WorldBox, type ZoomLevel } from '../view';
+import { CULL_FROM, SEQ_CULL_FROM, crispK, crispStep, docBounds, fitView, gridStyleFor, viewCss, worldBox, zoomCentred, zoomLevelOf, type GridStyle, type ViewCss, type WorldBox, type ZoomLevel } from '../view';
 import { Refs, applyEdgeGeo, applyRoutes, clearRuntimeDom, patchTelemetry, type PatchCtx } from '../telemetry';
 import { History, createStore, initialState, type Docks, type Mode, type Patch, type ParkedDoc, type Snapshot, type Store, type Theme, type UiKey, type WorkbenchState, UIOPTS } from '../store';
 import type { Handlers } from '../render/types';
@@ -82,6 +82,8 @@ export class WorkbenchController {
   /** the document as loaded (JSON); the doc is dirty when the live graph differs from it */
   private _cleanDoc: string | null = null;
   private _annN = 0;
+  /** Stress Lab results survive the dialog closing to measure */
+  benchResults: Record<string, import('./budgets').BenchResult> = {};
   private _nudgeT = 0;
   private _focusSel: string | null = null;
   private _savedSig: DocSig | null = null;
@@ -394,7 +396,7 @@ export class WorkbenchController {
   }
   canvasRect(): DOMRect | null { return this.refs.canvas ? this.refs.canvas.getBoundingClientRect() : null; }
   worldBox(): WorldBox | null {
-    const s = this.state; if (s.nodes.length <= CULL_FROM) return null;
+    const s = this.state; if (s.nodes.length <= CULL_FROM && !(s.paradigm === 'sequence' && s.edges.length > SEQ_CULL_FROM)) return null;
     const r = this.canvasRect(); if (!r) return null;
     return worldBox(s.view, r.width, r.height);
   }
@@ -606,7 +608,7 @@ export class WorkbenchController {
    * change only schedules — pan and zoom must never trigger a React render of their own.
    */
   private onStoreChange(): void {
-    if (!this.state.ready || !this._savedSig) return;
+    if (!this.state.ready || !this._savedSig || this.state.presetId === STRESS_PRESET) return; // stress fixtures stay in memory
     const sig = this.docSig();
     if (WorkbenchController.sameSig(sig, this._savedSig) || WorkbenchController.sameSig(sig, this._seenSig)) return;
     this._seenSig = sig;
@@ -617,7 +619,7 @@ export class WorkbenchController {
   /** write the live document and the session; false (and a failed state) when the provider refuses */
   saveNow(): boolean {
     clearTimeout(this._saveT);
-    if (!this.state.ready) return false;
+    if (!this.state.ready || this.state.presetId === STRESS_PRESET) return false;
     const sig = this.docSig();
     try {
       this.workspace.save(this.record()); this.workspace.saveSession(this.state.paradigm);
@@ -889,12 +891,21 @@ export class WorkbenchController {
       const msgs = this.seqMsgs(); if (!msgs.length) return;
       let i = sel && sel.kind === 'edge' ? msgs.findIndex(m => m.id === sel.id) : -1;
       i = key === 'ArrowDown' ? Math.min(msgs.length - 1, i + 1) : Math.max(0, i - 1);
-      this.setState({ sel: { kind: 'edge', id: msgs[i]!.id } }); return;
+      this.setState({ sel: { kind: 'edge', id: msgs[i]!.id } });
+      this.revealRow(i); return;
     }
     const ns = s.nodes.slice().sort((a, b) => (key === 'ArrowUp' || key === 'ArrowDown') ? (a.y - b.y || a.x - b.x) : (a.x - b.x || a.y - b.y)); if (!ns.length) return;
     let i = sel && sel.kind === 'node' ? ns.findIndex(n => n.id === sel.id) : -1;
     i = (key === 'ArrowRight' || key === 'ArrowDown') ? Math.min(ns.length - 1, i + 1) : Math.max(0, i - 1);
     this.setState({ sel: { kind: 'node', id: ns[i]!.id } });
+  }
+  /** a culled sequence document: pan so the message row at index i sits inside the viewport */
+  revealRow(i: number): void {
+    const r = this.canvasRect(); if (!r) return;
+    const g = this.seqGeo(), y = (g.y0 + i * this.SEQ.row) * this.state.view.k + this.state.view.y;
+    if (y >= 40 && y <= r.height - 40) return;
+    this.touched = true;
+    this.setState(s => ({ view: { ...s.view, y: r.height / 2 - (g.y0 + i * this.SEQ.row) * s.view.k } }));
   }
   select(sel: Selection | null): void { this.setState({ sel }); }
   openPalette(): void { this.setState({ palette: true, pq: '', pi: 0 }); }
@@ -907,6 +918,7 @@ export class WorkbenchController {
     if (s.paradigm === 'workflow') all.push({ label: '+ lane', hint: 'owner', run: () => this.addLane() });
     all.push({ label: 'export document · json', hint: 'file', run: () => { this.exportDoc(); this.setState({ palette: false }); } });
     all.push({ label: 'import document · json', hint: 'file', run: () => { this.setState({ palette: false }); this.importDoc(); } });
+    all.push({ label: 'stress lab · benchmark fixtures', hint: 'dev', run: () => this.setState({ stressOpen: true, palette: false }) });
     all.push({ label: 'keyboard shortcuts', hint: '?', run: () => this.setState({ helpOpen: true, palette: false }) });
     all.push({ label: 'save now', hint: 'file', run: () => { this.retrySave(); this.setState({ palette: false }); } });
     all.push({ label: 'auto layout', hint: 'l', run: () => { this.autoLayout(); this.setState({ palette: false }); } });
@@ -973,9 +985,11 @@ export class WorkbenchController {
 }
 
 /** test/perf hook: replace the current document with a generated topology at the given scale */
+export const STRESS_PRESET = 'stress';
 export function loadStress(ctl: WorkbenchController, pid: ParadigmId, nodes: number, edges: number): void {
   if (pid !== ctl.state.paradigm) { ctl.switchParadigm(pid); ctl.store.drainAfterCommit(); ctl.store.drainAfterCommit(); }
   const d = stressDoc(pid, nodes, edges, ctl.W);
-  ctl.clearRuntimeDom(); ctl.simState = ctl.makeSimState(); ctl.metrics = null; ctl.nhist = {}; ctl.history.reset(); ctl.planner.invalidate(); ctl.hadM = false; ctl.uptimeS = 0;
-  ctl.setState({ presetId: 'stress', nodes: d.nodes, edges: d.edges, regions: d.regions, rps: d.rps, sel: null, connect: null, rewire: null, hoverEdge: null, focus: null }, () => ctl.fitWhenReady());
+  ctl.snapDoc(); // one undo brings the real document back; a stress fixture is never autosaved
+  ctl.clearRuntimeDom(); ctl.simState = ctl.makeSimState(); ctl.metrics = null; ctl.nhist = {}; ctl.planner.invalidate(); ctl.hadM = false; ctl.uptimeS = 0;
+  ctl.setState({ presetId: STRESS_PRESET, title: 'Stress · ' + pid + ' ' + nodes + '/' + edges, nodes: d.nodes, edges: d.edges, regions: d.regions, rps: d.rps, sel: null, connect: null, rewire: null, hoverEdge: null, focus: null }, () => ctl.fitWhenReady());
 }

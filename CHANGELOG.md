@@ -1,3 +1,9 @@
+## [1.2.0](https://github.com/andysolomon/arc-workbench/compare/v1.1.0...v1.2.0) (2026-09-05)
+
+### Features
+
+* **share:** copy a self-contained link and confirm with a toast ([#4](https://github.com/andysolomon/arc-workbench/issues/4)) ([5108afc](https://github.com/andysolomon/arc-workbench/commit/5108afc433916637cab5e7222c4ea07884dc2744))
+
 ## [1.1.0](https://github.com/andysolomon/arc-workbench/compare/v1.0.0...v1.1.0) (2026-09-05)
 
 ### Features

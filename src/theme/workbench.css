@@ -20,6 +20,12 @@ a{color:var(--link)}a:hover{color:var(--link-hover)}
 .tg-gnode,.wb-elayer{will-change:transform}
 .wb-insp{width:264px}
 .wb-insp[data-dense="on"]{width:214px}
+/* the settings popover hangs under the header's right group, which is exactly where the inspector
+   lives; with an inspector open it steps left of it (inspector width + 8px) so neither panel hides
+   the other. The offsets track the two inspector widths above. */
+.wb-settings{right:0}
+.wb-settings[data-insp="on"]{right:272px}
+.wb-settings[data-insp="dense"]{right:222px}
 /* the sections carry inline padding, so the dense override has to outrank it */
 .wb-insp[data-dense="on"] [data-sec]{padding:7px 11px!important;gap:6px!important}
 .wb-insp[data-dense="on"] [data-sec][data-hd]{padding:9px 11px!important}

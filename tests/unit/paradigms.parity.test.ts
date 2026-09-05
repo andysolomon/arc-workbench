@@ -1,11 +1,15 @@
-import { describe, expect, it } from 'vitest';
+import { beforeAll, describe, expect, it } from 'vitest';
 import { BLANK, EXAMPLES, ORDER, PARADIGMS, edgeDefaults, exportV1, familyOf, familyOfGk, gkOf, nodeDefaults, relOf } from '../../src/paradigms';
 import type { ParadigmId } from '../../src/model';
 import { existsSync } from 'node:fs';
 import { protoExamples, protoParadigms } from './proto';
 
-// the prototype export is not part of the repository; without it these parity suites skip
+// The prototype export is not part of the repository. Without it these suites skip — and the
+// import has to stay lazy, because a skipped suite is still *collected*: a top-level await here
+// would fail the whole file in a clean checkout.
 const HAS_PROTO = existsSync(new URL('../../Form submission process/paradigms.js', import.meta.url));
+type ProtoParadigms = Awaited<ReturnType<typeof protoParadigms>>;
+type ProtoExamples = Awaited<ReturnType<typeof protoExamples>>;
 
 // prototype flags are `1`; the port types them as `true`. Normalise for deep equality.
 const norm = (v: unknown): unknown => {
@@ -22,12 +26,14 @@ const norm = (v: unknown): unknown => {
   return v;
 };
 
-describe.skipIf(!HAS_PROTO)('paradigm registry parity with paradigms.js', async () => {
-  const PD = await protoParadigms();
+describe.skipIf(!HAS_PROTO)('paradigm registry parity with paradigms.js', () => {
+  let PD: ProtoParadigms;
+  beforeAll(async () => { PD = await protoParadigms(); });
   it('same paradigm order', () => { expect(ORDER).toEqual(PD.ORDER); });
   for (const pid of ORDER as ParadigmId[]) {
-    const T = PARADIGMS[pid], PT = PD.PARADIGMS[pid];
+    const T = PARADIGMS[pid];
     it(`${pid}: types, categories, edges, inspector, hud, metrics`, () => {
+      const PT = PD.PARADIGMS[pid];
       expect(Object.keys(T.TYPES)).toEqual(Object.keys(PT.TYPES));
       expect(norm(T.TYPES)).toEqual(norm(PT.TYPES));
       expect(norm(T.CATS)).toEqual(norm(PT.CATS));
@@ -54,6 +60,7 @@ describe.skipIf(!HAS_PROTO)('paradigm registry parity with paradigms.js', async 
       expect(relOf(pid, { kind: 'nope' })).toBe('flow');
     });
     it(`${pid}: a11y sentences`, () => {
+      const PT = PD.PARADIGMS[pid];
       for (const ex of EXAMPLES[pid]) for (const e of ex.edges) expect(T.a11y('A', e, 'B', T)).toBe(PT.a11y('A', e, 'B', PT));
     });
   }
@@ -62,8 +69,9 @@ describe.skipIf(!HAS_PROTO)('paradigm registry parity with paradigms.js', async 
   });
 });
 
-describe.skipIf(!HAS_PROTO)('examples parity with examples.js', async () => {
-  const X = await protoExamples(), PD = await protoParadigms();
+describe.skipIf(!HAS_PROTO)('examples parity with examples.js', () => {
+  let X: ProtoExamples, PD: ProtoParadigms;
+  beforeAll(async () => { X = await protoExamples(); PD = await protoParadigms(); });
   for (const pid of ORDER as ParadigmId[]) {
     it(`${pid}: same documents, regions keyed by family`, () => {
       const mine = EXAMPLES[pid], theirs = X.EXAMPLES[pid];

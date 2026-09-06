@@ -7,9 +7,15 @@
 // (background / occluded tab, remote browsers — ~1 Hz) used to leak into every commit timing as
 // two ≈1 s frame waits, which is how a run reported "≈2 s commits" with no app work behind them.
 // The clock is probed once per scenario instead, and budgets that need it are skipped with a reason.
+//
+// The pan is judged at steady state (ARC-170, second round): the first frames of a drag pay for
+// promoting the view to its own composited layer and rasterising the whole fixture into it — a
+// one-off stall of 60–100 ms on an integrated GPU at 2× DPR for 1000 nodes, several dropped frames
+// on a slower one — which is not per-frame cost. The drag warms up until the frame clock has been
+// steady, reports the worst gap of that phase as `coldMs`, and only then measures the cadence.
 import { EXAMPLES } from '../paradigms';
 import { renderStats, resetRenderStats } from '../render/stats';
-import { HARDWARE_CADENCE_MAX_MS, SCENARIOS, THROTTLED_ABOVE_MS, type BenchEnv, type BenchResult, type Scenario } from './budgets';
+import { HARDWARE_CADENCE_MAX_MS, PAN_FRAMES, PAN_STEADY, PAN_STEADY_FACTOR, PAN_WARMUP_MAX, SCENARIOS, THROTTLED_ABOVE_MS, type BenchEnv, type BenchResult, type Scenario } from './budgets';
 import type { WorkbenchController } from './controller';
 import { loadStress } from './controller';
 
@@ -62,22 +68,31 @@ export function describeEnv(e: BenchEnv): string {
 }
 
 const ptr = (type: string, x: number, y: number): PointerEvent => new PointerEvent(type, { clientX: x, clientY: y, pointerId: 1, isPrimary: true, button: 0, buttons: type === 'pointerup' ? 0 : 1, bubbles: true, cancelable: true, pointerType: 'mouse' });
-const noPan: BenchResult['pan'] = { frames: 0, selfP95: 0, cadenceP95: 0 };
+const noPan: BenchResult['pan'] = { frames: 0, warmup: 0, coldMs: 0, selfP95: 0, cadenceP95: 0 };
 
-/** a synthetic background drag: 60 moves, one per frame; returns frame() self time and rAF cadence */
-async function pan(ctl: WorkbenchController): Promise<BenchResult['pan']> {
+/**
+ * A synthetic background drag, one move per frame. It warms up until `PAN_STEADY` consecutive
+ * frames arrived within `PAN_STEADY_FACTOR` × the idle cadence (at most `PAN_WARMUP_MAX` frames:
+ * the cold start of a drag is a stall, not a rate), then measures `PAN_FRAMES` more. Returns the
+ * measured frames' frame() self time and rAF cadence, plus the warm-up length and its worst gap.
+ */
+async function pan(ctl: WorkbenchController, env: BenchEnv): Promise<BenchResult['pan']> {
   const canvas = ctl.refs.canvas, view = ctl.refs.view; if (!canvas || !view) return noPan;
   const r = canvas.getBoundingClientRect(), sx = r.left + r.width - 60, sy = r.top + r.height - 120;
-  const g = ctl.gestures, self: number[] = [], frames: number[] = [];
+  const g = ctl.gestures, self: number[] = [], frames: number[] = [], cold: number[] = [];
   const orig = g.frame.bind(g);
   g.frame = () => { const t = performance.now(); orig(); void view.offsetHeight; self.push(performance.now() - t); };
-  let last = performance.now();
+  let i = 0, last = performance.now();
+  const move = async (): Promise<number> => { i++; window.dispatchEvent(ptr('pointermove', sx - i * 6, sy - i * 3)); await frame(); const t = performance.now(), gap = t - last; last = t; return gap; };
   canvas.dispatchEvent(ptr('pointerdown', sx, sy));
-  for (let i = 1; i <= 60; i++) { window.dispatchEvent(ptr('pointermove', sx - i * 6, sy - i * 3)); await frame(); const t = performance.now(); frames.push(t - last); last = t; }
-  window.dispatchEvent(ptr('pointerup', sx - 360, sy - 180));
+  const steadyMs = env.idleCadenceMs * PAN_STEADY_FACTOR;
+  for (let run = 0; cold.length < PAN_WARMUP_MAX && run < PAN_STEADY;) { const gap = await move(); cold.push(gap); run = gap <= steadyMs ? run + 1 : 0; }
+  self.length = 0;
+  for (let k = 0; k < PAN_FRAMES; k++) frames.push(await move());
+  window.dispatchEvent(ptr('pointerup', sx - i * 6, sy - i * 3));
   g.frame = orig;
   await settle(50);
-  return { frames: self.length, selfP95: p95(self), cadenceP95: p95(frames.slice(2)) };
+  return { frames: frames.length, warmup: cold.length, coldMs: Math.max(...cold), selfP95: p95(self), cadenceP95: p95(frames) };
 }
 
 function domCounts(ctl: WorkbenchController): BenchResult['dom'] {
@@ -120,7 +135,7 @@ export async function runScenario(ctl: WorkbenchController, sc: Scenario): Promi
   const nodes = ctl.state.nodes.length, edges = ctl.state.edges.length;
   const dom = domCounts(ctl);
   // a drag is driven by the frame clock; on a throttled clock 60 frames is a minute of waiting for nothing
-  const panR = env.throttled ? noPan : await pan(ctl);
+  const panR = env.throttled ? noPan : await pan(ctl, env);
   // routing: a cold solve of every edge
   ctl.planner.invalidate(); const t0 = performance.now(); ctl.routes(null, null); const route = { ms: performance.now() - t0 };
   // telemetry: 20 patches with metrics live; the topology components must not run once

@@ -13,7 +13,7 @@ import { worldBox, SEQ_CULL_FROM } from '../../src/view';
 import { WorkbenchController, loadStress } from '../../src/app/controller';
 
 const ENV: BenchEnv = { software: false, renderer: 'gpu', visible: true, focused: true, idleCadenceMs: 16.7, throttled: false, supported: true, hz: 60 };
-const result = (scenario: string, over: Partial<BenchResult> = {}): BenchResult => ({ scenario, at: '', nodes: 100, edges: 150, env: ENV, dom: { elements: 100, svgs: 1, paths: 10, renderedNodes: 100, renderedEdges: 150 }, pan: { frames: 60, selfP95: 1, cadenceP95: 16 }, telemetry: { passes: 20, avg: 2, max: 4, nodeRenders: 0, edgeRenders: 0 }, analyze: { avg: 3, findings: 4 }, route: { ms: 50 }, commit: { add: 20, del: 20, layout: 100 }, longTasks: { n: 0, max: 0 }, heap: null, ...over });
+const result = (scenario: string, over: Partial<BenchResult> = {}): BenchResult => ({ scenario, at: '', nodes: 100, edges: 150, env: ENV, dom: { elements: 100, svgs: 1, paths: 10, renderedNodes: 100, renderedEdges: 150 }, pan: { frames: 60, warmup: 8, coldMs: 44, selfP95: 1, cadenceP95: 16 }, telemetry: { passes: 20, avg: 2, max: 4, nodeRenders: 0, edgeRenders: 0 }, analyze: { avg: 3, findings: 4 }, route: { ms: 50 }, commit: { add: 20, del: 20, layout: 100 }, longTasks: { n: 0, max: 0 }, heap: null, ...over });
 
 describe('stress lab', () => {
   it('every scenario has budgets and the fixture generator is deterministic', () => {
@@ -26,7 +26,7 @@ describe('stress lab', () => {
     expect(failed(judge(result('arch-100')))).toEqual([]);
     const bad = failed(judge(result('arch-100', { telemetry: { passes: 20, avg: 30, max: 40, nodeRenders: 3, edgeRenders: 0 }, route: { ms: 9999 } })));
     expect(bad.map(v => v.key).sort()).toEqual(['route.ms', 'telemetry.avg', 'telemetry.renders']);
-    const soft = judge(result('arch-100', { env: { ...ENV, software: true }, pan: { frames: 60, selfP95: 1, cadenceP95: 90 } }));
+    const soft = judge(result('arch-100', { env: { ...ENV, software: true }, pan: { frames: 60, warmup: 8, coldMs: 44, selfP95: 1, cadenceP95: 90 } }));
     expect(soft.find(v => v.key === 'pan.cadence')).toMatchObject({ pass: null, reason: 'software renderer' });
     expect(skipped(soft).map(v => v.key)).toEqual(['pan.cadence']);
     expect(judge(result('heap', { heap: { supported: true, beforeMB: 40, afterMB: 90, deltaMB: 50 } }))[0]!.pass).toBe(false);
@@ -34,11 +34,11 @@ describe('stress lab', () => {
   });
   it('hardware rAF cadence is asserted only where its prerequisites hold; a throttled or hidden tab skips every timing budget with a reason', () => {
     // a 30 Hz display is a hardware renderer that can never meet an 18.2 ms cadence: skipped, not failed
-    const slow = judge(result('arch-100', { env: { ...ENV, idleCadenceMs: 33.3, hz: 30 }, pan: { frames: 60, selfP95: 1, cadenceP95: 34 } }));
+    const slow = judge(result('arch-100', { env: { ...ENV, idleCadenceMs: 33.3, hz: 30 }, pan: { frames: 60, warmup: 8, coldMs: 44, selfP95: 1, cadenceP95: 34 } }));
     expect(slow.find(v => v.key === 'pan.cadence')!.reason).toMatch(/display below 50 Hz/);
     expect(failed(slow)).toEqual([]);
     // the production run from ARC-170: ~1 Hz frame clock, ≈2 s "commits" — timing is unsupported there, structure still counts
-    const throttled = result('seq-500', { env: { ...ENV, idleCadenceMs: 1017, throttled: true, supported: false, hz: 1 }, pan: { frames: 0, selfP95: 0, cadenceP95: 0 }, commit: { add: 1933, del: 2033, layout: 2033 }, analyze: { avg: 61.9, findings: 9 }, telemetry: { passes: 20, avg: 2, max: 4, nodeRenders: 2, edgeRenders: 0 }, dom: { elements: 9000, svgs: 1, paths: 10, renderedNodes: 40, renderedEdges: 244 } });
+    const throttled = result('seq-500', { env: { ...ENV, idleCadenceMs: 1017, throttled: true, supported: false, hz: 1 }, pan: { frames: 0, warmup: 0, coldMs: 0, selfP95: 0, cadenceP95: 0 }, commit: { add: 1933, del: 2033, layout: 2033 }, analyze: { avg: 61.9, findings: 9 }, telemetry: { passes: 20, avg: 2, max: 4, nodeRenders: 2, edgeRenders: 0 }, dom: { elements: 9000, svgs: 1, paths: 10, renderedNodes: 40, renderedEdges: 244 } });
     const vs = judge(throttled);
     for (const v of vs.filter(v => v.unit === 'ms')) expect(v, v.key).toMatchObject({ pass: null, reason: 'unsupported environment: frame clock throttled (1017 ms between idle frames)' });
     expect(failed(vs).map(v => v.key).sort()).toEqual(['dom.elements', 'telemetry.renders']);

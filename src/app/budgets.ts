@@ -26,6 +26,11 @@ export interface BenchEnv { software: boolean; renderer: string; visible: boolea
 export const THROTTLED_ABOVE_MS = 100;
 /** the rAF-cadence budget presumes a ≥ 50 Hz display: an idle cadence above this cannot meet it whatever the app does */
 export const HARDWARE_CADENCE_MAX_MS = 20;
+/** the pan is measured over this many frames, after a warm-up that ends once PAN_STEADY consecutive
+ *  frames arrived within PAN_STEADY_FACTOR × the idle cadence (or after PAN_WARMUP_MAX frames) —
+ *  the first frames of a drag raster the fixture into a fresh composited layer, a one-off stall
+ *  reported as `pan.coldMs`, not a rate (README § Stress Lab · supported environment) */
+export const PAN_FRAMES = 60, PAN_STEADY = 8, PAN_STEADY_FACTOR = 1.5, PAN_WARMUP_MAX = 45;
 export function envReason(e: BenchEnv): string | null {
   if (!e.visible) return 'tab hidden';
   if (e.throttled) return `frame clock throttled (${Math.round(e.idleCadenceMs)} ms between idle frames)`;
@@ -36,8 +41,10 @@ export interface BenchResult {
   scenario: string; at: string; nodes: number; edges: number;
   env: BenchEnv;
   dom: { elements: number; svgs: number; paths: number; renderedNodes: number; renderedEdges: number };
-  /** frames = 0 when the pan was skipped (frame-clock throttled: a rAF-driven drag cannot be measured) */
-  pan: { frames: number; selfP95: number; cadenceP95: number };
+  /** frames = 0 when the pan was skipped (frame-clock throttled: a rAF-driven drag cannot be measured);
+   *  `warmup` frames preceded the measured ones and `coldMs` is the worst gap among them — the
+   *  cold start of the drag (layer promotion + first raster), informational, never a budget */
+  pan: { frames: number; warmup: number; coldMs: number; selfP95: number; cadenceP95: number };
   telemetry: { passes: number; avg: number; max: number; nodeRenders: number; edgeRenders: number };
   analyze: { avg: number; findings: number };
   route: { ms: number };

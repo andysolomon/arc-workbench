@@ -79,7 +79,7 @@ function Report({ r }: { r: BenchResult }) {
         <thead><tr><th>budget</th><th>measured</th><th>limit</th><th></th></tr></thead>
         <tbody>{vs.map(v => <tr key={v.key} data-pass={v.pass === null ? undefined : v.pass ? '1' : '0'}><td>{v.label}</td><td>{fmt(v.value, v.unit)}</td><td>{fmt(v.limit, v.unit)}</td><td>{v.pass === null ? <span style={{ color: 'var(--text-faint)' }}>skipped · {v.reason}</span> : v.pass ? 'pass' : 'FAIL'}</td></tr>)}</tbody>
       </table>
-      <div style={{ color: 'var(--text-faint)', fontSize: '10px', marginTop: '4px' }}>{describeEnv(r.env)} · pan {r.pan.frames} frames · telemetry {r.telemetry.passes} passes (renders node {r.telemetry.nodeRenders} · edge {r.telemetry.edgeRenders}) · findings {r.analyze.findings} · long tasks {r.longTasks.n}{r.heap ? ' · heap ' + r.heap.beforeMB + ' → ' + r.heap.afterMB + ' MB' : ''}</div>
+      <div style={{ color: 'var(--text-faint)', fontSize: '10px', marginTop: '4px' }}>{describeEnv(r.env)} · pan {r.pan.frames} frames{r.pan.frames ? ' after ' + r.pan.warmup + ' warm-up (cold start ' + r.pan.coldMs.toFixed(0) + ' ms)' : ''} · telemetry {r.telemetry.passes} passes (renders node {r.telemetry.nodeRenders} · edge {r.telemetry.edgeRenders}) · findings {r.analyze.findings} · long tasks {r.longTasks.n}{r.heap ? ' · heap ' + r.heap.beforeMB + ' → ' + r.heap.afterMB + ' MB' : ''}</div>
     </details>
   );
 }

@@ -22,6 +22,11 @@ for (const zoomMode of ['smooth', 'crisp'] as const) {
     const software = await page.evaluate(() => { const c = document.createElement('canvas'); const gl = c.getContext('webgl'); const d = gl && gl.getExtension('WEBGL_debug_renderer_info'); const r = d && gl ? String(gl.getParameter(d.UNMASKED_RENDERER_WEBGL)) : ''; return /SwiftShader|llvmpipe|Software/i.test(r) ? r : ''; });
     const canvas = (await page.locator('.tg-gcanvas').boundingBox())!;
     const sx = canvas.x + canvas.width - 60, sy = canvas.y + canvas.height - 120;
+    // warm up first: the opening frames of the first drag raster the document into a fresh composited
+    // layer — a one-off stall, not a rate (ARC-170; the Stress Lab reports it as pan.coldMs)
+    await page.mouse.move(sx, sy); await page.mouse.down();
+    for (let i = 1; i <= 15; i++) await page.mouse.move(sx - i * 6, sy - i * 3);
+    await page.mouse.up(); await page.waitForTimeout(400);
     await page.evaluate(() => {
       const w = window as unknown as { __frames: number[]; __self: number[]; __stop: () => void }, g = window.__workbench.ctl.gestures, view = document.querySelector('.tg-gcanvas > div:nth-child(2)') as HTMLElement;
       w.__frames = []; w.__self = [];

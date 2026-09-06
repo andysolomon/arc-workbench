@@ -219,6 +219,15 @@ with nothing queued (~16.7 ms on a 60 Hz display). The lab shows this line befor
 - **rAF cadence** additionally needs a hardware renderer and a ≥ 50 Hz display (idle cadence
   ≤ 20 ms); headless SwiftShader drops vsyncs whatever the app does, and a 30 Hz screen cannot
   meet 18.2 ms. Otherwise it is skipped as `software renderer` / `display below 50 Hz`.
+- **The pan is judged at steady state.** The opening frames of a drag promote the view to its own
+  composited layer and raster the whole fixture into it — 60–100 ms of stall, three to five dropped
+  frames, for 1000 nodes on an integrated GPU at 2× DPR, and more on a slower one. That is a one-off
+  cost of starting a drag, not a frame rate, and with only 60 frames measured it alone pushed the
+  p95 to 20–34 ms on hardware that pans at 16.7 ms once warm (the second round of ARC-170). The drag
+  now warms up until 8 consecutive frames arrived within 1.5× the idle cadence (45 frames at most),
+  reports the worst gap of that phase as `pan.coldMs` — in the JSON, the dialog's footer and the
+  bench log, never as a budget — and only then measures 60 frames. On a hardware renderer CI also
+  asserts that the warm-up ended on a steady clock rather than on its cap.
 - **Heap** needs `performance.memory` (Chromium; `--expose-gc` for a clean before / after).
 - CI asserts `env.supported` and allows only the renderer / memory skips, so a throttled runner
   fails loudly instead of skipping its way to green.
@@ -231,7 +240,8 @@ production run in a cloud browser (ARC-170) was two 1 Hz frame waits, not app wo
 is the environment's, and is judged on its own by the cadence budget.
 
 Baselines (2026-09-05, headless Chromium): pan main-thread ≤ 0.8 ms and zero topology re-renders at
-every scale; sequence culling keeps 2000 messages at ~1.8k DOM elements; heap growth 0 MB over 12
+every scale (on hardware — Intel Iris Xe, 60 Hz, 1× and 2× DPR — the steady-state cadence p95 is
+16.9–17.0 ms in every scenario, cold start 20–100 ms); sequence culling keeps 2000 messages at ~1.8k DOM elements; heap growth 0 MB over 12
 switch cycles. The large-scale ceilings are honest, not aspirational: at 500 architecture nodes a
 cold route solve is ~0.9 s and an add commits in ~2.4 s (three commits, each re-routing every edge
 because the obstacle set changed); at 1000 nodes ~4.4 s / ~10 s. Those budgets are set at ~2× the

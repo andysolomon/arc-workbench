@@ -1,10 +1,10 @@
 // Stress Lab: the benchmark matrix as a dialog. Load a fixture to feel it, run a scenario to
 // measure it against the documented budgets, copy the JSON to compare with another run.
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { WorkbenchController } from '../app/controller';
 import { loadStress } from '../app/controller';
-import { runScenario } from '../app/bench';
-import { SCENARIOS, failed, judge, type BenchResult, type Verdict } from '../app/budgets';
+import { describeEnv, probeEnv, runScenario } from '../app/bench';
+import { SCENARIOS, failed, judge, skipped, type BenchEnv, type BenchResult, type Verdict } from '../app/budgets';
 import { useDialog } from './useDialog';
 
 const fmt = (v: number | null, unit: string): string => v == null ? 'n/a' : (Number.isInteger(v) ? String(v) : v.toFixed(1)) + (unit ? ' ' + unit : '');
@@ -15,6 +15,9 @@ export function StressLab({ ctl }: { ctl: WorkbenchController }) {
   const setResults = (next: Record<string, BenchResult>): void => { ctl.benchResults = next; setResultsState(next); };
   const [running, setRunning] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  // the environment is probed on open (~10 idle frames) so the lab says up front what it can assert
+  const [env, setEnv] = useState<BenchEnv | null>(null);
+  useEffect(() => { let live = true; void probeEnv().then(e => { if (live) setEnv(e); }); return () => { live = false; }; }, []);
   const close = (): void => ctl.setState({ stressOpen: false });
   const run = async (ids: string[]): Promise<void> => {
     for (const id of ids) {
@@ -35,6 +38,9 @@ export function StressLab({ ctl }: { ctl: WorkbenchController }) {
           <button ref={closeRef} className="tg-btn wb-ico" onClick={close} aria-label="close" style={{ marginLeft: 'auto', background: 'transparent', borderColor: 'transparent', color: 'var(--text-muted)' }}>✕</button>
         </div>
         <div style={{ overflowY: 'auto', padding: '10px 18px 14px', display: 'flex', flexDirection: 'column', gap: '10px' }} tabIndex={0} aria-label="scenarios">
+          <div className="wb-bench-env" data-supported={env ? (env.supported ? '1' : '0') : undefined} role="status">
+            {env ? <><b>environment</b> · {describeEnv(env)}{env.supported ? null : <> — timing budgets need a visible tab with an unthrottled frame clock; structural budgets (DOM · re-renders · culling · heap) are still asserted</>}</> : 'probing the environment…'}
+          </div>
           <table className="wb-bench">
             <thead><tr><th>scenario</th><th>fixture</th><th></th><th></th><th>verdict</th></tr></thead>
             <tbody>
@@ -61,19 +67,19 @@ export function StressLab({ ctl }: { ctl: WorkbenchController }) {
   );
 }
 function VerdictCell({ vs }: { vs: Verdict[] }) {
-  const bad = failed(vs), skipped = vs.filter(v => v.pass === null).length;
-  return <span style={{ color: bad.length ? 'var(--health-critical)' : 'var(--health-ok)' }}>{bad.length ? bad.length + ' over budget' : 'within budget'}{skipped ? <span style={{ color: 'var(--text-faint)' }}> · {skipped} n/a</span> : null}</span>;
+  const bad = failed(vs), skip = skipped(vs).length;
+  return <span style={{ color: bad.length ? 'var(--health-critical)' : 'var(--health-ok)' }}>{bad.length ? bad.length + ' over budget' : 'within budget'}{skip ? <span style={{ color: 'var(--text-faint)' }}> · {skip} skipped</span> : null}</span>;
 }
 function Report({ r }: { r: BenchResult }) {
   const vs = judge(r);
   return (
     <details className="wb-bench-report" open={failed(vs).length > 0}>
-      <summary>{r.scenario} · {r.nodes} nodes · {r.edges} edges · DOM {r.dom.elements} · svg {r.dom.svgs} · paths {r.dom.paths}{r.pan.software ? ' · software renderer' : ''}</summary>
+      <summary>{r.scenario} · {r.nodes} nodes · {r.edges} edges · DOM {r.dom.elements} · svg {r.dom.svgs} · paths {r.dom.paths} · {r.env.software ? 'software renderer' : 'hardware renderer'}{r.env.supported ? '' : ' · unsupported environment'}</summary>
       <table className="wb-bench">
         <thead><tr><th>budget</th><th>measured</th><th>limit</th><th></th></tr></thead>
-        <tbody>{vs.map(v => <tr key={v.key} data-pass={v.pass === null ? undefined : v.pass ? '1' : '0'}><td>{v.label}</td><td>{fmt(v.value, v.unit)}</td><td>{fmt(v.limit, v.unit)}</td><td>{v.pass === null ? 'n/a' : v.pass ? 'pass' : 'FAIL'}</td></tr>)}</tbody>
+        <tbody>{vs.map(v => <tr key={v.key} data-pass={v.pass === null ? undefined : v.pass ? '1' : '0'}><td>{v.label}</td><td>{fmt(v.value, v.unit)}</td><td>{fmt(v.limit, v.unit)}</td><td>{v.pass === null ? <span style={{ color: 'var(--text-faint)' }}>skipped · {v.reason}</span> : v.pass ? 'pass' : 'FAIL'}</td></tr>)}</tbody>
       </table>
-      <div style={{ color: 'var(--text-faint)', fontSize: '10px', marginTop: '4px' }}>pan {r.pan.frames} frames · telemetry {r.telemetry.passes} passes (renders node {r.telemetry.nodeRenders} · edge {r.telemetry.edgeRenders}) · findings {r.analyze.findings} · long tasks {r.longTasks.n}{r.heap ? ' · heap ' + r.heap.beforeMB + ' → ' + r.heap.afterMB + ' MB' : ''}</div>
+      <div style={{ color: 'var(--text-faint)', fontSize: '10px', marginTop: '4px' }}>{describeEnv(r.env)} · pan {r.pan.frames} frames · telemetry {r.telemetry.passes} passes (renders node {r.telemetry.nodeRenders} · edge {r.telemetry.edgeRenders}) · findings {r.analyze.findings} · long tasks {r.longTasks.n}{r.heap ? ' · heap ' + r.heap.beforeMB + ' → ' + r.heap.afterMB + ' MB' : ''}</div>
     </details>
   );
 }

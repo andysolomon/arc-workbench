@@ -118,6 +118,8 @@ input[type=checkbox]{accent-color:var(--accent)}
 .wb-bench tr[data-pass="1"] td:last-child{color:var(--health-ok)}
 .wb-bench-report{border:1px solid var(--border-subtle);border-radius:8px;padding:6px 10px}
 .wb-bench-report summary{cursor:pointer;color:var(--text-secondary)}
+.wb-bench-env{font-size:11px;color:var(--text-muted);padding:6px 10px;border:1px solid var(--border-subtle);border-radius:8px}
+.wb-bench-env[data-supported="0"]{color:var(--health-warn);border-color:var(--health-warn)}
 /* ===================== tablet shell (ARC-168) — README § Tablet ===================== */
 .wb-root{height:100vh;height:100dvh}
 .wb-header{padding-left:max(14px,env(safe-area-inset-left))!important;padding-right:max(14px,env(safe-area-inset-right))!important;padding-top:max(7px,env(safe-area-inset-top))!important}

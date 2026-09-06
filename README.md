@@ -195,13 +195,40 @@ away from your document and is never autosaved.
 | `heap` | 12 cycles of paradigm switch → blank → example | JS heap before / after (with `--expose-gc`), growth ≤ 30 MB |
 
 `pnpm bench` runs the matrix headless and writes `bench-results/latest.json` plus a timestamped copy
-(schema: results + verdicts per scenario); `.github/workflows/bench.yml` runs it on every push to
-`main` and on demand, and uploads the file as an artifact. `pnpm bench:compare before.json
-after.json` prints every budget side by side and exits non-zero when a budget that passed now
-fails — regressions are numbers, not impressions. The rAF-cadence budget is only asserted on a
-hardware renderer (headless SwiftShader drops vsyncs whatever the app does); the heap budget only
-where `performance.memory` exists. `tests/e2e/perf.spec.ts` keeps the quick preset-scale check on
-every PR.
+(schema: results + verdicts per scenario, each result carrying the `env` it was measured in);
+`.github/workflows/bench.yml` runs it on every push to `main` and on demand, and uploads the file as
+an artifact — that artifact is the repeatable, all-green record of the contract. `pnpm bench:compare
+before.json after.json` prints every budget side by side and exits non-zero when a budget that
+passed now fails — regressions are numbers, not impressions. `tests/e2e/perf.spec.ts` keeps the
+quick preset-scale check on every PR.
+
+#### Supported environment · skipped measurements
+
+Every scenario first probes where it is running (`probeEnv` in `src/app/bench.ts`): renderer,
+tab visibility, and the **idle frame-clock cadence** — the median gap between animation frames
+with nothing queued (~16.7 ms on a 60 Hz display). The lab shows this line before you run anything.
+
+- **Supported** = a visible tab whose frame clock is not throttled (idle cadence ≤ 100 ms). Headless
+  Chromium in CI is supported; so is a foreground tab on a laptop. Timing budgets are asserted only
+  here. A background / occluded tab or a remote "cloud" browser throttles `requestAnimationFrame` to
+  ~1 Hz and often the CPU with it; there every millisecond budget is **skipped with a reason**
+  (`unsupported environment: frame clock throttled (1017 ms between idle frames)`), and only the
+  structural budgets — DOM / SVG counts, zero topology re-renders, sequence culling, heap growth —
+  are judged. A skipped verdict is never a pass: it carries `reason` in the JSON, the dialog, the
+  bench log and `bench:compare`.
+- **rAF cadence** additionally needs a hardware renderer and a ≥ 50 Hz display (idle cadence
+  ≤ 20 ms); headless SwiftShader drops vsyncs whatever the app does, and a 30 Hz screen cannot
+  meet 18.2 ms. Otherwise it is skipped as `software renderer` / `display below 50 Hz`.
+- **Heap** needs `performance.memory` (Chromium; `--expose-gc` for a clean before / after).
+- CI asserts `env.supported` and allows only the renderer / memory skips, so a throttled runner
+  fails loudly instead of skipping its way to green.
+
+**Commit latency is main-thread time to layout**, not time to paint: the edit, the React render
+(external-store updates flush synchronously in a microtask, plus commit-triggered follow-ups until
+the store is quiet) and a forced style + layout. It used to wait two animation frames, which on a
+throttled frame clock added ≈2 s to every commit — the "≈2 s add / delete / relayout" of a
+production run in a cloud browser (ARC-170) was two 1 Hz frame waits, not app work. The frame clock
+is the environment's, and is judged on its own by the cadence budget.
 
 Baselines (2026-09-05, headless Chromium): pan main-thread ≤ 0.8 ms and zero topology re-renders at
 every scale; sequence culling keeps 2000 messages at ~1.8k DOM elements; heap growth 0 MB over 12

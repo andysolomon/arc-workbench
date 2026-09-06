@@ -11,7 +11,8 @@ for (const [sc, after] of Object.entries(b.verdicts)) {
     const p = before.find(x => x.key === v.key), pv = p?.value ?? null, d = pv == null || v.value == null ? null : v.value - pv;
     const flag = p && p.pass === true && v.pass === false ? '  ← REGRESSION' : '';
     if (flag) regressed++;
-    console.log(`  ${v.label.padEnd(46)} ${String(pv == null ? 'n/a' : pv.toFixed(1)).padStart(9)} → ${String(v.value == null ? 'n/a' : v.value.toFixed(1)).padStart(9)} ${v.unit.padEnd(3)} ${d == null ? '' : (d >= 0 ? '+' : '') + d.toFixed(1)}  (limit ${v.limit})${flag}`);
+    const skip = v.pass === null ? `  skipped: ${v.reason ?? 'not measured'}` : '';
+    console.log(`  ${v.label.padEnd(58)} ${String(pv == null ? 'n/a' : pv.toFixed(1)).padStart(9)} → ${String(v.value == null ? 'n/a' : v.value.toFixed(1)).padStart(9)} ${v.unit.padEnd(3)} ${d == null ? '' : (d >= 0 ? '+' : '') + d.toFixed(1)}  (limit ${v.limit})${skip}${flag}`);
   }
 }
 console.log(regressed ? `\n${regressed} budget(s) regressed` : '\nno budget regressed');

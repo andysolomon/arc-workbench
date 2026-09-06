@@ -1,3 +1,9 @@
+## [1.10.2](https://github.com/andysolomon/arc-workbench/compare/v1.10.1...v1.10.2) (2026-09-06)
+
+### Bug Fixes
+
+* **perf:** stress lab judges pan cadence at steady state (ARC-170) ([#17](https://github.com/andysolomon/arc-workbench/issues/17)) ([b1b3e63](https://github.com/andysolomon/arc-workbench/commit/b1b3e6354ba34500ac3fb34a9229a3edfd4b0114))
+
 ## [1.10.1](https://github.com/andysolomon/arc-workbench/compare/v1.10.0...v1.10.1) (2026-09-06)
 
 ### Bug Fixes

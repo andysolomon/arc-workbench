@@ -1,3 +1,9 @@
+## [1.10.1](https://github.com/andysolomon/arc-workbench/compare/v1.10.0...v1.10.1) (2026-09-06)
+
+### Bug Fixes
+
+* **perf:** stress lab judges timing only in a supported environment (ARC-170) ([#16](https://github.com/andysolomon/arc-workbench/issues/16)) ([c44c7eb](https://github.com/andysolomon/arc-workbench/commit/c44c7eb9eb5e16809efcb2c65e7ff0a7e3bfae0b))
+
 ## [1.10.0](https://github.com/andysolomon/arc-workbench/compare/v1.9.0...v1.10.0) (2026-09-05)
 
 ### Features

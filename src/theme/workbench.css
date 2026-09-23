@@ -39,7 +39,27 @@ main:has(.wb-insp[data-dense="on"]) .wb-zoom{right:244px}
 .wb-hud [data-t]{color:var(--text-body)}
 .wb-hud{flex:1 1 auto}
 .wb-hud-stats{flex-wrap:nowrap}
-@media (max-width:1620px){.wb-hud{flex:1 1 100%;order:9;border-top:1px solid var(--border-subtle);padding-top:8px;flex-wrap:wrap!important}.wb-vsep-hud{display:none}}
+/* the header's middle controls (title · undo/redo · lens · HUD) ride in one scroll viewport on
+   desktop. Everything that opens a popover — the paradigm switcher (.wb-brand) and the settings
+   trigger (right group) — stays outside it, so neither menu can be clipped by a scroll container */
+.wb-hscroll{display:flex;align-items:center;gap:8px 10px;flex:1 1 auto;min-width:0}
+/* tablets: the viewport dissolves (display:contents) so its children lay out directly in the
+   wrapping header exactly as before — the HUD steps onto its own row */
+[data-form^="tablet"] .wb-hscroll{display:contents}
+[data-form^="tablet"] .wb-header{flex-wrap:wrap}
+[data-form^="tablet"] .wb-hud{flex:1 1 100%;order:9;border-top:1px solid var(--border-subtle);padding-top:8px;flex-wrap:wrap!important;min-width:0}
+[data-form^="tablet"] .wb-vsep-hud{display:none}
+/* desktop keeps the header to one row: no wrapping, and if the left/center controls still outgrow
+   the viewport at narrow desktop widths the scroll viewport scrolls, so controls are reachable
+   without being clipped or overlapped. Scrollbars are hidden to keep the header one row tall. */
+[data-form="desktop"] .wb-header{flex-wrap:nowrap}
+[data-form="desktop"] .wb-hscroll{overflow-x:auto;overflow-y:hidden;scrollbar-width:none;scroll-padding:4px}
+/* focus outlines paint 4px past a control (2px outline + 2px offset); padding + matching negative
+   margin keeps the first/last control's outline inside the scrollport instead of clipped at its
+   edges, and scroll-padding makes focus auto-scrolling keep that same 4px breathing room */
+[data-form="desktop"] .wb-hscroll{padding:4px;margin:-4px}
+[data-form="desktop"] .wb-hscroll::-webkit-scrollbar{display:none}
+[data-form="desktop"] .wb-title{flex:0 1 auto;min-width:88px}
 .wb-hud [data-hud-tone="warn"]{color:var(--health-warn)}
 .wb-hud [data-hud-tone="crit"]{color:var(--health-critical)}
 .tg-btn{display:inline-flex;align-items:center;justify-content:center}

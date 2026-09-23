@@ -1,3 +1,9 @@
+## [1.10.3](https://github.com/andysolomon/arc-workbench/compare/v1.10.2...v1.10.3) (2026-09-23)
+
+### Bug Fixes
+
+* keep desktop header on one row ([#18](https://github.com/andysolomon/arc-workbench/issues/18)) ([fd40c4b](https://github.com/andysolomon/arc-workbench/commit/fd40c4bfadb66cfce190b0c18eb7a31703abc972))
+
 ## [1.10.2](https://github.com/andysolomon/arc-workbench/compare/v1.10.1...v1.10.2) (2026-09-06)
 
 ### Bug Fixes

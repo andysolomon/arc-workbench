@@ -1,0 +1,6 @@
+/* glass: a pale tint over what lies behind it, and a soft shine on the near side */
+.cm-glass{fill:var(--anatomy-hi);opacity:.07;stroke:none}
+.iso[data-theme="light"] .cm-glass{fill:var(--anatomy-shade-0);opacity:.6}
+.cm-shine{fill:none;stroke:var(--anatomy-hi);stroke-width:var(--anatomy-weight);stroke-linecap:round;opacity:.4}
+.iso[data-theme="light"] .cm-shine{stroke:var(--anatomy-paper);opacity:.9;stroke-width:1.2px}
+.cm-side{opacity:var(--cm-on,0)}

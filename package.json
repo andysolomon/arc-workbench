@@ -11,6 +11,9 @@
   "scripts": {
     "prepare": "husky",
     "dev": "vite",
+    "predev": "node figures/build.mjs --if-stale",
+    "figures": "node figures/build.mjs",
+    "prebuild": "node figures/build.mjs --if-stale",
     "build": "vite build",
     "preview": "vite preview --port 4173 --strictPort",
     "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p tsconfig.node.json --noEmit",

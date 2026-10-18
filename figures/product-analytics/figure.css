@@ -1,0 +1,9 @@
+/* water: a tint of the figure's own inks, never a saturated blue */
+.pa{--pa-water:#cdd9df;--pa-water-edge:#9fb0b9;--pa-sand:#dcd6cb}
+.iso[data-theme="dark"] .pa{--pa-water:#1a2125;--pa-water-edge:#34434b;--pa-sand:#1d1b18}
+.pa-water{fill:var(--pa-water);stroke:var(--pa-water-edge);stroke-width:var(--anatomy-weight);vector-effect:non-scaling-stroke}
+.pa-sand .iso-top{fill:var(--pa-sand)}
+[data-cell]{opacity:var(--pa-on,1);transition:none}
+.pa-fall{fill:var(--pa-water);stroke:var(--pa-water-edge);stroke-width:var(--anatomy-weight);vector-effect:non-scaling-stroke;opacity:var(--pa-fall,1)}
+.pa-sail{fill:var(--anatomy-top);stroke:var(--anatomy-mid);stroke-width:var(--anatomy-weight);vector-effect:non-scaling-stroke;stroke-linejoin:round}
+.pa-jet{--anatomy-shade-0:var(--pa-water);--anatomy-shade-1:var(--pa-water);--anatomy-shade-2:var(--pa-water);--anatomy-shade-3:var(--pa-water);--anatomy-top:var(--pa-water);--anatomy-paper:var(--pa-water)}

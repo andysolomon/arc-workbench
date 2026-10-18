@@ -8,3 +8,6 @@ playwright-report/
 npm-debug.log*
 
 bench-results/
+
+# built by figures/build.mjs
+public/figures/

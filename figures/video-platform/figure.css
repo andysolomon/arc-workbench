@@ -1,0 +1,14 @@
+/* the projected picture: a lit field, the leader's sweep and its numeral */
+.vp-frame{fill:var(--anatomy-face);stroke:none}
+.vp-sweep{fill:var(--anatomy-mid);opacity:.22;stroke:none}
+.vp-count{fill:var(--anatomy-mid);font-family:var(--anatomy-mono)}
+/* the ticker's glass dome: the mechanism shows through it */
+.vp-glass .iso-fill{fill-opacity:.28}
+.vp-glass .iso-shade,.vp-glass .iso-top{fill-opacity:.22}
+/* the tally counter's window and digits */
+.vp-window{fill:var(--anatomy-paper);stroke:none}
+.vp-digits{fill:var(--anatomy-hi);font-family:var(--anatomy-mono);letter-spacing:.08em}
+/* a crank bar lying on a tank's top */
+.vp-bar{fill:var(--anatomy-top);stroke:none}
+/* every can in the tray is drawn; the live code sets how much of each shows */
+.vp-can{opacity:var(--vp-c,0)}

@@ -936,6 +936,8 @@ export class WorkbenchController {
     ORDER.forEach(pid => { if (pid !== s.paradigm) all.push({ label: 'change diagram type · ' + PARADIGMS[pid].label, hint: 'paradigm', run: () => this.switchParadigm(pid) }); });
     all.push({ label: 'create diagram…', hint: 'n', run: () => this.setState({ createOpen: true, palette: false }) });
     EXAMPLES[s.paradigm].forEach(p => all.push({ label: 'load example · ' + p.name.toLowerCase(), hint: 'example', run: () => { this.loadPreset(p.id); this.setState({ palette: false }); } }));
+    // the System designs page explains every example; land on this one's section when it is one
+    all.push({ label: 'system designs · how each example works', hint: 'docs', run: () => { this.setState({ palette: false }); this.flushSave(); location.assign('docs/' + (EXAMPLES[s.paradigm].some(p => p.id === s.presetId) ? '#' + s.presetId : '')); } });
     if (s.paradigm === 'workflow') all.push({ label: '+ lane', hint: 'owner', run: () => this.addLane() });
     all.push({ label: 'export document · json', hint: 'file', run: () => { this.exportDoc(); this.setState({ palette: false }); } });
     all.push({ label: 'import document · json', hint: 'file', run: () => { this.setState({ palette: false }); this.importDoc(); } });

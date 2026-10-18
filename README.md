@@ -27,6 +27,7 @@ Node 22+, pnpm 9. Zero UI dependencies: React 18 and nothing else at runtime.
 | `pnpm test:e2e` | Playwright: keyboard map, paradigms, edge card, perf budgets, visual parity |
 | `pnpm lint` | typecheck + the acceptance greps (no hex literals, no aliases in `model`/`store`, no `any`, no TODO) |
 | `pnpm goldens` | regenerate `tests/golden/data` from the **original** prototype modules |
+| `pnpm figures` | build the Anatomy figures, dark and light, into `public/figures/` (also run before `dev` and `build` when a source changed) |
 
 ## Documents
 
@@ -58,6 +59,50 @@ The parity tests, the golden generator and the visual spec read the prototype ex
 `scripts/` also holds the probes used during the port (`smoke`, `shot`, `perf-probe`,
 `visual-probe`, `dom-probe`, `proto-shot`): `node scripts/<name>.mjs <out-dir>` against a
 running `pnpm preview` (and `pnpm serve:proto` for the prototype).
+
+## System designs
+
+`/docs/` (`docs/index.html` → `src/docs/`) explains every example document: what it is, how it works,
+what to watch under load, and a link that opens it in the Workbench (`#d=` share link). The numbers on
+the page are not typed by hand. `src/docs/facts.ts` derives them from the examples with the same engines
+the Workbench simulates them with:
+
+| paradigm | measured by |
+| --- | --- |
+| architecture and data flow | the queueing engine's steady state: capacity per node (`inst × cap × 1000 / ms`), utilization at the preset load, and the load where the first node saturates |
+| workflow | the happy path's duration and first-pass yield |
+| sequence | `timeline()`: the round trip and its slowest hop |
+| state machine | the terminal outcome shares from the transition weights (a Markov chain) |
+
+`tests/unit/docs-facts.test.ts` pins the headline figures, and `tests/e2e/docs.spec.ts` checks the
+page.
+
+Each design has an Anatomy figure: the design drawn as a physical machine you can operate, built with
+the `anatomy` skill. A figure is a folder in `figures/` whose `build.mjs` writes a standalone page.
+It bundles the Workbench's own engine and example into that page (`figures/lib/truth.mjs`), so the
+figure and the app can't disagree. Each figure is its own object; underneath they share a parts library (`figures/lib/bench.mjs`: bench,
+load generator, service boxes whose window glows with utilization, Postgres drums with a gauge, conduits),
+one runtime (`figures/lib/bench-live.js`: the engine at 4 Hz, the WebGL heat shader and its SVG
+fallback, load and second controls, tour, reduced motion, `?embed` for the docs frame) and the
+vendored kit (`figures/kit/`).
+
+| Fig | design | the machine | engine |
+| --- | --- | --- | --- |
+| 1 | Production Deployment | an airport terminal with the roof off: kiosks, two identical check-in halls, a baggage hall whose carousel piles up, a standby terminal | queueing |
+| 2 | Video Platform | a film lab: a projector's reel magazine, six slow developing tanks with cans piling up, a change-log ticker | queueing |
+| 3 | Single Server | two glass funnels in series on a lab retort stand: the narrower neck is the ceiling | queueing |
+| 4 | Load Balanced | a rotary distributor whose 3D rotor deals requests over 34 / 33 / 33 commutator segments | queueing |
+| 5 | Cache Aside | a shop parts counter: a revolving bin carousel (3D) and a dumbwaiter to the stock loft for misses | queueing |
+| 6 | Async Workers | a ticket rail and a rack of worker cartridges | queueing |
+| 7 | Read Replicas | a pantograph copying table: every stroke on the master is drawn on both copies | queueing |
+| 8 | Rate Limited API | a turnstile tower (3D) that turns at the admitted rate, with a reject bin | queueing |
+| 9 | Release Delivery Workflow | a bottling line with inspection gates, a return conveyor and a rollback chute | execution |
+| 10 | Cache-miss Request | a pneumatic tube station timed hop by hop | timeline |
+| 11 | Product Analytics | a water-treatment works: intakes, a fenced compound for personal data, a 24-lane settling channel, a slow sand filter whose inlet backs up | queueing (async) |
+| 12 | Agent Run Lifecycle | a pinball table whose drain counters converge on the Markov shares | markov |
+
+Every figure passes its geometry audit (`node figures/<slug>/build.mjs --audit` → `audit passed`;
+Figs 4, 5 and 8 also `turn audit passed`) and the skill's line-end check in both themes.
 
 ## Tablet
 
@@ -128,6 +173,8 @@ src/
   telemetry/   element registry + the imperative 4 Hz patch pass
   store/       state, history, park / restore per paradigm
   app/         Workbench root, controller, gestures, keyboard, view model
+  docs/        the System designs page (/docs/): prose, derived facts, figure frames
+figures/       Anatomy figures (one folder each), their build, and the vendored kit → public/figures/
 packages/typegram/  @typegram/graph — the canonical design system (tokens · chrome · Graph Layer · docs + specimens)
 ```
 

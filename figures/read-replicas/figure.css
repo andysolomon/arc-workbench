@@ -1,0 +1,9 @@
+/* the master stylus tip: the one lit accent */
+.rr-tip{fill:var(--anatomy-lit);stroke:none}
+/* graphite on paper: the stroke the master writes and both copies redraw */
+.rr-ink{stroke-width:.9;opacity:var(--rr-ink,1)}
+/* a reading lamp's pool on a copy: warm on paper, a lift in the dark, by the reads it serves */
+.rr{--rr-warm:#f2c66b}
+.iso[data-theme="dark"] .rr{--rr-warm:#fff1c9}
+.rr-pool{fill:var(--rr-warm);stroke:none;opacity:calc(var(--rr-read,0) * .16)}
+.iso[data-theme="light"] .rr-pool{mix-blend-mode:multiply;opacity:calc(var(--rr-read,0) * .3)}

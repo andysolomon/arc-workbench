@@ -1,0 +1,11 @@
+/* glass: a pale tint over what lies behind it, and a soft shine on the near side */
+.ss-glass{fill:var(--anatomy-hi);opacity:.06;stroke:none}
+.iso[data-theme="light"] .ss-glass{fill:var(--anatomy-shade-0);opacity:.55}
+.ss-shine{fill:none;stroke:var(--anatomy-hi);stroke-width:var(--anatomy-weight);stroke-linecap:round;opacity:.4}
+.iso[data-theme="light"] .ss-shine{stroke:var(--anatomy-paper);opacity:.95;stroke-width:1.2px}
+
+/* sand: the kit's tones, warmed a little toward the colour of sand */
+.ss-sand{--anatomy-shade-0:var(--ss-sand-0);--anatomy-shade-1:var(--ss-sand-1);--anatomy-shade-2:var(--ss-sand-2);--anatomy-shade-3:var(--ss-sand-3);--anatomy-top:var(--ss-sand-top);--anatomy-paper:var(--ss-sand-2)}
+.bx{--ss-sand-0:#b9ab90;--ss-sand-1:#c6b99f;--ss-sand-2:#d2c6ad;--ss-sand-3:#ddd2bb;--ss-sand-top:#e7ddc8;--ss-grain:#9d8e72}
+.iso[data-theme="dark"] .bx{--ss-sand-0:#3a352b;--ss-sand-1:#443e33;--ss-sand-2:#4e473a;--ss-sand-3:#585042;--ss-sand-top:#665d4c;--ss-grain:#b8a888}
+.ss-grain{fill:var(--ss-grain);stroke:none}

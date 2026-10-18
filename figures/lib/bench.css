@@ -1,0 +1,27 @@
+.bx-stage{touch-action:pan-y;cursor:ew-resize;outline:none;border-radius:8px}
+.bx-stage:focus-visible{outline:1px solid var(--anatomy-muted);outline-offset:6px}
+.bx-stage[data-drag]{cursor:grabbing}
+.bx-stage:not(.iso-turn){position:relative}
+.bx-stage:not(.iso-turn)>.iso-layer{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.bx-gl{display:block}
+.iso:not([data-theme="light"]) .bx-gl{mix-blend-mode:screen}
+
+/* a lamp that lights for the part being served: the one lit accent, faded by the live code */
+.bx-lamp{fill:var(--anatomy-lit);stroke:none;opacity:var(--bx-on,0)}
+
+/* inside a hot box: on paper the cavity is darker refractory, so the glow has a ground */
+.bx{--bx-cav-0:#7b7670;--bx-cav-1:#8a847d;--bx-cav-2:#99938b;--bx-cav-3:#a8a198;--bx-cav-top:#b2aba2;--bx-cav-line:#6a655f;--bx-cav-faint:#857f78}
+.iso[data-theme="dark"] .bx{--bx-cav-0:#0b0b0b;--bx-cav-1:#0e0e0e;--bx-cav-2:#111;--bx-cav-3:#141414;--bx-cav-top:#161616;--bx-cav-line:#2c2c2c;--bx-cav-faint:#222}
+.bx-cavity{--anatomy-shade-0:var(--bx-cav-0);--anatomy-shade-1:var(--bx-cav-1);--anatomy-shade-2:var(--bx-cav-2);--anatomy-shade-3:var(--bx-cav-3);--anatomy-top:var(--bx-cav-top);--anatomy-faint:var(--bx-cav-faint);--anatomy-lo:var(--bx-cav-line);--anatomy-mid:var(--bx-cav-line);--anatomy-paper:var(--bx-cav-2)}
+
+/* no-WebGL heat: the same ink table as the shader, on the back plate and the rods */
+.bx-glow{fill:var(--bx-heat,transparent);opacity:calc(var(--bx-heat-a,0) * .72 * var(--bx-fallback,1));stroke:none}
+.iso[data-theme="light"] .bx-glow{mix-blend-mode:multiply}
+.bx-rods .tb-body,.bx-rods .tb-shine,.bx-rods .tb-shade{fill:color-mix(in srgb,var(--bx-heat,var(--anatomy-shade-2)) calc(var(--bx-heat-a,0) * 100% * var(--bx-fallback,1)),var(--anatomy-shade-2))}
+
+/* embedded in /docs/: the host page is the ground */
+html:has(body.iso-embed),body.iso-embed{background:transparent}
+body.iso-embed{overflow:hidden}
+body.iso-embed .iso-page{width:100%;margin:0}
+body.iso-embed .iso-figure{margin:0}
+body.iso-embed .iso-legend{padding:0 2px}
